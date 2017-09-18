@@ -13,8 +13,11 @@ def gradient_approximation(f, f_params, x, dx):
     for i, xi in enumerate(x):
         xdx = np.copy(x)
         xdx[i] = xdx[i] + dx
-        fxdx = f(f_params, xdx)[0]
-        fx = f(f_params, x)[0]
+        fxdx = f(f_params, xdx)
+        fx = f(f_params, x)
+        if type(fxdx) == tuple:
+            fxdx = fxdx[0]
+            fx = fx[0]
         g[i] = (fxdx - fx) / dx
 
     return g

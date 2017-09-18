@@ -1,6 +1,9 @@
 import numpy as np
 import loadParametersP1 as load_params
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+
 def gradient_descent(f, f_params, \
     learning_rate, convergence_limit, initial_guess, max_iters):
     # 
@@ -20,7 +23,7 @@ def gradient_descent(f, f_params, \
     while diff > convergence_limit and num_iters < max_iters:
 
         next_x = x[-1] - learning_rate * dx[-1]
-
+        
         next_fx, next_dx = f(f_params, next_x)
         x = np.vstack([x, next_x])
         fx = np.vstack([fx, next_fx])
@@ -29,7 +32,7 @@ def gradient_descent(f, f_params, \
         # print "diff:", diff
         num_iters += 1
 
-    return x, fx
+    return x, fx, num_iters
 
 
 def negative_gaussian(params, x):
@@ -95,7 +98,7 @@ def main():
     convergence_limit = 1e-5
     initial_guess = np.array([8.0,18.0])
     max_iters = 10000
-    x, fx = gradient_descent(f,f_params,learning_rate,convergence_limit,initial_guess,max_iters)
+    x, fx, num_iters = gradient_descent(f,f_params,learning_rate,convergence_limit,initial_guess,max_iters)
 
     # # Quadratic Bowl
     # f = quadratic_bowl
@@ -104,13 +107,21 @@ def main():
     # convergence_limit = 1e-1
     # initial_guess = np.array([2.0,-2.0])
     # max_iters = 20
-    # x, fx = gradient_descent(f,f_params,learning_rate,convergence_limit,initial_guess,max_iters)
+    # x, fx, num_iters = gradient_descent(f,f_params,learning_rate,convergence_limit,initial_guess,max_iters)
 
     print '--------'
     print "f([10,10]):", f(f_params,np.array([10,10]))
     print "x:", x
     print "fx:", fx
     print "minimum: (%s,%s). Took %s steps." %(x[-1], fx[-1], np.shape(x)[0])
+
+    # fig = plt.figure()
+    # ax = fig.add_subplot(111, projection='3d')
+    
+    # Z = negative_gaussian(f_params,)
+    # Axes3D.plot_surface(X, Y, Z, *args, **kwargs)
+
+
 
 if __name__ == '__main__':
     main()
