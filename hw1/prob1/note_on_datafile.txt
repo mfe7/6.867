@@ -1,0 +1,16 @@
+parametersp1.txt:
+
+	The order over which the parameters are listed is: mean of Gaussian, covariance of the Gaussian, A for the quadratic bowl, and b for the quadratic bowl, each separated by a blank line.
+
+
+
+
+fittingdatap1_x.txt:
+
+	Contains elements for X (100 by 10) matrix in order.
+
+
+
+fittingdatap1_y.txt:
+
+	Contains elements for Y (100 by 1) vector in order.
