@@ -66,6 +66,46 @@ In GD, the norm of the gradient decreases as the solution converges, which is sh
 \end{figure}
 
 
+\subsection{Part 2}
+For more complicated functions, the gradient is not always as easy to compute.
+Instead, we can use finite difference approximation instead of a the closed form gradient.
+The gradient approximation for a function of two variables is:
+\begin{equation}
+\nabla f = \begin{bmatrix}
+	f_x & f_y
+\end{bmatrix}
+\approx \begin{bmatrix}
+	\frac{f(x+\delta x, y) - f(x,y)}{\delta x} & \frac{f(x, y+\delta y) - f(x,y)}{\delta y}
+\end{bmatrix}
+\end{equation}
+
+\begin{table*}[t]
+  \centering
+	\begin{tabular}{|p{3cm}||p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
+	 \hline
+	 \multicolumn{5}{|c|}{Gradient vs Finite Difference ($\delta x = 0.01$)} \\
+	 \hline
+	 Function & Gradient & Approximation & Error &Error Norm \\
+	 \hline
+	 Neg. Gaussian: $f(3,4)$ & [-4.2258, -3.6221] & [-4.2375, -3.6299] & [-0.01178, -0.00785] & 0.0141 \\
+	 Neg. Gaussian: $f(12,4)$ & [ 11.455, -34.365,] & [ 11.472, -34.440,] & [ 0.017, -0.074, ] & 0.0764 \\
+	 Quad. Bowl: $f(6,2)$ & [-330, -350] & [-329.95, -349.95] & [ 0.05  0.05] & 0.0707\\
+	 Quad. Bowl: $f(10^3,90)$ & [ 10050, 5500] & [ 10050.05, 5500.05] & [ 0.05, 0.05] & 0.0707 \\
+	 \hline
+	\end{tabular}
+\end{table*}\label{table:gradient}
+
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
+	keepaspectratio]{figures/1_2_error}
+	\caption{Norm of gradient approximation error increases as $\delta x$ increases. This plot is for the Negative Gaussian evaluated at (3,4).} 
+	\label{fig:1_2_error} 
+	%\vskip -0.1in
+\end{figure}
+
+While~\cref{table:gradient} shows that the error is rather small across a range of (x,y) values for the two functions, the choice of difference step $\delta x$ is what led to this small error. In~\cref{fig:1_2_error}, the norm of the difference between the real and approximate gradient gets quite large when $\delta x$ is also large.
+
 
 
 
