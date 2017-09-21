@@ -28,8 +28,30 @@ def compare_lasso_regularizer(phi_train_X, train_y, phi_plot_X):
     plt.legend(legend)
     plt.xlabel('Element of weight vector')
     plt.ylabel('Value of weight vector element (LASSO)')
+    plt.savefig('4_lasso_lambda.png')
     plt.show()
 
+def compare_methods(phi_train_X, train_y, phi_plot_X, true_w):
+    fig = plt.figure()
+    alphas = [0.01,0.1]
+    legend = []
+    for alpha in alphas:
+        # fit lasso model
+        clf = linear_model.Lasso(alpha=alpha)
+        clf.fit(phi_train_X, train_y)
+        print clf.coef_
+        # print clf.intercept_
+        plt.plot(range(len(clf.coef_)), clf.coef_,'-x')
+        legend.append(r'Lasso $\lambda$='+str(alpha))
+        # y_lasso = np.dot(clf.coef_, np.transpose(phi_plot_X))
+    plt.plot(range(len(clf.coef_)), true_w,'-x')
+    legend.append('True w')
+    
+    plt.legend(legend)
+    plt.xlabel('Element of weight vector')
+    plt.ylabel('Value of weight vector element')
+    plt.savefig('4_compare_w.png')
+    plt.show()
 
 
 
@@ -40,11 +62,15 @@ def main():
     train_X, train_y = lassoData.lassoTrainData()
     test_X, test_y = lassoData.lassoTestData()
     validate_X, validate_y = lassoData.lassoValData()
+    true_w = lassoData.lassoGetTrueW()
 
     # Convert raw X data to feature vectors
     phi_train_X = phi(train_X[:,0])
     plot_X = np.linspace(-1,1,100)
     phi_plot_X = phi(plot_X)
+
+    # Get y using true w values
+    y_true = np.dot(true_w, np.transpose(phi_plot_X))
 
     # fit lasso model
     clf = linear_model.Lasso(alpha=0.1)
@@ -56,6 +82,8 @@ def main():
     clf.fit(phi_train_X, train_y)
     y_lasso2 = np.dot(clf.coef_, np.transpose(phi_plot_X))
 
+    compare_methods(phi_train_X, train_y, phi_plot_X, true_w)
+
 
     # Make a plot of lasso output wrt changes in regularization
     compare_lasso_regularizer(phi_train_X, train_y, phi_plot_X)
@@ -66,9 +94,12 @@ def main():
     plt.plot(validate_X, validate_y, 'o')
     plt.plot(plot_X, y_lasso, '-')
     plt.plot(plot_X, y_lasso2, '-')
+    plt.plot(plot_X, y_true, '-')
 
-    plt.legend(['Training Data', 'Test Data', 'Validation Data', 'Lasso '+r'($\lambda=0.1$)', 'Lasso '+r'($\lambda=1.0$)'])
+    plt.legend(['Training Data', 'Test Data', 'Validation Data', 'Lasso '+r'($\lambda=0.1$)', 'Lasso '+r'($\lambda=1.0$)', 'True w'])
+    plt.savefig('4_methods.png')
     plt.show()
+
 
 
 

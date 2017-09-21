@@ -21,3 +21,5 @@ def lassoValData():
 def lassoTestData():
     return getData('lasso_test.txt')
 
+def lassoGetTrueW():
+    return pl.loadtxt('lasso_true_w.txt')
