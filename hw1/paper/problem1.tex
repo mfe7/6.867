@@ -4,7 +4,11 @@ In this section, we implemented Gradient Descent in Python to find the minimum o
 \subsection{Part 1}
 Our Gradient Descent (GD) implementation begins with an initial guess, $x_0$, of the argument $x_{min}$ that minimizes the function, $f(x)$.
 The implementation is applied to two functions, a negative Gaussian and a quadratic bowl.
-The gradient, dfdx, can be calculated in closed form (for simple functions), and the next estimate of $x_{min}$ is updated according to the rule $x_{i+1} = x_i - \alpha \cdot \frac{\partial f(x_i)}{\partial x}$.
+The gradient, dfdx, can be calculated in closed form (for simple functions), and the next estimate of $x_{min}$ is updated according to the rule:
+\begin{equation}
+x_{i+1} = x_i - \alpha \cdot \frac{\partial f(x_i)}{\partial x}
+\label{eq:gd}
+\end{equation}
 Here, $\alpha$ is the step size, or learning rate, which controls how much the gradient affects the next estimate.
 The rule is applied until either a pre-determined maximum number of iterations, $n_{iters}$, occurs, or the function's value at the current iteration differs from the previous iteration's estimate by less than $\epsilon$.
 Each of these paramters, ($\alpha$, $n_{iters}$, and $\epsilon$) impact the GD solution in different ways.
@@ -106,6 +110,47 @@ The gradient approximation for a function of two variables is:
 
 While~\cref{table:gradient} shows that the error is rather small across a range of (x,y) values for the two functions, the choice of difference step $\delta x$ is what led to this small error. In~\cref{fig:1_2_error}, the norm of the difference between the real and approximate gradient gets quite large when $\delta x$ is also large.
 
+
+\subsection{Part 3}
+Next, we consider two types of gradient descent on a dataset.
+Batch gradient descent (GD) calculates the gradient at each step using every sample in the data set.
+Stochastic gradient descent (SGD), instead uses a single sample each iteration, looping through a random ordering of the dataset to add a stochastic element.
+We implemented both algorithms and evaluated them on the same data set, with the same initial guess.
+For SGD, the equation~\cref{eq:gd} is modified to accept a single sample, $(x^j,y^j)$ as input to the gradient:
+\begin{equation}
+\theta_{i+1} = \theta_i - \eta_i \cdot \nabla_\theta J(\theta_i;x^{(j)},y^{(j)})
+\label{eq:sgd}
+\end{equation}
+We use a common form of learning rate parameter $\eta_i = (\tau_0+i)^{-k}$ to guarantee convergence with $\tau_0=10^8$ and $k=0.6$.
+
+In~\cref{fig:1_3_sgd_early}, Stochastic Gradient Descent (green) initially approaches convergence faster than Batch Gradient Descent (blue).
+Batch GD monotonically decreases in norm error, but SGD randomly oscillates and sometimes increases.
+Batch GD looks piecewise linear, because each iteration involves 100 (size of dataset) evaluations of the gradient, whereas SGD only evaluates once per iteration.
+So, SGD intially learns faster than Batch GD.
+
+After many iterations~\cref{fig:1_3_sgd_late}, Batch Gradient Descent catches up to Stochastic Gradient Descent and is more accurate.
+SGD seems to converge within a range, but continues to oscillate as long as learning rate is non-zero.
+So, Batch GD has better accuracy than SGD.
+The tradeoff here is speed vs. accuracy.
+
+
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
+	keepaspectratio]{figures/1_3_sgd_early}
+	\caption{Stochastic Gradient Descent (green) initially approaches convergence faster than Batch Gradient Descent (blue). Batch GD monotonically decreases in norm error, but SGD randomly oscillates and sometimes increases. Batch GD looks piecewise linear, because each iteration involves 100 (size of dataset) evaluations of the gradient, whereas SGD only evaluates once per iteration.} 
+	\label{fig:1_3_sgd_early} 
+	%\vskip -0.1in
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
+	keepaspectratio]{figures/1_3_sgd_late}
+	\caption{After many iterations, Batch Gradient Descent catches up to Stochastic Gradient Descent and is more accurate. SGD seems to converge within a range, but continues to oscillate as long as learning rate is non-zero.} 
+	\label{fig:1_3_sgd_late} 
+	%\vskip -0.1in
+\end{figure}
 
 
 
