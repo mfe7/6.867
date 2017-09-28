@@ -9,9 +9,9 @@ Given an array of data points $X$ and a vector $Y$ of values, a simple polynomia
 \end{equation}
 is applied to the $X$ points, for several values of M.
 
-\cref{fig:2_1_m} shows the data as cyan dots, and the true function from which the data is generated in green.
+\cref{fig:2_3} shows the data as cyan dots, and the true function from which the data is generated in green.
 The blue in each subplot is the polynomial basis model, and red is a cosine model (described in [pt 4]).
-The model complexity is insufficient to capture the variation in the data with M=0~\cref{fig:2_1_m} (leftmost) since the model is a line with zero slope.
+The model complexity is insufficient to capture the variation in the data with M=0~\cref{fig:2_3} (leftmost) since the model is a line with zero slope.
 For M=1, the linear-plus-constant basis, is still insufficient to capture the concave structure in the dataset.
 M=2 seems like a good choice visually, as it does not intersect every data point exactly but captures the concave shape.
 On the rightmost plot, M=10 overfits the data, which means it evaluates exactly to the correct values in the dataset but does not look like the smooth, green line from which the data was generated.
@@ -20,19 +20,29 @@ On the rightmost plot, M=10 overfits the data, which means it evaluates exactly 
 \begin{figure}
 	\centering
 	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
-	keepaspectratio]{figures/2_1_m}
-	\caption{For different M values (0,1,2,3,10) a polynomial (red) and cosine (blue) basis is used to fit the dataset (cyan points). The true function used to generate the data is shown in green in each plot. For low model complexity (left plot), the model doesn't capture the variation in the data. For high model complexity (right plot), the model overfits the data.} 
-	\label{fig:2_1_m} 
+	keepaspectratio]{figures/2_3}
+	\caption{For different M values (0,1,2,3,10) a polynomial (orange) and cosine (blue) basis is used to fit the dataset (black circles). The true function used to generate the data is shown in green in each plot. For low model complexity (left plot), the model doesn't capture the variation in the data. For high model complexity (right plot), the model overfits the data. Also shown is Batch GD (magenta) on SSE.} 
+	\label{fig:2_3} 
 \end{figure}
 
 \subsection{Part 2}
-Next, we implemented a calculation sum-of-squares error:
+Next, we implemented a calculation sum-of-squares error (SSE):
 \begin{equation}
 E(w) = \sum_{i=1}^{N} (y^{(i)}-w^T\cdot \phi(x^{(i)}))^2
 \end{equation}
 and its gradient.
+To confirm that the analytic gradient is close to the approximate gradient, we measured the norm difference between the two methods for a single run of Batch GD.
+The average norm error (over 100 iterations) was 0.0119 with $\delta x = 0.01$.
+This implies the gradient was likely implemented correctly.
 
 \subsection{Part 3}
+We then tried Batch GD on the SSE function.
+It was sensitive to the intial guess, and would not always converge to a good solution if initial guess was far off.
+This could be because the SSE function is more complicated than the simple negative gaussian and quadratic bowl from the first problem.
+Similar to previous experience with GD, if learning rate was too high, it would diverge and if learning rate was too low, the parameters would not change enough between iterations.
+
+\cref{fig:2_3} shows the Batch GD solutions compared with other methods.
+Batch GD (magenta) and does not seem to overfit the data as much at high model complexity (right side), but does not capture the trend as well as regression methods (left-middle) for low complexity.
 
 
 \subsection{Part 4}
@@ -41,7 +51,7 @@ The cosine basis functions are:
 \begin{equation}
 	\phi(x)=(1, cos(x), cos(2x), ... , cos(Mx))
 \end{equation}
-Again referring to~\cref{fig:2_1_m}, there is a similar trend (in both polynomial and cosine bases) of underfitting and overfitting for small and large model complexities, respectively.
+Again referring to~\cref{fig:2_3}, there is a similar trend (in both polynomial and cosine bases) of underfitting and overfitting for small and large model complexities, respectively.
 The M=2 cosine model fits the data pretty well, similar to the M=2 polynomial.
 This is no coincidence, because the data was generated from a pair of cosines (M=2), specifically $y = cos(\pi x) + cos(2\pi x)$.
 
