@@ -2,7 +2,7 @@
 In this section, we consider two types of linear basis functions for regression: polynomial and cosine. We try different model complexities to compare the performance.
 
 \subsection{Part 1}
-At first, we don't know the true basis for our dataset, and want to try different complexities of polynomial models.
+At first, we don't know the true basis for our dataset, and want to try \textit{polynomial} models of different complexities.
 Given an array of data points $X$ and a vector $Y$ of values, a simple polynomial basis,
 \begin{equation}
 	\phi(x)=(1, x, x^2, ... , x^M)
@@ -25,17 +25,25 @@ On the rightmost plot, M=10 overfits the data, which means it evaluates exactly 
 	\label{fig:2_1_m} 
 \end{figure}
 
+\subsection{Part 2}
+Next, we implemented a calculation sum-of-squares error:
+\begin{equation}
+E(w) = \sum_{i=1}^{N} (y^{(i)}-w^T\cdot \phi(x^{(i)}))^2
+\end{equation}
+and its gradient.
+
+\subsection{Part 3}
 
 
 \subsection{Part 4}
-Since the dataset was generated from a sum of cosines, a set of cosine basis functions should lead to a better fit than polynomials.
+Since we know the dataset was actually generated from a sum of cosines, a set of cosine basis functions should lead to a better fit than polynomials.
 The cosine basis functions are:
 \begin{equation}
 	\phi(x)=(1, cos(x), cos(2x), ... , cos(Mx))
-\end{equation}.
-Again referring to~\cref{fig:2_1_m}, a similar trend can be seen of underfitting and overfitting for small and large model complexities, respectively.
+\end{equation}
+Again referring to~\cref{fig:2_1_m}, there is a similar trend (in both polynomial and cosine bases) of underfitting and overfitting for small and large model complexities, respectively.
 The M=2 cosine model fits the data pretty well, similar to the M=2 polynomial.
-This is no coincidence, because the data was generated from a pair of cosines (M=2), specifically $y = cos(\pi x) + 1.5cos(2\pi x)$.
+This is no coincidence, because the data was generated from a pair of cosines (M=2), specifically $y = cos(\pi x) + cos(2\pi x)$.
 
 The actual values of the weight vector's elements can also be compared to the true function in~\cref{table:w}.
 The M=2 case does not give the exact same values as the actual function's coefficients, but this could possibly be improved using regularization, more data, data with lower noise, or removing the bias ($w_0$) term.
@@ -43,18 +51,20 @@ With the complex model (bottom row, M=8), the high frequency components (7, 8) h
 
 \begin{table*}[t]
   \centering
+  \caption[]{Cosine Basis Function Weights}
 	\begin{tabular}{|p{1cm}||p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|}
 	 \hline
 	 \multicolumn{10}{|c|}{Cosine Basis Function Weights} \\
 	 \hline
 	 M & 0 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 \\
 	 \hline\hline
-	 Actual & 0 & 1 & 1.5 & - & - & - & - & - & - \\
+	 Actual & 0 & 1 & 1 & - & - & - & - & - & - \\
 	 1 & 0.0 & 0.78 & - & - & - & - & - & - & - \\
 	 2 & -0.11 & 0.78 & 1.19 & - & - & - & - & - & - \\
 	 4 & -0.13 & 0.76 & 1.16 & 0.09 & 0.22 & - & - & - & - \\
 	 8 & -0.15 & 0.77 & 1.1 & 0.1 & 0.16 & -0.05 & 0.38 & 0.01 & 0.03  \\
 	 \hline
 	\end{tabular}
-\end{table*}\label{table:w}
+	\label{table:w}
+\end{table*}
 
