@@ -1,10 +1,11 @@
+
 \section{Gradient Descent} \label{sec:prob1}
-In this section, we implemented Gradient Descent in Python to find the minimum of a function.
+In this section, we implemented Gradient Descent  to find the minimum of a function.
 
 \subsection{Part 1}
 Our Gradient Descent (GD) implementation begins with an initial guess, $x_0$, of the argument $x_{min}$ that minimizes the function, $f(x)$.
 The implementation is applied to two functions, a negative Gaussian and a quadratic bowl.
-The gradient, dfdx, can be calculated in closed form (for simple functions), and the next estimate of $x_{min}$ is updated according to the rule:
+The gradient, $df/dx$, can be calculated in closed form (for simple functions), and the next estimate of $x_{min}$ is updated according to the rule:
 \begin{equation}
 x_{i+1} = x_i - \alpha \cdot \frac{\partial f(x_i)}{\partial x}
 \label{eq:gd}
@@ -46,7 +47,7 @@ In GD, the norm of the gradient decreases as the solution converges, which is sh
 	\centering
 	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
 	keepaspectratio]{figures/1_1_initial_guess}
-	\caption{When initial guess is far from true minimum, it takes many iterations (blue) to converge. As initial guess approaches final solution, number of iterations decreases.} 
+	\caption{When initial guess $x_0$ is far from true minimum, it takes many iterations (blue) to converge. As initial guess approaches final solution, number of iterations decreases.} 
 	\label{fig:initial_guess} 
 	%\vskip -0.1in
 \end{figure}
@@ -72,20 +73,20 @@ In GD, the norm of the gradient decreases as the solution converges, which is sh
 
 \subsection{Part 2}
 For more complicated functions, the gradient is not always as easy to compute.
-Instead, we can use finite difference approximation instead of a the closed form gradient.
-The gradient approximation for a function of two variables is:
-\begin{equation}
-\nabla f = \begin{bmatrix}
+Instead, we can use finite difference approximation instead of a closed form gradient.
+We have used the central difference approximation, because it balances the gradient between the forward and backward direction and thereby often results in a more precise output. The central difference approximation of a function with a two dimensional input vector $(x,y)$ and the step size $\delta x$ and $\delta y$ is given by:
+\begin{align*}
+\nabla \bm f(x,y) = \begin{bmatrix}
 	f_x & f_y
-\end{bmatrix}
+\end{bmatrix} \approx \\ 
 \approx \begin{bmatrix}
-	\frac{f(x+\delta x, y) - f(x,y)}{\delta x} & \frac{f(x, y+\delta y) - f(x,y)}{\delta y}
+	\frac{f(x+0.5\delta x, y) - f(x- 0.5\delta x,y)} {\delta x} & \frac{f(x, y+0.5\delta y) - f(x,y-0.5\delta y)}{\delta y}
 \end{bmatrix}
-\end{equation}
+\end{align*}
 
 \begin{table*}[t]
   \centering
-  \caption[]{Gradient vs. Finite Difference (Negative Gaussian and Quadratic Bowl)}
+  	\caption{Norm of gradient approximation error increases as $\delta x$ increases. This plot is for the Negative Gaussian evaluated at (3,4).} 
 	\begin{tabular}{|p{3cm}||p{3cm}|p{3cm}|p{3cm}|p{3cm}|}
 	 \hline
 	 \multicolumn{5}{|c|}{Gradient vs Finite Difference ($\delta x = 0.01$)} \\
@@ -104,20 +105,22 @@ The gradient approximation for a function of two variables is:
 	\centering
 	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
 	keepaspectratio]{figures/1_2_error}
-	\caption{Norm of gradient approximation error increases as $\delta x$ increases. This plot is for the Negative Gaussian evaluated at (3,4).} 
+	\caption{Norm of gradient approximation error increases as $\delta x$ increases. This plot is for the Negative Gaussian.} 
 	\label{fig:1_2_error} 
 	%\vskip -0.1in
 \end{figure}
 
-While~\cref{table:gradient} shows that the error is rather small across a range of (x,y) values for the two functions, the choice of difference step $\delta x$ is what led to this small error. In~\cref{fig:1_2_error}, the norm of the difference between the real and approximate gradient gets quite large when $\delta x$ is also large.
+Table \ref{table:gradient} shows that the difference between approximated gradient and analytic gradient is small across a range of (x,y) values for both function types.
+The choice of difference step $\delta x = 0.01$ is what led to this small error.
+In~\cref{fig:1_2_error}, the norm of the difference between the real and approximate gradient gets quite large when $\delta x$ is also large.
 
 
 \subsection{Part 3}
 Next, we consider two types of gradient descent on a dataset.
 Batch gradient descent (GD) calculates the gradient at each step using every sample in the data set.
-Stochastic gradient descent (SGD), instead uses a single sample each iteration, looping through a random ordering of the dataset to add a stochastic element.
+Stochastic gradient descent (SGD), instead uses a single sample each iteration, looping through a random ordering of the dataset to add some stochasticity.
 We implemented both algorithms and evaluated them on the same data set, with the same initial guess.
-For SGD, the equation~\cref{eq:gd} is modified to accept a single sample, $(x^j,y^j)$ as input to the gradient:
+For SGD, the equation~\cref{eq:gd} is modified to accept a single sample, $(x^{(j)},y^{(j)})$ as input to the gradient:
 \begin{equation}
 \theta_{i+1} = \theta_i - \eta_i \cdot \nabla_\theta J(\theta_i;x^{(j)},y^{(j)})
 \label{eq:sgd}
@@ -129,7 +132,7 @@ Batch GD monotonically decreases in norm error, but SGD randomly oscillates and 
 Batch GD looks piecewise linear, because each iteration involves 100 (size of dataset) evaluations of the gradient, whereas SGD only evaluates once per iteration.
 So, SGD intially learns faster than Batch GD.
 
-After many iterations~\cref{fig:1_3_sgd_late}, Batch Gradient Descent catches up to Stochastic Gradient Descent and is more accurate.
+After many iterations, shown by~\cref{fig:1_3_sgd_late}, Batch Gradient Descent catches up to Stochastic Gradient Descent and is more accurate.
 SGD seems to converge within a range, but continues to oscillate as long as learning rate is non-zero.
 So, Batch GD has better accuracy than SGD.
 The tradeoff here is speed vs. accuracy.

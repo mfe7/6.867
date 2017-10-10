@@ -34,6 +34,12 @@
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
 \usepackage{multirow}
 
+% from bjorn:
+\usepackage{xfrac}
+\usepackage{mathtools}
+\usepackage{bm}
+
+
 \DeclareMathOperator*{\argmin}{\arg\!\min}
 \DeclareMathOperator*{\argmax}{\arg\!\max}
 \usepackage{tabulary}
@@ -45,7 +51,7 @@
 \newtheorem{lemma}{Lemma}
 \newtheorem{corollary}[theorem]{Corollary}
 
-\title{\LARGE \bf 6.867 : Homework 1}
+\title{\LARGE \bf 6.867: Homework 1}
 
 \author{Anonymous authors}
 
@@ -110,14 +116,16 @@ distance=1cm] \tikzstyle{input} = [coordinate] \tikzstyle{output} =
 \thispagestyle{empty} \pagestyle{empty}
 
 % %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{abstract} 
-% Abstract here.
-% \end{abstract}
+
+\begin{abstract}
+This is Machine Learning homework 1. Topics are gradient descent, linear basis function regression, ridge regression, sparsity and LASSO. All work has been done in Python.
+\end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{problem1}
 \input{problem2}
-\input{problem4}
+\input{problem34}
+%\input{problem4}
 %\listofchanges
 
 %\balance

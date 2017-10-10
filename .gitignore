@@ -10,5 +10,6 @@
 *.bst
 *.DS_Store
 *.pyc
+*.dvi
 
 hw1/code
