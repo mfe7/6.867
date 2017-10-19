@@ -3,6 +3,8 @@ from plotBoundary import *
 import pylab as pl
 from cvxopt import matrix, solvers
 
+solvers.options['show_progress'] = False
+
 # import your SVM training code
 
 # # parameters
@@ -14,10 +16,10 @@ from cvxopt import matrix, solvers
 # X = train[:, 0:2].copy()
 # Y = train[:, 2:3].copy()
 
-# X = np.array([np.array([2.,2.]), np.array([2.,3.]), \
-#     np.array([0.,-1.]), np.array([-3.,-2.])])
-# Y = np.array([np.array([1.]), np.array([1.]), \
-#     np.array([-1.]), np.array([-1.])])
+X = np.array([np.array([2.,2.]), np.array([2.,3.]), \
+    np.array([0.,-1.]), np.array([-3.,-2.])])
+Y = np.array([np.array([1.]), np.array([1.]), \
+    np.array([-1.]), np.array([-1.])])
 # print X, Y
 
 def trainSVM(X,Y,C=1.0):
@@ -56,15 +58,14 @@ def trainSVM(X,Y,C=1.0):
 def predictSVM(x):
     return np.dot(w, x.T) + bias
 
-# print predictSVM()
-
-
-### TODO ###
-# Define the predictSVM(x) function, which uses trained parameters
-### TODO ###
-
-# plot training results
-# plotDecisionBoundary(X, Y, predictSVM, [-1, 0, 1], title = 'SVM Train')
+#############
+# Simple Dataset
+##############
+# w, bias = trainSVM(X, Y)
+# print "w:", w
+# print "bias:", bias
+# plotDecisionBoundary(X, Y, predictSVM, [-1, 0, 1])
+# pl.savefig("../paper/figures/2_1_decisions")
 
 
 
@@ -99,6 +100,8 @@ for dataset in datasets:
     pl.subplot(2,4,dataset)
     pl.scatter(X_train[:, 0], X_train[:, 1], c=(1.-Y_train), s=50, cmap = pl.cm.cool)
     w, bias = trainSVM(X_train,Y_train,C=C)
+
+    # Plot training data/boundaries
     zz = array([predictSVM(x) for x in c_[xx.ravel(), yy.ravel()]])
     zz = zz.reshape(xx.shape)
     CS = pl.contour(xx, yy, zz, [-1, 0, 1], linestyles = 'solid', linewidths = 2)
@@ -113,8 +116,21 @@ for dataset in datasets:
     pl.clabel(CS, fontsize=9, inline=1)
     pl.axis('tight')
 
+    preds = predictSVM(X_train)
+    preds[preds > 0] = 1
+    preds[preds <= 0] = -1
+    errors = np.sum(np.squeeze(Y_train) != preds)
+    train_accuracy = 100*(1-errors/num_training_pts)
 
+    preds = predictSVM(X_val)
+    preds[preds > 0] = 1
+    preds[preds <= 0] = -1
+    errors = np.sum(np.squeeze(Y_val) != preds)
+    val_accuracy = 100*(1-errors/num_val_pts)
+    print "Dataset %i: Training Set Accuracy: %.3f, Validation Set Accuracy: %.3f" %(dataset, train_accuracy, val_accuracy)
 pl.savefig("../paper/figures/2_2_decisions")
+
+
 pl.show()
 
 
