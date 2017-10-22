@@ -2,13 +2,17 @@
 In this section, we consider the Support Vector Machine (SVM) for binary classification of several 2D datasets.
 
 \subsection{Part 1}
-First, we implemented the dual form of a linear SVM with slack variables.
+We implemented the dual form of a linear SVM with slack variables. I first converted the input data into a standard format, then we used the cvxopt Python package to execute the quadratic programming to find the desired $\alpha$ values.
 
-[dual svm eqns]
-
-I first converted the input data into a standard format, then we used the cvxopt Python package to execute the quadratic programming to find the desired $\alpha$ values.
-
-[data format P, etc.]
+The inputs to the cvxopt solver were:
+\begin{itemize}
+	\item $P \in \Re^{n x n}$, where $P[i,j] = Y[i]Y[j]K(X[i],X[j])$
+	\item $q = [-1, -1, ...] \in \Re^n$
+	\item $G = [-I, I]^T \in \Re^{2n x n}$
+	\item $h = [0, 0, ...; C, C, ...]$
+	\item $A = Y^T$
+	\item $b=0$
+\end{itemize}
 
 With the simple 4 element dataset $\{((2,2),+1),((2,3),+1),((0,-1),-1),((-3,-2),-1)\}$, the algorithm outputs $(2,2)$ and $(0,-1)$ as the support vectors, meaning they lie on the boundaries of the margin, seen in~\cref{fig:2_1_decisions}.
 The weight vector has elements $w = [0.308, 0.462]$ and bias, $b = -0.538$.
@@ -64,5 +68,47 @@ In these cases, though, the accuracy difference is very minor.
 \end{figure}
 
 \subsection{Part 3}
-[todo]
+Next, we add an ability to handle kernel functions to the dual SVM implementation.
+Two kernels are considered: linear kernel ($K(x,x')=x^T\cdot x$) and gaussian RBF kernel ($K(x,x')=exp(-\gamma||w-w'||^2$).
+The regularization parameter, C, was set to 1 in previous sections, but here we are interested in how its value affects the results.
+
+The decision boundaries with the two kernels on the four datasets are shown in~\cref{fig:2_3_decisions}.
+The left two datasets can be separated pretty well by a linear kernel (top row), and while the Gaussian RBF (bottom row) can be tuned to classify reasonably well, but not to an extent that is worth the extra computational cost.
+The rightmost dataset shows a clear example of a linear kernel failing where a gaussian RBF kernel shines.
+The data is not linearly separable in the original feature space, so the linear kernel's accuracy is about as bad as guessing.
+The Gaussian RBF kernel encloses the four clusters and classifies accurately.
+It could be argued that this decision boundary overfits the data, especially clear around the edges of the boundaries.
+The C parameter could be tuned to adjust this effect, but the computation time involved is significant.
+The bandwidth parameter, $\gamma$ was adjusted for each dataset to get this performance (0.01 for the left two plots, 1.0 for the right two), and this parameter affects the spread of the kernel.
+
+
+On the left of~\cref{fig:2_3_margin_sv}, the geometric margin ($1/||w||$) decreases as C increases in general.
+These results are shown for each of the four datasets, for the two kernel functions, so there are 8 curves.
+In one case, the margin increases after an increase in C.
+It makes sense that margin would generally decrease with an increase in C, because more penalty is being applied to incorrectly classified samples, and therefore $||w||$ will increase to overfit the dataset slightly more and reduce the number of incorrectly classified samples.
+
+On the right of~\cref{fig:2_3_margin_sv}, a similar concept applies to the number of support vectors as C increases.
+Any sample with non-zero $\alpha_i$ is a support vector, including mis-classified samples, and with small C, the penalty of having many support vectors is low. As C increases, the margin shrinks and the number of support vectors decreases.
+
+Maximizing the geometric margin on the training set is not an appropriate criterion for selecting C because that method will simply choose the weights corresponding to C=0.
+This eliminates any allowance of slack, where misclassified points can be ignored to improve the model's ability to generalize.
+An alternative method to choose C is to train many different SVM classifiers with different C values, and evaluate the classification accuracy on a validation set.
+Then, choose the value of C that corresponds to high accuracy.
+
+
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
+	keepaspectratio]{figures/2_3_margin_sv}
+	\caption{For each of four datasets, and for each of two kernel functions, on the right, the margin is plotted against regularization paramter C. As C increases, generally margin decreases. The margins are normalized by their value when $C=10^{-2}$. On the left, the number of support vectors decreases as C increases.}
+	\label{fig:2_3_margin_sv} 
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
+	keepaspectratio]{figures/2_3_decisions}
+	\caption{Each column is one validation set, with the top row showing the SVM decision boundary using a linear kernel, and the bottom row using a Gaussian RBF kernel. The Gaussian RBF can generate curved decision boundaries which is necessary for the rightmost dataset. The left datasets can be accurately/simply classified with a linear kernel, which is also less computationally intensive.}
+	\label{fig:2_3_decisions} 
+\end{figure}
 
