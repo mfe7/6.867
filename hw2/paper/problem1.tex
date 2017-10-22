@@ -15,9 +15,18 @@ In general, increased regularization parameter, $\lambda$, causes smaller magnit
 This is true for both $L_1$ and $L_2$ regularization.
 Especially clear in the 2nd and 4th columns, $L_1$ regularization creates a more sparse weight vector, as all elements are zero (yellow) for the highly regularized case, whereas with the same regularization constant with a $L_2$ penalty has some non-zero elements.
 
-In addition to the weight vector, the decision boundary is affected by $\lambda$ and regularization method. 
+In addition to the weight vector, the decision boundary is affected by $\lambda$ and regularization method.
+In~\cref{fig:1_2_decision}, the decision boundaries for various $\lambda$ values are shown for same dataset with $L_1$ on the left and $L_2$ on the right.
+As $\lambda$ increases, the boundary is placed in a position that will cause training errors ($\lambda > 1$).
+The boundaries from the two regularization strategies are slightly different, but not by very much.
+In~\cref{fig:1_2_decisions}, the same concept is shown across all four datasets, with the top row using $L_1$ and bottom row using $L_2$.
+Green, blue, and yellow lines are decision boundaries with low $\lambda$, and red magenta, cyan are high $\lambda$.
+Again, as $\lambda$ increases, training error increases. The first dataset (left) is linearly separable, the middle two have some class overlap, and the right dataset is not even close.
+Accordingly, the decision boundary does not appear in the range of the data on the rightmost plot.
 
-Finally, the test-set classification error is also compared across $\lambda$ values and regularization methods.
+Finally, the test-set classification error is also compared across $\lambda$ values and regularization methods in~\cref{fig:1_2_accuracy}.
+When $\lambda$ is very high for $L_1$ regularization (blue), test accuracy suffers, since model is too sparse.
+$L_2$ reg. has almost constant accuracy throughout.
 
 
 \begin{figure}
@@ -31,11 +40,50 @@ Finally, the test-set classification error is also compared across $\lambda$ val
 \begin{figure}
 	\centering
 	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
+	keepaspectratio]{figures/1_2_decision}
+	\caption{LR on one dataset with $L_1$ reg on left, $L_2$ on right. Green lines show decision boundaries for various $\lambda$s. As $\lambda$ increases, training error increases.} 
+	\label{fig:1_2_decision} 
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
+	keepaspectratio]{figures/1_2_decisions}
+	\caption{LR on four datasets, with the top row using $L_1$ and bottom row using $L_2$. Green, blue, and yellow lines are decision boundaries with low $\lambda$, and red magenta, cyan are high $\lambda$. As $\lambda$ increases, training error increases. The first dataset (left) is linearly separable, the middle two have some class overlap, and the right dataset is not even close. Accordingly, the decision boundary does not appear in the range of the data on the rightmost plot.} 
+	\label{fig:1_2_decisions} 
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
 	keepaspectratio]{figures/1_2_accuracy}
-	\caption{} 
+	\caption{For each dataset, the test accuracy is plotted across a wide range of $\lambda$ values. When $\lambda$ is very high for $L_1$ regularization (blue), test accuracy suffers, since model is too sparse. $L_2$ reg has almost constant accuracy throughout.} 
 	\label{fig:1_2_accuracy} 
 \end{figure}
 
 \subsection{Part 3}
-[todo]
+To pick the best regularizer and $\lambda$, the LR weights are trained with many values of $\lambda$ for each regularizer, using the training set.
+Then, the generalization is evaluated on the validation set, by measuring the classification accuracy.
+A model that generalizes well will have high accuracy on data not seen during training.
+In cases where the validation accuracy is identical for multiple values of $\lambda$, the higher $\lambda$ is chosen, because this corresponds to lower model complexity (more regularized).
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{||c c c c c||}  
+ \hline
+ Dataset & Regularizer & $\lambda$ & Train Acc. (\%) & Val. Acc. (\%) \\ [0.3ex] 
+ \hline\hline
+ 1 & $L_2$ & 10 & 100.0 & 100.0 \\ 
+ \hline
+ 2 & $L_2$ & 10 & 100.0 & 100.0 \\ 
+ \hline
+ 3 & $L_1$ & 10 & 100.0 & 100.0 \\ 
+ \hline
+ 4 & $L_2$ & 10 & 100.0 & 100.0 \\ 
+ \hline
+\end{tabular}
+\caption{Accuracy of LR on four datasets.}
+\label{table_lr_1_3}
+\end{table}
+
 
