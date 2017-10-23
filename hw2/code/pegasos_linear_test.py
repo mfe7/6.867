@@ -5,7 +5,7 @@ import pylab as pl
 
 
 # load data from csv files
-train = loadtxt('data/data4_train.csv')
+train = loadtxt('data/data3_train.csv')
 X = train[:,0:2]
 Y = train[:,2:3]
 
@@ -14,13 +14,14 @@ Y = train[:,2:3]
 
 def train_pegasos(X, Y, lamb, max_epochs):
     n = np.shape(X)[0]
+    inds = np.arange(n)
     t = 0
     w = [np.array([0,0])]
     epoch = 0
     while epoch < max_epochs:
-        rand_inds = np.shuffle(np.arange(n))
+        np.random.shuffle(inds)
         for i in range(n):
-            j = rand_inds[i]
+            j = inds[i]
             t += 1
             eta = 1.0/(t*lamb)
             if Y[j]*np.dot(w[-1].T,X[j,:]) < 1:
@@ -44,7 +45,7 @@ def predict_linearSVM(x):
     return np.dot(w, x.T) + bias
 
 max_epochs = 20
-lamb = 1
+lamb = 2e-5
 w, bias = train_pegasos(X, Y, lamb, max_epochs)
 print w
 
