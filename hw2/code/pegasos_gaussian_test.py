@@ -3,26 +3,26 @@ from plotBoundary import *
 import pylab as pl
 # import your LR training code
 
-# load data from csv files
-train = loadtxt('data/data3_train.csv')
-X = train[:,0:2]
-Y = train[:,2:3]
+# # load data from csv files
+# train = loadtxt('data/data3_train.csv')
+# X = train[:,0:2]
+# Y = train[:,2:3]
 
 # Carry out training.
-epochs = 300;
+epochs = 100;
 lmbda = .02;
-gamma = 2e-2;
 
-def gaussian_kernel(X):
-    n = np.shape(X)[0]
-    K = zeros((n,n))
-    for i in range(n):
-        for j in range(n):
-            K[i,j] = -gamma*np.linalg.norm(X[i,:] - X[j,:])**2
+def gaussian_rbf(x, x_prime, gamma):
+    return np.exp(-gamma*np.linalg.norm(x - x_prime, axis=1))
+
+def gaussian_rbf_matrix(x, gamma):
+    n = len(x)
+    p = len(x[0])
+    K = np.zeros((n,n))
+    for i in np.arange(n):
+        for j in np.arange(n):
+            K[i,j] = gaussian_rbf(x[i,:].reshape(1, p), x[j,:].reshape(1, p), gamma)
     return K
-
-
-
 
 def train_gaussianSVM(X, Y, K, lmbda, epochs):
     N = np.shape(X)[0]
@@ -32,14 +32,11 @@ def train_gaussianSVM(X, Y, K, lmbda, epochs):
     alpha = np.zeros((N))
     epoch = 0
     while epoch < epochs:
-        print epoch
         np.random.shuffle(inds)
         for i in inds:
             t += 1
             eta = 1.0/(t*lmbda)
-            discrim = 0
-            for j in range(N):
-                discrim += alpha[j]*K[j,i]
+            discrim = np.dot(alpha, K[i, :])
             if Y[i]*discrim < 1:
                 alpha[i] = (1-eta*lmbda)*alpha[i] + eta*Y[i]
             else:
@@ -47,17 +44,9 @@ def train_gaussianSVM(X, Y, K, lmbda, epochs):
         epoch += 1
     return alpha
 
+def predict_gaussianSVM(x, alpha, x_train, gamma):
+    return np.dot(alpha, gaussian_rbf(x_train, x, gamma))
 
-### TODO: Implement train_gaussianSVM ###
-# K = gaussian_kernel(X)
-# alpha = train_gaussianSVM(X, Y, K, lmbda, epochs);
-
-def predict_gaussianSVM(x, alpha, x_train, y_train):
-    output = 0
-    for i in np.arange(np.shape(alpha)[0]):
-        k = -gamma*np.linalg.norm(x_train[i,:] - x)**2
-        output += alpha[i]*y_train[i]*k
-    return output
 
 
 
@@ -70,51 +59,46 @@ datasets = [3]
 colors = ['g','b','y','r','m','c']
 C = 1.0
 
-pl.figure()
-for dataset in datasets:
-    train = loadtxt('data/data'+str(dataset)+'_train.csv')
-    X_train = train[:,0:2]
-    Y_train = train[:,2:3]
-    validate = loadtxt('data/data'+str(dataset)+'_validate.csv')
-    X_val = validate[:,0:2]
-    Y_val = validate[:,2:3]
-    # test = loadtxt('data/data'+str(dataset)+'_test.csv')
-    # X_test = test[:,0:2]
-    # Y_test = np.squeeze(test[:,2:3])
-    num_training_pts = float(np.shape(Y_train)[0])
-    num_val_pts = float(np.shape(Y_val)[0])
+# gammas = [2e2, 2e1, 2e0, 2e-1, 2e-2]
+gammas = [2e2, 2e1, 2e0, 2e-1]
 
+dataset = 3
+train = loadtxt('data/data'+str(dataset)+'_train.csv')
+X_train = train[:,0:2]
+Y_train = train[:,2:3]
+validate = loadtxt('data/data'+str(dataset)+'_validate.csv')
+X_val = validate[:,0:2]
+Y_val = validate[:,2:3]
+# test = loadtxt('data/data'+str(dataset)+'_test.csv')
+# X_test = test[:,0:2]
+# Y_test = np.squeeze(test[:,2:3])
+num_training_pts = float(np.shape(Y_train)[0])
+num_val_pts = float(np.shape(Y_val)[0])
+
+pl.figure()
+for i, gamma in enumerate(gammas):
+    pl.subplot(1,4,i+1)
     x_min, x_max = X_train[:, 0].min() - 1, X_train[:, 0].max() + 1
     y_min, y_max = X_train[:, 1].min() - 1, X_train[:, 1].max() + 1
-    h = max((x_max-x_min)/50., (y_max-y_min)/50.)
-    # h = max((x_max-x_min)/200., (y_max-y_min)/200.)
+    # h = max((x_max-x_min)/50., (y_max-y_min)/50.)
+    h = max((x_max-x_min)/200., (y_max-y_min)/200.)
     xx, yy = meshgrid(arange(x_min, x_max, h),
                       arange(y_min, y_max, h))
 
     pl.scatter(X_train[:, 0], X_train[:, 1], c=(1.-Y_train), s=50, cmap = pl.cm.cool)
-    K = gaussian_kernel(X)
 
-    print "Training gaussian SVM on dataset:", dataset
+    K = gaussian_rbf_matrix(X_train, gamma)
     alpha = train_gaussianSVM(X_train,Y_train, K, lmbda, epochs)
-    print "Done training."
-    # Plot training data/boundaries
-    print "Predicting."
-    zz = array([predict_gaussianSVM(x, alpha, X_train, Y_train) for x in c_[xx.ravel(), yy.ravel()]])
-    print "done predicting"
-    zz = zz.reshape(xx.shape)
-    CS = pl.contour(xx, yy, zz, [-1, 0, 1], linestyles = 'solid', linewidths = 2)
-    pl.clabel(CS, fontsize=9, inline=1)
-    pl.axis('tight')
+    nonzero_alpha_inds = np.where(alpha > 1e-4)[0]
+    print "gamma:", gamma, "num non-zero alphas:", len(nonzero_alpha_inds)
+    # zz = array([predict_gaussianSVM(x, alpha, X_train, gamma) for x in c_[xx.ravel(), yy.ravel()]])
+    # print zz
+    # zz = zz.reshape(xx.shape)
+    # CS = pl.contour(xx, yy, zz, [-1, 0, 1], linestyles = 'solid', linewidths = 2)
+    # pl.clabel(CS, fontsize=9, inline=1)
+    # pl.axis('tight')
 
-pl.savefig("../paper/figures/3_3_decisions")
+# pl.savefig("../paper/figures/3_3_decisions")
 
 
 pl.show()
-
-
-# Define the predict_gaussianSVM(x) function, which uses trained parameters, alpha
-### TODO:  define predict_gaussianSVM(x) ###
-
-# plot training results
-# plotDecisionBoundary(X, Y, predict_gaussianSVM, [-1,0,1], title = 'Gaussian Kernel SVM')
-# pl.show()

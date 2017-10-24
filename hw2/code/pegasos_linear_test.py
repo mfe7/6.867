@@ -26,8 +26,7 @@ def train_pegasos(X, Y, lamb, max_epochs):
             t += 1
             eta = 1.0/(t*lamb)
             if Y[j]*(np.dot(w.T,X[j,:])+w0) < 1:
-                e_g = Y[i]*X[i,:]
-                w = (1-eta*lamb)*w+eta*e_g
+                w = (1-eta*lamb)*w+eta*Y[i]*X[i,:]
                 w0 += eta*Y[i]
             else:
                 w = (1-eta*lamb)*w
@@ -64,6 +63,7 @@ for i, lamb in enumerate(lambs):
 
     pl.subplot(1,4,i+1)
     pl.scatter(X[:, 0], X[:, 1], c=(1.-Y), s=50, cmap = pl.cm.cool)
+    pl.xlabel('$\lambda='+str(lamb)+'$')
 
     # Plot training data/boundaries
     zz = array([predict_linearSVM(x, w, bias) for x in c_[xx.ravel(), yy.ravel()]])
