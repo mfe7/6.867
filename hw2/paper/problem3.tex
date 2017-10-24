@@ -31,7 +31,7 @@ If $c > 0$, it's part of the positive class, otherwise it's the negative class.
 
 \subsection{Part 4}
 We tested our algorithm on multiple values of $\gamma$ with a fixed $\lambda=0.02$.
-For large $\gamma$ (left), [todo], and the decision boundary overfits the data, evident in the decision boundary's jagged shape tracing around individual borderline samples.
+For large $\gamma$ (left), the kernel is very narrow, and the decision boundary overfits the data, evident in the decision boundary's jagged shape tracing around individual borderline samples.
 As $\gamma$ decreases, the accuracy decreases, but the decision boundary is much less complicated.
 This usually leads to better generalization to unseen data.
 
@@ -47,6 +47,6 @@ Our Pegasos implementation runs much faster, making it easier to test with diffe
 	\centering
 	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
 	keepaspectratio]{figures/3_3_decisions}
-	\caption{The Pegasos algorithm is applied to the same dataset with four different kernel bandwidth values, $\gamma = [2^2, 2^1, 2^0, 2^{-1}]$. For large $\gamma$ (left), [todo], and the decision boundary overfits the data. As $\gamma$ decreases, the accuracy decreases, but the decision boundary is much less complicated.}
+	\caption{The Pegasos algorithm is applied to the same dataset with four different kernel bandwidth values, $\gamma = [2^2, 2^1, 2^0, 2^{-1}]$. For large $\gamma$ (left), the kernel is narrow, and the decision boundary overfits the data. As $\gamma$ decreases, the accuracy decreases, but the decision boundary is much less complicated.}
 	\label{fig:3_3_decisions} 
 \end{figure}

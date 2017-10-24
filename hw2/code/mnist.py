@@ -38,11 +38,11 @@ def createX(class1, class2, normalize_data=True):
         x_train_tmp, x_val_tmp, x_test_tmp = read_mnist(digit1)
         if normalize_data:
             x_train[i*trainSize:(i*trainSize + trainSize)] = normalize(x_train_tmp[0:trainSize])
-            x_val[i*valSize:(i*valSize + valSize)] = normalize(x_train_tmp[0:valSize])
+            x_val[i*valSize:(i*valSize + valSize)] = normalize(x_val_tmp[0:valSize])
             x_test[i*testSize:(i*testSize + testSize)] = normalize(x_test_tmp[0:testSize])
         else:   
             x_train[i*trainSize:(i*trainSize + trainSize)] = x_train_tmp[0:trainSize]
-            x_val[i*valSize:(i*valSize + valSize)] = x_train_tmp[0:valSize]
+            x_val[i*valSize:(i*valSize + valSize)] = x_val_tmp[0:valSize]
             x_test[i*testSize:(i*testSize + testSize)] = x_test_tmp[0:testSize]
 
         y_train[i*trainSize:(i*trainSize+trainSize)] = np.ones(trainSize)
@@ -54,11 +54,11 @@ def createX(class1, class2, normalize_data=True):
         x_train_tmp, x_val_tmp, x_test_tmp = read_mnist(digit2)
         if normalize_data:
             x_train[(classSize*trainSize) + i*trainSize : (classSize*trainSize)+(i*trainSize + trainSize)] = normalize(x_train_tmp[0:trainSize]) 
-            x_val[(classSize*valSize) + i*valSize : (classSize*valSize)+(i*valSize + valSize)] = normalize(x_train_tmp[0:valSize])
+            x_val[(classSize*valSize) + i*valSize : (classSize*valSize)+(i*valSize + valSize)] = normalize(x_val_tmp[0:valSize])
             x_test[(classSize*testSize) + i*testSize : (classSize*testSize)+(i*testSize + testSize)] = normalize(x_test_tmp[0:testSize])
         else:
             x_train[(classSize*trainSize) + i*trainSize : (classSize*trainSize)+(i*trainSize + trainSize)] = x_train_tmp[0:trainSize] 
-            x_val[(classSize*valSize) + i*valSize : (classSize*valSize)+(i*valSize + valSize)] = x_train_tmp[0:valSize]
+            x_val[(classSize*valSize) + i*valSize : (classSize*valSize)+(i*valSize + valSize)] = x_val_tmp[0:valSize]
             x_test[(classSize*testSize) + i*testSize : (classSize*testSize)+(i*testSize + testSize)] = x_test_tmp[0:testSize]
 
         y_train[(classSize*trainSize) + i*trainSize : (classSize*trainSize) + (i*trainSize+trainSize)] = -np.ones(trainSize)
@@ -67,35 +67,26 @@ def createX(class1, class2, normalize_data=True):
 
     return x_train, x_val, x_test, y_train, y_val, y_test
 
-def test_acc(x_test, y_test, clf):
-    i_misclassified = []
-    counter = 0
-    y_list = []
-    x_misclassified =[]
-    n = np.shape(x_test)[0]
-
-    for i, x in enumerate(x_test):
-        y_predict = clf.predict(x.reshape(1,-1))
-        if y_test[i]*y_predict < 0:
-            i_misclassified.append(i)
-            x_misclassified.append(x)
-            counter += 1
-    print "Accuracy:", (100.0*(n-counter))/n
-    # print("misclassified: ", counter, "index of misclassified", i_misclassified)
+def accuracy(x, y, clf):
+    preds = clf.predict(x)
+    incorrect_inds = np.where(preds != y)[0]
+    acc = (100.0*(len(x)-len(incorrect_inds)))/len(x)
+    print acc
 
 classes = [[[1],[7]],[[3],[5]],[[4],[9]],[[0,2,4,6,8],[1,3,5,7,9]]]
 
 lr_Cs = [1e-3, 1e-1, 1e0, 1e2]
-n_lr_Cs = [1e2, 1e2, 1e2, 1e4]
-lr_penalties = ['l1','l1','l1','l1']
-n_lsvm_Cs = [1e-2, 1e0, 1e0, 1e2]
+n_lr_Cs = [1e0, 6e1, 2e0, 1e-1]
+lr_penalties = ['l1','l1','l1','l2']
+n_lsvm_Cs = [0.2, 0.02, 0.02, 0.02]
 lsvm_Cs = [1e-6, 1e-5, 1e-5, 1e-1]
 
-n_svc_gammas = []
-n_svc_Cs = []
+n_svc_gammas = [1e-2, 10.0, 10.0, 10.0]
+n_svc_Cs = [1e-8, 1e0, 1e-5, 1e-5]
+# n_svc_Cs = [1e-5, 1e-5, 1e-5, 1e-5]
 
-for i, c in enumerate([[[1],[7]]]):
-# for i, c in enumerate(classes):
+# for i, c in enumerate([[[1],[7]]]):
+for i, c in enumerate(classes):
     print "Class 1:", c[0], "vs.", c[1]
     class1 = np.array(c[0])
     class2 = np.array(c[1])
@@ -110,7 +101,7 @@ for i, c in enumerate([[[1],[7]]]):
     #                 max_iter=100, multi_class='ovr', verbose=0, warm_start=False, n_jobs=1)
     #         clf_logReg.fit(x_train, y_train)
     #         print "C:", C
-    #         test_acc(x_val, y_val, clf_logReg)
+    #         accuracy(x_val, y_val, clf_logReg)
 
     
     # # Logistic Regression
@@ -123,15 +114,15 @@ for i, c in enumerate([[[1],[7]]]):
     #         class_weight=None, random_state=None, solver='liblinear', 
     #         max_iter=100, multi_class='ovr', verbose=0, warm_start=False, n_jobs=1)
     # clf_logReg.fit(x_train, y_train)
-    # # print "Training acc:"
-    # # test_acc(x_train, y_train, clf_logReg)
+    # print "Training acc:"
+    # accuracy(x_train, y_train, clf_logReg)
     # print "Testing acc:"
-    # test_acc(x_test, y_test, clf_logReg)
+    # accuracy(x_test, y_test, clf_logReg)
     # # plt.imshow(np.reshape(x_test[62],(28,28)),cmap='gray')
-    # plt.imshow(np.reshape(x_test[222],(28,28)),cmap='gray')
+    # # plt.imshow(np.reshape(x_test[222],(28,28)),cmap='gray')
     # # plt.imshow(np.reshape(x_test[229],(28,28)),cmap='gray')
-    # plt.savefig('../paper/figures/4_1_bad7.png')
-    # plt.show()
+    # # plt.savefig('../paper/figures/4_1_bad7.png')
+    # # plt.show()
 
     # for C in np.logspace(-10,6,num=20):
     #     clf_linear_svc = svm.LinearSVC(C=C, class_weight=None, dual=True, fit_intercept=True,
@@ -140,7 +131,7 @@ for i, c in enumerate([[[1],[7]]]):
     #          verbose=0)
     #     clf_linear_svc.fit(x_train, y_train) 
     #     print "C:", C
-    #     test_acc(x_val, y_val, clf_linear_svc)
+    #     accuracy(x_val, y_val, clf_linear_svc)
 
     # # Linear SVM
     # # C = lsvm_Cs[i]
@@ -151,30 +142,31 @@ for i, c in enumerate([[[1],[7]]]):
     #      verbose=0)
     # clf_linear_svc.fit(x_train, y_train) 
     # print "Training acc:"
-    # test_acc(x_train, y_train, clf_linear_svc)
+    # accuracy(x_train, y_train, clf_linear_svc)
     # print "Testing acc:"
-    # test_acc(x_test, y_test, clf_linear_svc)
+    # accuracy(x_test, y_test, clf_linear_svc)
 
-    for gamma in np.logspace(-5,5,num=10):
+    for gamma in np.logspace(-5,5,num=11):
         print "gamma:", gamma
-        for C in np.logspace(-5,5,num=10):
+        for C in np.logspace(-5,5,num=11):
             clf_rbf_svc = svm.SVC(C=C, cache_size=200, class_weight=None, coef0=0.0,
                decision_function_shape='ovr', degree=3, gamma=gamma, kernel='rbf',
                max_iter=-1, probability=False, random_state=None, shrinking=True,
                tol=0.001, verbose=False)
             clf_rbf_svc.fit(x_train, y_train)
             print "C:", C
-            test_acc(x_val, y_val, clf_rbf_svc) 
+            accuracy(x_val, y_val, clf_rbf_svc) 
     
-    # Linear SVM
-    # C = lsvm_Cs[i]
-    C = n_svc_Cs[i]
-    C = n_svc_gammas[i]
-    clf_rbf_svc = svm.SVC(C=C, cache_size=200, class_weight=None, coef0=0.0,
-       decision_function_shape='ovr', degree=3, gamma=gamma, kernel='rbf',
-       max_iter=-1, probability=False, random_state=None, shrinking=True,
-       tol=0.001, verbose=False)
-    clf_rbf_svc.fit(x_train, y_train)
-    test_acc(x_test, y_test, clf_rbf_svc)
+    # # Linear SVM
+    # # C = lsvm_Cs[i]
+    # C = n_svc_Cs[i]
+    # gamma = n_svc_gammas[i]
+    # clf_rbf_svc = svm.SVC(C=C, cache_size=200, class_weight=None, coef0=0.0,
+    #    decision_function_shape='ovr', degree=3, gamma=gamma, kernel='rbf',
+    #    max_iter=-1, probability=False, random_state=None, shrinking=True,
+    #    tol=0.001, verbose=False)
+    # clf_rbf_svc.fit(x_train, y_train)
+    # accuracy(x_train, y_train, clf_rbf_svc)
+    # accuracy(x_test, y_test, clf_rbf_svc)
      
 
