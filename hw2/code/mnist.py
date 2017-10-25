@@ -81,8 +81,8 @@ lr_penalties = ['l1','l1','l1','l2']
 n_lsvm_Cs = [0.2, 0.02, 0.02, 0.02]
 lsvm_Cs = [1e-6, 1e-5, 1e-5, 1e-1]
 
-n_svc_gammas = [1e-2, 10.0, 10.0, 10.0]
-n_svc_Cs = [1e-8, 1e0, 1e-5, 1e-5]
+n_svc_gammas = [0.01, 0.001, 0.001, 0.01]
+n_svc_Cs = [1, 100, 10, 1]
 # n_svc_Cs = [1e-5, 1e-5, 1e-5, 1e-5]
 
 # for i, c in enumerate([[[1],[7]]]):
@@ -146,27 +146,27 @@ for i, c in enumerate(classes):
     # print "Testing acc:"
     # accuracy(x_test, y_test, clf_linear_svc)
 
-    for gamma in np.logspace(-5,5,num=11):
-        print "gamma:", gamma
-        for C in np.logspace(-5,5,num=11):
-            clf_rbf_svc = svm.SVC(C=C, cache_size=200, class_weight=None, coef0=0.0,
-               decision_function_shape='ovr', degree=3, gamma=gamma, kernel='rbf',
-               max_iter=-1, probability=False, random_state=None, shrinking=True,
-               tol=0.001, verbose=False)
-            clf_rbf_svc.fit(x_train, y_train)
-            print "C:", C
-            accuracy(x_val, y_val, clf_rbf_svc) 
+    # for gamma in np.logspace(-5,5,num=11):
+    #     print "gamma:", gamma
+    #     for C in np.logspace(-5,5,num=11):
+    #         clf_rbf_svc = svm.SVC(C=C, cache_size=200, class_weight=None, coef0=0.0,
+    #            decision_function_shape='ovr', degree=3, gamma=gamma, kernel='rbf',
+    #            max_iter=-1, probability=False, random_state=None, shrinking=True,
+    #            tol=0.001, verbose=False)
+    #         clf_rbf_svc.fit(x_train, y_train)
+    #         print "C:", C
+    #         accuracy(x_val, y_val, clf_rbf_svc) 
     
-    # # Linear SVM
-    # # C = lsvm_Cs[i]
-    # C = n_svc_Cs[i]
-    # gamma = n_svc_gammas[i]
-    # clf_rbf_svc = svm.SVC(C=C, cache_size=200, class_weight=None, coef0=0.0,
-    #    decision_function_shape='ovr', degree=3, gamma=gamma, kernel='rbf',
-    #    max_iter=-1, probability=False, random_state=None, shrinking=True,
-    #    tol=0.001, verbose=False)
-    # clf_rbf_svc.fit(x_train, y_train)
-    # accuracy(x_train, y_train, clf_rbf_svc)
-    # accuracy(x_test, y_test, clf_rbf_svc)
+    # Linear SVM
+    # C = lsvm_Cs[i]
+    C = n_svc_Cs[i]
+    gamma = n_svc_gammas[i]
+    clf_rbf_svc = svm.SVC(C=C, cache_size=200, class_weight=None, coef0=0.0,
+       decision_function_shape='ovr', degree=3, gamma=gamma, kernel='rbf',
+       max_iter=-1, probability=False, random_state=None, shrinking=True,
+       tol=0.001, verbose=False)
+    clf_rbf_svc.fit(x_train, y_train)
+    accuracy(x_train, y_train, clf_rbf_svc)
+    accuracy(x_test, y_test, clf_rbf_svc)
      
 

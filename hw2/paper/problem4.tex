@@ -58,29 +58,32 @@ Next, we applied the Gaussian RBF SVM classifier on the MNIST dataset for the sa
 Again, there are two parameters, $C$ (regularization) and $\gamma$ (bandwidth) that must be tuned with the validation set.
 It is difficult to tune these two in parallel, especially without a method of visualizing the dataset, as was possible in the simple 2D data case.
 Our approach was to train of each parameter in the range $[10^{-5}, 10^{-4}, ..., 10^{5}]$, and then compare accuracy on the validation set.
-Many models had a validation accuracy of 100\%, so for these, the least complex model (low $\gamma$, low $C$).
+Many models had a validation accuracy of 99\%, so for these, the least complex model (low $\gamma$, low $C$).
+Even so, it's very hard to select the best model because the relative importance of $C$ and $\gamma$'s size is not obvious (i.e. is a low $\gamma$ and high $C$ preferable to a high $\gamma$ and low $C$?).
+The two are related to some extent; we observed roughly that an increase in order of magnitude of $\gamma$ decreases the $C$ for maximum validation accuracy, by an order of magnitude as well.
+Also, $\gamma>1$ always has poor validation accuracy ($<60\%$) regardless of $C$.
+
 The choice of $C$, $\gamma$, and training and test accuracy are shown in~\cref{table_4_2}.
-Even with the worst choice of parameters in the stated range, validation accuracy was around 70-80\%, so the classifier was not completely useless.
-For each classification task, the hyperparameters $C=10^{-5}$, $\lambda=0.1$ were chosen.
+Even with the poor choice of parameters in the stated range, validation accuracy was often around 70-80\%, so the classifier would not be completely useless.
+For each classification task, the chosen hyperparameters are listed in~\cref{table_4_2}'s rightmost column.
+
 
 
 [todo: compare rbf to linear classifiers]
 
-[todo: finish table]
-
 \begin{table}[ht!]
 \centering
-\begin{tabular}{||c c c||}  
+\begin{tabular}{||c c c c||}  
  \hline
- Dataset & Tr. Acc & Test Acc \\ [0.3ex] 
+ Dataset & Tr. Acc & Test Acc & $C, \lambda$ \\ [0.3ex] 
  \hline\hline
- 1 vs. 7 & 100.0 & 98.3 \\ 
+ 1 vs. 7 & 100.0 & 99.0 & 1, 0.01 \\ 
  \hline
- 3 vs. 5 & 100.0 & 93.3 \\ 
+ 3 vs. 5 & 100.0 & 97.0 & 100, 0.001 \\ 
  \hline
- 4 vs. 9 & 100.0 & 94.7 \\ 
+ 4 vs. 9 & 100.0 & 95.0 & 10, 0.001 \\ 
  \hline
- odds vs. evens & 100.0 & 76.1 \\ 
+ odds vs. evens & 100.0 & 97.2 & 1, 0.01 \\ 
  \hline
 \end{tabular}
 \caption{Accuracy of Gaussian RBF SVM classifier on MNIST datasets.}
