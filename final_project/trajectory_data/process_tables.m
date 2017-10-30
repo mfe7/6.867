@@ -70,7 +70,7 @@ else
     %% Read clusters from table
     display('Processing clusters');
     clusters = struct('id',{},'time',{},'x',{},'y',{},'easting',{},'northing',{},'color',{});
-    clusters2 = struct('id',{},'time',{},'x',{},'y',{},'easting',{},'northing',{},'color',{},'local_x',{},'local_y',{});
+    clusters2 = struct('id',{},'time',{},'x',{},'y',{},'easting',{},'northing',{},'color',{},'local_x',{},'local_y',{},'cross',{});
     if ~isempty(table_p)
         
         num_crosses = 0;
@@ -140,6 +140,19 @@ else
                 else
                     display('no cross.')
                 end
+                
+                clusters2(end+1).id = length(clusters2)+1;
+                clusters2(end).time = vehicle_table_p.time(vehicle_table_p.ped_id == cluster_ids(i));
+                clusters2(end).x = vehicle_table_p.x(vehicle_table_p.ped_id == cluster_ids(i));
+                clusters2(end).y = vehicle_table_p.y(vehicle_table_p.ped_id == cluster_ids(i));
+                clusters2(end).easting = vehicle_table_p.easting(vehicle_table_p.ped_id == cluster_ids(i));
+                clusters2(end).northing = vehicle_table_p.northing(vehicle_table_p.ped_id == cluster_ids(i));
+                clusters2(end).vehicle_id = unique_vehicle_ids{v};
+                color = rand(1,2); color(3) = 1-sum(color)/2; color = color(randperm(3)); %Use random darker colors
+                clusters2(end).color = color;
+                clusters2(end).local_x = ped_local(:,1);
+                clusters2(end).local_y = ped_local(:,2);
+                clusters2(end).cross = ped_crosses_in_front;
             
                 
                 clusters(end+1).id = length(clusters)+1;
@@ -170,6 +183,7 @@ else
         clusters = merge_and_estimate_cluster_arrivals(clusters,links);
     end
     save(clusters_filename,'clusters')
+    save(clusters2_filename,'clusters2')
 end
 end
 
