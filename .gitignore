@@ -13,3 +13,4 @@
 *.dvi
 
 hw1/code
+*.m~
