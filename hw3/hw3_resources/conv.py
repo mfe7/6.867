@@ -7,6 +7,8 @@ from six.moves import cPickle as pickle
 import sys
 import math
 import time
+# import matplotlib.pylab as pl
+
 
 DATA_PATH = 'art_data/'
 DATA_FILE = DATA_PATH + 'art_data.pickle'
@@ -16,7 +18,8 @@ NUM_LABELS = 11
 INCLUDE_TEST_SET = False
 
 BATCH_SIZE = 10
-NUM_TRAINING_STEPS = 1501
+NUM_TRAINING_STEPS = 10001
+# NUM_TRAINING_STEPS = 1501
 LEARNING_RATE = 0.01
 
 L2_CONST = 0.0  # Set to > 0 to use L2 regularization
@@ -82,6 +85,10 @@ class ArtistConvNet:
 
   def train_model(self, num_steps=NUM_TRAINING_STEPS):
     '''Train the model with minibatches in a tensorflow session'''
+    training_acc_list = []
+    val_acc_list = []
+    step_list = []
+
     with tf.Session(graph=self.graph) as session:
       session.run(tf.global_variables_initializer())
       print('Initializing variables...')
@@ -103,6 +110,25 @@ class ArtistConvNet:
           print('Full training accuracy: %.1f%%' % train_acc)
           print('Validation accuracy: %.1f%%' % val_acc)
       
+          val_acc_list.append(val_acc)
+          training_acc_list.append(train_acc)
+          step_list.append(step)
+
+
+      print "val_acc_list=", val_acc_list
+      print "training_acc_list=", training_acc_list
+      print "step_list=", step_list
+
+      # pl.figure()
+      # pl.scatter(step_list, training_acc_list,'b-o')
+      # pl.scatter(step_list, val_acc_list,'r-x')
+      # pl.xlabel('Step Number')
+      # pl.ylabel('Accuracy (\%)')
+
+      # pl.legend('Training', 'Validation')
+      # pl.show()
+
+
       # This code is for the final question
       if self.invariance:
         print("\nObtaining final results on invariance sets!")
