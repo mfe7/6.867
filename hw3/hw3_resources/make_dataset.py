@@ -230,8 +230,8 @@ def make_invariance_sets():
     bright_val_X[i,:,:,:] = bright_mod.enhance(1.5)
 
     contrast_mod = ImageEnhance.Contrast(img)
-    low_contrast_val_X[i,:,:,:] = bright_mod.enhance(0.75)
-    high_contrast_val_X[i,:,:,:] = bright_mod.enhance(1.5)
+    low_contrast_val_X[i,:,:,:] = contrast_mod.enhance(0.75)
+    high_contrast_val_X[i,:,:,:] = contrast_mod.enhance(1.5)
 
   print("\tScaling pixel values...")
   translated_val_X = scale_pixel_values(translated_val_X)
