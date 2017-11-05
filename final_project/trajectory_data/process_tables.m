@@ -50,11 +50,10 @@ end
 for d = days;
 clear table_v table_p clusters
 %% Setup file data    
-date_ = dates(d,:);
+date_ = dates(days(1),:);
 display(date_)
 table_filename = [table_folder, '/' , 'tables_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
-clusters_filename = [clusters_folder, '/' , 'clusters_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];clusters_filename = [clusters_folder, '/' , 'clusters_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
-clusters2_filename = [clusters_folder, '/' , 'clusters2_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
+clusters_filename = [clusters_folder, '/' , 'clusters2_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];clusters_filename = [clusters_folder, '/' , 'clusters_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
 
 
 %% Load the day's data
@@ -69,8 +68,7 @@ if exist([clusters_filename,'.mat'],'file')
 else
     %% Read clusters from table
     display('Processing clusters');
-    clusters = struct('id',{},'time',{},'x',{},'y',{},'easting',{},'northing',{},'color',{});
-    clusters2 = struct('id',{},'time',{},'x',{},'y',{},'easting',{},'northing',{},'color',{},'local_x',{},'local_y',{},'cross',{});
+    clusters = struct('id',{},'time',{},'x',{},'y',{},'easting',{},'northing',{},'color',{},'local_x',{},'local_y',{},'cross',{});
     if ~isempty(table_p)
         
         num_crosses = 0;
@@ -87,7 +85,17 @@ else
                 % each pedestrian timestamp to make sure positions
                 % are synchronized.
                 t_ped = vehicle_table_p.time(vehicle_table_p.ped_id == cluster_ids(i));
-                t_veh = vehicle_table_v.time;
+                
+                % Check that t_ped's upper/lower bounds are within a 
+                % vehicle trajectory window. Skip ped cluster if it
+                % occurs during a vehicle pos/time jump.
+                tmp = valid_t(:,1) - t_ped(1);
+                ix = find(tmp>0,1);
+                if t_ped(end) > valid_t(ix,2)
+                    break;
+                end
+                
+                t_veh = smooth_veh_traj(:,1);
                 t_align = zeros(length(t_veh), length(t_ped));
                 for t=1:length(t_ped)
                     t_align(:,t) = t_ped(t) - t_veh;
@@ -95,37 +103,24 @@ else
                 t_align = abs(t_align);
                 [dt ind_align] = min(t_align);
                 
-                veh_p1 = [vehicle_table_v.x(ind_align), vehicle_table_v.y(ind_align)];
-                ind_align_offset = ind_align + 1;
-                offset_complete = 0;
-                while ~offset_complete
-                    veh_p2 = [vehicle_table_v.x(ind_align_offset), vehicle_table_v.y(ind_align_offset)];
-                    veh_delta = veh_p2 - veh_p1;
-                    zero_inds = find(~any(veh_delta,2));
-                    if length(zero_inds) > 0
-                        ind_align_offset(zero_inds) = ind_align_offset(zero_inds) + 1;
-                    else
-                        offset_complete = 1;
-                    end
-                end
-                veh_delta = veh_p2 - veh_p1;
-                r_parallel = normr(veh_delta);
+                veh_pos = [smooth_veh_traj(ind_align,2:3)];
+                r_parallel = smooth_veh_traj(ind_align,5:6);
                 r_orthog = [-r_parallel(:,2), r_parallel(:,1)];
                 
                 ped_x = vehicle_table_p.x(vehicle_table_p.ped_id == cluster_ids(i));
                 ped_y = vehicle_table_p.y(vehicle_table_p.ped_id == cluster_ids(i));
-                d = [ped_x ped_y] - veh_p1;
+                d = [ped_x ped_y] - veh_pos;
                 ped_parallel = dot(d, r_parallel,2);
                 ped_orthog = dot(d, r_orthog,2);
                 % Pedestrian position in local vehicle frame
-                ped_local = [ped_parallel, ped_orthog];
+                ped_local = [ped_orthog, ped_parallel];
                 
                 % Check if ped_local is ever within rectangle in front
                 % of vehicle
-                top_left = veh_p1 + [10, -2];
-                top_right = veh_p1 + [10, 2];
-                bottom_left = veh_p1 + [0, -2];
-                bottom_right = veh_p1 + [0, 2];
+                top_left = veh_pos + [10, -2];
+                top_right = veh_pos + [10, 2];
+                bottom_left = veh_pos + [0, -2];
+                bottom_right = veh_pos + [0, 2];
                 veh_polygon = [top_left;top_right;bottom_right;bottom_left];
                 
                 ped_crosses_in_front = 0;
@@ -141,19 +136,24 @@ else
                     display('no cross.')
                 end
                 
-                clusters2(end+1).id = length(clusters2)+1;
-                clusters2(end).time = vehicle_table_p.time(vehicle_table_p.ped_id == cluster_ids(i));
-                clusters2(end).x = vehicle_table_p.x(vehicle_table_p.ped_id == cluster_ids(i));
-                clusters2(end).y = vehicle_table_p.y(vehicle_table_p.ped_id == cluster_ids(i));
-                clusters2(end).easting = vehicle_table_p.easting(vehicle_table_p.ped_id == cluster_ids(i));
-                clusters2(end).northing = vehicle_table_p.northing(vehicle_table_p.ped_id == cluster_ids(i));
-                clusters2(end).vehicle_id = unique_vehicle_ids{v};
-                color = rand(1,2); color(3) = 1-sum(color)/2; color = color(randperm(3)); %Use random darker colors
-                clusters2(end).color = color;
-                clusters2(end).local_x = ped_local(:,1);
-                clusters2(end).local_y = ped_local(:,2);
-                clusters2(end).cross = ped_crosses_in_front;
-            
+                % Plot global and local frames for a single cluster
+                clf;
+                subplot(1,2,1);
+                hold on;
+                plot(veh_pos(:,1), veh_pos(:,2),'r--');
+                plot(veh_pos(1,1), veh_pos(1,2),'r*');
+                plot(veh_pos(end,1), veh_pos(end,2),'rx');
+                plot(ped_x, ped_y,'b--o');
+                plot(ped_x(1), ped_y(1),'b*');
+                plot(ped_x(end), ped_y(end),'bx');
+                subplot(1,2,2);
+                hold on;
+                plot(ped_local(:,1), ped_local(:,2),'b--o');
+                plot(ped_local(1,1), ped_local(1,2),'b*');
+                plot(ped_local(end,1), ped_local(end,2),'bx');
+                rectangle('Position',[-1 -3 2 3],'EdgeColor','blue');
+                rectangle('Position',[-1 0 2 10],'LineStyle','--','EdgeColor','red');
+                pause(5);
                 
                 clusters(end+1).id = length(clusters)+1;
                 clusters(end).time = vehicle_table_p.time(vehicle_table_p.ped_id == cluster_ids(i));
@@ -164,6 +164,10 @@ else
                 clusters(end).vehicle_id = unique_vehicle_ids{v};
                 color = rand(1,2); color(3) = 1-sum(color)/2; color = color(randperm(3)); %Use random darker colors
                 clusters(end).color = color;
+                clusters(end).local_x = ped_local(:,1);
+                clusters(end).local_y = ped_local(:,2);
+                clusters(end).cross = ped_crosses_in_front;
+%                 break;
             end
         end
         display(num_crosses)
@@ -178,19 +182,55 @@ else
         clusters = generateClusterPaths3(clusters,links,routes,'easting','northing');
 
         % Get cluster velocities
-        [clusters.velocity] = num2struct(arrayfun(@(cluster) mean(sqrt(sum(diff([cluster.easting;cluster.northing]').^2,2))./diff(cluster.time)'), clusters));
+        [clusters.velocity] = num2struct(arrayfun(@(cluster) mean(sqrt(sum(diff([cluster.easting;cluster.northing]').^2,2))./diff(cluster.time)'), clusters2));
         
         clusters = merge_and_estimate_cluster_arrivals(clusters,links);
     end
     save(clusters_filename,'clusters')
-    save(clusters2_filename,'clusters2')
 end
 end
 
 %% Process vehicle data
 % The vehicle's position data is available in the 'table_v' variable
 display('Processing clusters');
+t_jump = 0.5;
+pos_jump = 1.0;
+t_long_enough = 5.0;
 if ~isempty(table_v)
+    unique_vehicle_ids = unique(table_p.vehicle_id);
+    for v=1:length(unique_vehicle_ids) % go through each vehicle
+%         vehicle_table_p = table_p(strcmp(table_p.vehicle_id,unique_vehicle_ids(v)),:);
+        vehicle_table_v = table_v(strcmp(table_v.vehicle_id,unique_vehicle_ids(v)),:);
+        % Extract time, position from vehicle table into matrices
+        t = vehicle_table_v{:,{'time'}};
+        pos = vehicle_table_v{:,{'x','y'}}
+        dt = diff(t); % find difference between consecutive timestamps
+        dpos = diff(pos);
+        ddist = sqrt(sum(dpos.^2,2));
+        
+        % Find indices where timestamp/position jumps
+        bad_dt_inds = find(dt > t_jump);
+        bad_dpos_inds = find(ddist > pos_jump);
+        bad_inds = union(bad_dt_inds, bad_dpos_inds);
+        
+        valid_t = [];
+        t_start = vehicle_table_v{1,{'time'}};
+        t_end = vehicle_table_v{bad_inds(1),{'time'}};
+        duration = t_end - t_start;
+        if duration > t_long_enough
+            valid_t = [valid_t; t_start, t_end, duration, 1, bad_inds(1)];
+        end
+        for i=1:(length(bad_inds)-1)
+            t_start = vehicle_table_v{bad_inds(i),{'time'}};
+            t_end = vehicle_table_v{bad_inds(i+1),{'time'}};
+            duration = t_end - t_start;
+            if duration > t_long_enough
+                valid_t = [valid_t; t_start, t_end, duration, bad_inds(i), bad_inds(i+1)];
+            end
+        end
+        smooth_veh_traj = find_smooth_veh_trajs(vehicle_table_v, valid_t);
+
+    
     % YOUR CODE HERE: process table_v vehicle data and associate with clusters
     display('table_v:'); display(fieldnames(table_v)); pause(1); %Placeholder
 end

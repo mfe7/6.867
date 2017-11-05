@@ -1,7 +1,7 @@
 function clusters = filterClusters(clusters,length_threshold_min,length_threshold_max,use_google_map)
 
 %split non-consequtive clusters
-new_clusters = struct('time',{},'id',{},'easting',{},'northing',{},'x',{},'y',{},'color',{},'vehicle_id',{});
+new_clusters = struct('id',{},'time',{},'x',{},'y',{},'easting',{},'northing',{},'color',{},'local_x',{},'local_y',{},'cross',{});
 remove_ids = [];
 for i=1:length(clusters)
     if ~isempty(find(diff(clusters(i).time')>2, 1))
