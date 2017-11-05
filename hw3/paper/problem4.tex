@@ -1,0 +1,98 @@
+\section{MNIST Dataset} \label{sec:prob4}
+In this section, we use each of the algorithms to classify handwritten digits from the MNIST dataset.
+
+\subsection{Part 1}
+The MNIST dataset contains labeled, handwritten digits.
+We split the dataset into multiple classification tasks, shown in the first column of~\cref{table_4_1}.
+We also split it into training, validation, and testing sets.
+
+We follow the typical procedure: train with many hyperparameters (C and $\lambda$ for $L_1$-, $L_2$-regularized LR, and C for SVM), choose the hyperparameters that maximize performance on the validation set with lowest model complexity (low C), and report performance on the test set for the best hyperparameters.
+
+The two classifiers here, Logistic Regression and Linear SVM, perform similarly on each classification task.
+For all tasks, the training accuracy was better than the testing accuracy, as expected.
+
+Normalization of the data did not make a large difference ($<\pm 1\%$) for these classifiers, and results presented are for non-normalized data.
+The only significant difference after normalization was the size of regularization constant $C$; in all cases, normalization caused the optimal $C$ value to increase by a few orders of magnitude.
+This is likely because the size of the data elements decreased, so the size of the learned weight vector increased, meaning a smaller regularization cost had to be applied for the same effect.
+
+A couple misclassified digits are shown in~\cref{fig:misclassified}.
+Some handwriting is very difficult even for humans to classify, so it makes sense that our learned classifiers are not perfect.
+
+\begin{figure}\label{fig:misclassified}
+    \centering
+    \begin{subfigure}[b]{0.5\columnwidth}
+        \centering
+        \includegraphics[height=1.2in]{figures/4_1_bad1}
+        \caption{Misclassified 1}
+    \end{subfigure}%
+    ~ 
+    \begin{subfigure}[b]{0.5\columnwidth}
+        \centering
+        \includegraphics[height=1.2in]{figures/4_1_bad7}
+        \caption{Misclassified 7}
+    \end{subfigure}
+    \caption{The MNIST dataset has some ambiguous entries, in accordance with real human handwriting, that are difficult to classify correctly.}
+\end{figure}
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{||c c c c c||}  
+ \hline
+ Dataset & LR Tr. & LR Test ($C$) & SVM Tr & SVM Test (C) \\ [0.3ex] 
+ \hline\hline
+ 1 vs. 7 & 100.0 & 98.3 (1, $L_1$) & 100.0 & 98.7 (0.2) \\ 
+ \hline
+ 3 vs. 5 & 100.0 & 93.3 (60, $L_1$) & 100.0 & 94.7 (0.02) \\ 
+ \hline
+ 4 vs. 9 & 100.0 & 94.7 (2, $L_1$) & 100.0 & 94.7 (0.02) \\ 
+ \hline
+ odds vs. evens & 92.9 & 89.0 (0.1, $L_2$) & 93.9 & 89.2 (0.02) \\ 
+ \hline
+\end{tabular}
+\caption{Accuracy of LR and Linear SVM on MNIST datasets.}
+\label{table_4_1}
+\end{table}
+
+\subsection{Part 2}
+Next, we applied the Gaussian RBF SVM classifier on the MNIST dataset for the same binary classification tasks.
+Again, there are two parameters, $C$ (regularization) and $\gamma$ (bandwidth) that must be tuned with the validation set.
+It is difficult to tune these two in parallel, especially without a method of visualizing the dataset, as was possible in the simple 2D data case.
+Our approach was to train of each parameter in the range $[10^{-5}, 10^{-4}, ..., 10^{5}]$, and then compare accuracy on the validation set.
+Many models had a validation accuracy of 99\%, so for these, the least complex model (low $\gamma$, low $C$).
+Even so, it's very hard to select the best model because the relative importance of $C$ and $\gamma$'s size is not obvious (i.e. is a low $\gamma$ and high $C$ preferable to a high $\gamma$ and low $C$?).
+The two are related to some extent; we observed roughly that an increase in order of magnitude of $\gamma$ decreases the $C$ for maximum validation accuracy, by an order of magnitude as well.
+Also, $\gamma>1$ always has poor validation accuracy ($<60\%$) regardless of $C$.
+
+The choice of $C$, $\gamma$, and training and test accuracy are shown in~\cref{table_4_2}.
+Even with the poor choice of parameters in the stated range, validation accuracy was often around 70-80\%, so the classifier would not be completely useless.
+For each classification task, the chosen hyperparameters are listed in~\cref{table_4_2}'s rightmost column.
+
+The RBF classifier results are better than the LR and linear SVM from~\cref{table_4_1}.
+This is expected because the RBF takes into account higher dimensional features, and the learning determines which of these features should affect classification.
+Simply learning weights based on pixel values is insufficient for high accuracy classification because there are relationships between pixels that help distinguish the digit.
+
+According to our observations, normalization is important for the RBF kernel.
+The optimal hyperparameters shrink by several orders of magnitude when normalization is turned off, just as observed for linear classifiers.
+However test accuracy drops without normalization for the RBF SVM classifier (e.g. 92\% for 1 vs. 7 without normalization, from 99\% with normalization).
+It's possible our hyperparameter search was not broad/precise enough, but the procedure could easily be scaled up given more time/computational resources.
+
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{||c c c c||}  
+ \hline
+ Dataset & Tr. Acc & Test Acc & $C, \gamma$ \\ [0.3ex] 
+ \hline\hline
+ 1 vs. 7 & 100.0 & 99.0 & 1, 0.01 \\ 
+ \hline
+ 3 vs. 5 & 100.0 & 97.0 & 100, 0.001 \\ 
+ \hline
+ 4 vs. 9 & 100.0 & 95.0 & 10, 0.001 \\ 
+ \hline
+ odds vs. evens & 100.0 & 97.2 & 1, 0.01 \\ 
+ \hline
+\end{tabular}
+\caption{Accuracy of Gaussian RBF SVM classifier on MNIST datasets.}
+\label{table_4_2}
+\end{table}
+

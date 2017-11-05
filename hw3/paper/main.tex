@@ -1,0 +1,158 @@
+\documentclass[letterpaper, 10 pt, conference]{ieeeconf}
+\IEEEoverridecommandlockouts % This command is only needed if
+% you want to use the \thanks command
+
+\overrideIEEEmargins % Needed to meet printer requirements.
+
+% See the \addtolength command later in the file to balance the column
+% lengths on the last page of the document
+\usepackage{microtype}
+% The following packages can be found on http:\\www.ctan.org
+% \usepackage{graphics} % for pdf, bitmapped graphics files
+% \usepackage{epsfig} % for postscript graphics files
+% \usepackage{mathptmx} % assumes new font selection scheme installed
+% \usepackage{times} % assumes new font selection scheme installed
+% \usepackage{amsmath} % assumes amsmath package installed
+% \usepackage{amssymb} % assumes amsmath package installed
+
+\usepackage[pdftex,pdfauthor={anonymous},pdftitle={6.867 Pset 1}]{hyperref}
+\hypersetup{colorlinks,linkcolor={green!50!black},citecolor={green!50!black},urlcolor={blue!80!black}}
+\makeatletter \let\NAT@parse\undefined \makeatother
+% \usepackage[square,comma,sort&compress]{natbib}
+\usepackage[sort,compress]{cite}
+\usepackage{graphicx} % more modern
+\usepackage{amsfonts}
+\usepackage{amsmath,soul}
+\usepackage{color}
+\usepackage[font=small]{subcaption}
+\usepackage{balance}
+\usepackage[font=small]{caption}
+%\usepackage{subfigure,balance}
+%\usepackage[colorlinks=true]{hyperref}
+%\usepackage{subcaption,balance}
+%\usepackage{algorithm} \usepackage[noend]{algorithmic}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{multirow}
+
+% from bjorn:
+\usepackage{xfrac}
+\usepackage{mathtools}
+\usepackage{bm}
+
+
+\DeclareMathOperator*{\argmin}{\arg\!\min}
+\DeclareMathOperator*{\argmax}{\arg\!\max}
+\usepackage{tabulary}
+\newcolumntype{K}[1]{>{\centering\arraybackslash}p{#1}}
+
+
+\newtheorem{definition}{Definition}
+\newtheorem{assumption}{Assumption} \newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\title{\LARGE \bf 6.867: Homework 3}
+
+\author{Anonymous authors}
+
+% \usepackage[usenames]{color}
+%\DeclareMathOperator*{\argmin}{arg\,\!min}
+%\DeclareMathOperator*{\argmax}{arg\,\!max}
+\usepackage[svgnames]{xcolor} \definecolor{DarkGreen}{rgb}{0,0.5,0}
+\definecolor{DarkRed}{rgb}{0.75,0,0}
+
+\usepackage[authormarkuptext=name,addedmarkup=bf,authormarkupposition=left]{changes}
+%\usepackage[final]{changes} %Use this to hide all comments.
+\definechangesauthor[name={M.~E.}, color={red}]{me}
+\setremarkmarkup{(#2)}
+
+%\newcommand{\mXX}[1]{{\color{DarkRed} \bf XX #1 XX\ }}
+\newcommand{\mXX}[1]{\added[id=ml,remark={}]{#1}}
+\newcommand{\sXX}[1]{\added[id=sc,remark={}]{#1}}
+%\newcommand{\XX}[1]{{\bf \color{red} XX #1 XX}}
+\newcommand{\XX}[1]{\added[id=jh,remark={}]{#1}}
+\newcommand{\jmXX}[1]{\added[id=jm,remark={}]{#1}}
+\newcommand{\meXX}[1]{\added[id=me,remark={}]{#1}}
+
+
+
+\newcommand{\jsec}[1]{\marginpar{\fcolorbox{yellow}{yellow}{\parbox{0.7in}{\raggedright
+        \color{blue} \tiny #1 }}}}
+\newcommand{\hsec}[1]{\marginpar{\fcolorbox{yellow}{yellow}{\parbox{0.7in}{\raggedright
+        \color{green} \tiny #1 }}}}
+\newcommand{\jhmargin}[2]{{\color{orange}#1}\marginpar{\color{orange}\tiny\raggedright
+    \bf [JH] #2}}
+
+
+\usepackage{tikz,mathtools}
+%\usepackage{cleveref}
+\usepackage[capitalize]{cleveref}
+\crefformat{equation}{(#2#1#3)}
+\Crefformat{equation}{Equation~(#2#1#3)}
+\Crefname{equation}{Equation}{Equations}
+
+\newcommand{\inputTikZ}[2]{\scalebox{#1}{\input{#2}}}
+\usetikzlibrary{shapes,positioning,automata,arrows,fit,backgrounds,calc}
+\tikzstyle{block} = [draw, fill=blue!20, rectangle,minimum height=1em,
+minimum width=2em] \tikzstyle{sum} = [draw, fill=blue!20, circle, node
+distance=1cm] \tikzstyle{input} = [coordinate] \tikzstyle{output} =
+[coordinate] \tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+\usetikzlibrary{trees} \usetikzlibrary{decorations.pathmorphing}
+\usetikzlibrary{decorations.markings}
+\definecolor{darkgreen}{rgb}{0,0.5,0}
+\definecolor{darkred}{rgb}{220,20,60}
+
+\makeatletter
+\renewcommand\paragraph{\@startsection{subsubsection}{4}{\z@}%
+{0.25ex \@plus.5ex \@minus.2ex}%
+{-.15em}%
+{\normalfont\normalsize\itshape}}
+\makeatother
+
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty} \pagestyle{empty}
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{abstract}
+This is Machine Learning homework 3. Topics include neural networks, conv nets, and LDA. All work has been done in Python.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \input{problem1}
+\input{problem2}
+% \input{problem3}
+%\listofchanges
+
+%\balance
+
+% \addtolength{\textheight}{-12cm} % This command serves to balance the column lengths
+% on the last page of the document manually. It shortens
+% the textheight of the last page by a suitable amount.
+% This command does not take effect until the next page
+% so it should come on the page before the last. Make
+% sure that you do not shorten the textheight too much.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section*{Acknowledgment}
+% This work is supported by Ford Motor Company.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\clearpage
+\balance
+% \bibliographystyle{IEEEtran} 
+% %\bibliographystyle{unsrt} 
+% \bibliography{biblio}
+% %\balance
+\end{document}
+%\grid

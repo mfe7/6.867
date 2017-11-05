@@ -1,0 +1,22 @@
+\section{Convolutional Neural Network (CNN)} \label{sec:prob2}
+In this section, we consider the Convolutional Neural Network (CNN) to perform artist identification on paintings.
+
+\subsection{Part 1}
+In a convolutional filter, if the first layer applies a 5x5 patch to the image to generate feature $Z_1$, and the second layer applies a 3x3 patch to feature $Z_1$ to generate feature $Z_2$, the receptive field of $Z_2$ (or dimensions of image that affect the node) is 7x7.
+That is, a window of 49 neighboring pixels in the original image affects a single node at the output of the filter.
+This allows the network to learn spatial features from the original image.
+If the conv net becomes deeper (more layers), the network can use larger and more complex combinations of features/regions of the image.
+
+\subsection{Part 2}
+We are provided with a conv net (conv.py).
+In total, there are [todo] layers: 2 convolutional layers, 1 flatten layer, and 2 dense layers.
+The output is the maximum logit of the final dense layer.
+[todo] confirm activation function. The hidden layer activation function is relu.
+The loss function is softmax cross entropy with logits.
+Loss is minimized with Gradient Descent (with a tunable learning rate parameter).
+
+The provided network took about 45 seconds to train on a Macbook CPU.
+After 1500 steps, the training accuracy is 87.4\%, and the validation accuracy is 57.5\%.
+These numbers suggest overfitting, because the model does not generalize to unseen data very well.
+
+\subsection{Part 3}

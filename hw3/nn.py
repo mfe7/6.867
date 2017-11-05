@@ -1,7 +1,8 @@
 import numpy as np
 
 def relu(x):
-    return np.clip(x,0,None)
+    return np.maximum(x,0)
+    # return np.clip(x,0,None)
 def relu_derivative(x):
     f_prime = np.zeros_like(x)
     pos_inds = np.where(x >= 0)[0]
@@ -19,45 +20,51 @@ class NeuralNetwork:
         self.activation_derivative = activation_derivative
         self.input_size = input_size
         self.output_size = output_size
-        self.weights = [None]*(num_hidden_layers+2)
-        self.biases = [None]*(num_hidden_layers+2)
+        self.weights = [None]*(num_hidden_layers+1)
+        self.biases = [None]*(num_hidden_layers+1)
         self.num_hidden_layers = num_hidden_layers
         self.layer_dims = [self.input_size] + hidden_layer_sizes + [self.output_size]
-        for i in range(1, len(self.layer_dims)):
-            self.weights[i] = np.zeros((self.layer_dims[i-1], self.layer_dims[i]))
-            self.biases[i] = 0
+        for i in range(num_hidden_layers+1):
+            self.weights[i] = np.zeros((self.layer_dims[i], self.layer_dims[i+1]))
+            self.biases[i] = np.zeros((self.layer_dims[i+1]))
 
     def train(self, x, y, learning_rate):
         a_list = [None] * (self.num_hidden_layers+2)
-        z_list = [None] * (self.num_hidden_layers+2)
-        delta_list = [None] * (self.num_hidden_layers+2)
-        L = self.num_hidden_layers + 2
+        z_list = [None] * (self.num_hidden_layers+1)
+        delta_list = [None] * (self.num_hidden_layers+1)
 
         # Input vector
         a_list[0] = x
 
         # Feedforward
-        for l in range(1,L):
-            z = np.dot(self.weights[l].T,a_list[l-1])+self.biases[l]
+        for l in range(self.num_hidden_layers+1):
+            z = np.dot(self.weights[l].T,a_list[l])+self.biases[l]
             z_list[l] = z
-            a_list[l] = self.activation(z)
+            a_list[l+1] = self.activation(z)
+        a_list[-1] = softmax(z_list[-1])
 
         # Output layer
-        delta_list[L-1] = a_list[L-1] - y
+        delta_list[-1] = a_list[-1] - y
 
+        print "a_list:", a_list
+        print "z_list:", z_list
+        print "delta_list:", delta_list
         # Backprop
-        for l in range(L-2,0,-1):
+        for l in range(self.num_hidden_layers,0,-1):
             print "l=",l
-            # D = # todo
             D = np.diag(self.activation_derivative(z_list[l]))
-            delta = np.dot(D, np.dot(self.weights[l+1], delta_list[l+1]))
+            print D
+            print self.weights[l]
+            print delta_list[l]
+            print np.dot(self.weights[l+1], delta_list[l+1])
+            delta = np.dot(D, np.dot(self.weights[l], delta_list[l]))
             delta_list[l] = delta
 
         # Final gradients
         print a_list
         print delta_list
-        for l in range(1,L):
-            dloss_dWl = a_list[l-1]*delta_list[l]
+        for l in range(0,L):
+            dloss_dWl = a_list[l]*delta_list[l]
             dloss_dbl = delta_list[l]
             self.weights[l] += -learning_rate * dloss_dWl
             self.biases[l] += -learning_rate * dloss_dbl
