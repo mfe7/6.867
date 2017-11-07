@@ -15,10 +15,18 @@ function [ smooth_veh_traj ] = find_smooth_veh_trajs( veh_traj, valid_t )
                 dxdy = next_xy - xy;
                 if norm(dxdy) > 0.01
                     heading = atan2(dxdy(2),dxdy(1));
-                    r_parallel = normr(dxdy);
-%                     headings(jj-ind_start+1) = heading;
-                    smooth_veh_traj = [smooth_veh_traj; ts(jj), xy(1), xy(2), heading, r_parallel];
-                    break;
+                    valid_heading = 1;
+                    if jj > ind_start
+                        prev_heading = smooth_veh_traj(end, 4);
+                        if abs(mod(heading - prev_heading, 2*pi)) > 0.3
+                            valid_heading = 0;
+                        end
+                    end
+                    if valid_heading
+                        r_parallel = normr(dxdy);
+                        smooth_veh_traj = [smooth_veh_traj; ts(jj), xy(1), xy(2), heading, r_parallel];
+                        break;
+                    end
                 end
             end
         end

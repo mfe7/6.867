@@ -1,52 +1,63 @@
-\section{Pegasos} \label{sec:prob3}
-In this section, we use the Pegasos algorithm for soft-margin SVM binary classification of one of the 2D datasets.
+%!TEX root = main.tex
+\section{LDA} \label{sec:prob3}
+In this section, we use latent Dirichlet allocation (LDA) to perform topic modeling on a corpus of text.
 
 \subsection{Part 1}
-The Pegasos algorithm is a method to solve soft-margin SVM.
-We implemented the algorithm according to the provided pseudocode, and added a bias term, $w_0$ that is incremented by $\eta_ty_i$ for misclassified sample $x_i$ each iteration.
-The bias term is not penalized by the regularization.
-The formulation solved by Pegasos is:
-\begin{equation}\label{eq:svm_pegasos}
-min_w \frac{\lambda}{2}||w||^2 + \frac{1}{N}\sum\limits_{i=1}^{N}max\{0,1-y_i(w^Tx_i)\}
-\end{equation}
+The first part is very straightforward.
+We installed the Mallet implementation of LDA and ran it on the corpus of text of 19,997 news articles in 20 categories from the Usenet newsgroups dataset.
 
 \subsection{Part 2}
-The algorithm is applied to the same 2D dataset for several values of $\lambda$ ($\lambda = [2, 2^{-1}, 2^{-2}, 2^{-4}$), shown in~\cref{fig:3_2_lambdas}.
-For large $\lambda$ (left), magnitude of $w$ is penalized heavily, so the decision boundary is not very accurate.
-As $\lambda$ decreases, the regularization penalty becomes less dominant compared with accuracy, so the accuracy improves.
-This intuition agrees with the objective function~\cref{eq:svm_pegasos}.
+During training, we asked the model to discover 100 topics, which include several keywords related to the topic.
+Two example topics are:
+\begin{itemize}
+	\item health cancer disease medical aids hiv number research patients page april volume newsletter study hicnet drug children risk years age 
+	\item image data graphics package images program processing line format ray code objects analysis points center it's postscript sgi formats ftp
+\end{itemize}
+The first topic seems to be related to medicine/health and the second is related to image processing/computers.
+The topics aren't extremely specific, but each component seems roughly connected.
+However, if a human were to develop a list of keywords related to health, it probably would not include words like ``newsletter'' or ``april'', so there are some strange components of the topic lists.
 
-\begin{figure}
-	\centering
-	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
-	keepaspectratio]{figures/3_2_lambdas}
-	\caption{The Pegasos algorithm is applied to the same dataset with four different regularization parameter values, $\lambda$. For large $\lambda$ (left), magnitude of $w$ is penalized heavily, so the decision boundary is not very accurate. As $\lambda$ decreases, the regularization penalty becomes less dominant compared with accuracy, so the accuracy improves.}
-	\label{fig:3_2_lambdas} 
-\end{figure}
+Of the 20 article categories, we chose to analyze two in more detail: ``sci.med'' and ``rec.sport.hockey'', which include articles about Medicine and Hockey, respectively.
+The top topics related to Medicine were:
+\begin{enumerate}
+	\item article pain doctor writes gordon banks patients good surgery treatment disease patient medicine blood intellect chronic skepticism surrender shameful chastity
+	\item food msg eat diet article people fat writes foods chinese body eating effects taste reaction i'm effect apr steve meat
+	\item candida yeast medical patients medicine symptoms treatment infection quack infections body steve doctors article clinical disease writes studies nutrition jon
+\end{enumerate}
+and the top topics related to Hockey were:
+\begin{enumerate}
+	\item period game play goal pts power shots puck blues goals flyers leafs team detroit win wings scoring penalty season goalie
+	\item game games team win espn won year lost baseball fans boston division series hockey teams chicago pittsburgh fan season cubs
+	\item team game players hockey writes play player article roger games apr league baseball good time year teams bob nhl ice 
+\end{enumerate}
+At first glance, these topics seem appropriate for the categories.
+Medicine's top topics roughly relate to medicine, nutrition, and disease, whereas hockey's top topics include rules of the game and team names.
+Upon closer look, there are some bizarre elements of the chosen topics, like ``i'm'' and ``jon'' for medicine, and ``bob'' and ``apr'' for hockey.
+But, of the 60 keywords for hockey, only about 3 of them are ridiculous whereas the other 57 are very ``on-topic.''
 
 \subsection{Part 3}
-Next, we extended our implementation to handle a kernel matrix input, and tested it with a gaussian RBF kernel as in~\cref{sec:prob2}.
-After learning $\alpha$, we predict the class of a new sample, $x_i$ by first calculating $c = \alpha \cdot K(X, x_i; \gamma)$, where $X$ is the entire training set and $\gamma$ is the Gaussian kernel bandwidth.
-If $c > 0$, it's part of the positive class, otherwise it's the negative class.
+Then, we lowered the number of topics down to 20.
+We hypothesized that this would lead to broader topics, because the same number of articles and words now would need to be binned into a smaller number of categories.
+Interestingly, the number of article classes is now equal to the number of topics.
 
-\subsection{Part 4}
-We tested our algorithm on multiple values of $\gamma$ with a fixed $\lambda=0.02$.
-For large $\gamma$ (left), the kernel is very narrow, and the decision boundary overfits the data, evident in the decision boundary's jagged shape tracing around individual borderline samples.
-As $\gamma$ decreases, the accuracy decreases, but the decision boundary is much less complicated.
-This usually leads to better generalization to unseen data.
+The first two resulting topics were:
+\begin{itemize}
+	\item writes article people don't objective moral truth true question evidence god point good i'm morality it's religion exist claim reason
+	\item israel president jews israeli writes jewish war article people arab state peace stephanopoulos arabs world policy land years country american
+\end{itemize}
+These topics seem slightly more broad than before, but it's hard to measure this concept.
 
-The number of support vectors decreases as $\gamma$ increases (192, 165, 10, 22).
-This observation aligns with the decreasing complexity of the decision boundary, because each support vector affects the shape of the decision boundary.
-
-These observations associated with increasing $\gamma$ match the trends seen in~\cref{sec:prob2} with increasing $C$.
-Both implementations (Pegasos and SVM) are able to correctly classify the dataset.
-Our Pegasos implementation runs much faster, making it easier to test with different parameters for increased performance.
-
-
-\begin{figure}
-	\centering
-	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
-	keepaspectratio]{figures/3_3_decisions}
-	\caption{The Pegasos algorithm is applied to the same dataset with four different kernel bandwidth values, $\gamma = [2^2, 2^1, 2^0, 2^{-1}]$. For large $\gamma$ (left), the kernel is narrow, and the decision boundary overfits the data. As $\gamma$ decreases, the accuracy decreases, but the decision boundary is much less complicated.}
-	\label{fig:3_3_decisions} 
-\end{figure}
+The top topics related to Medicine were:
+\begin{enumerate}
+	\item article medical writes disease study health patients food cancer number treatment men msg medicine research doctor sex drug aids studies
+	\item don't it's people i'm good make time writes article that's i've things thing can't doesn't lot point you're find work
+	\item writes article theory science fact universe evolution bill book university black water time don't apr michael physical scientific hole books
+\end{enumerate}
+and the top topics related to Hockey were:
+\begin{enumerate}
+	\item game team year games writes players article play hockey season baseball win good league player apr teams hit fans time
+	\item don't it's people i'm good make time writes article that's i've things thing can't doesn't lot point you're find work
+	\item san period convention pit party institute pts political adl det van april bos cal los committee college state vote karl 
+\end{enumerate}
+The first topic for each article category still seems appropriate, but the second and third are not very related.
+This result matches with our original intuition that that there would be less specific topics to pair with each article type.
