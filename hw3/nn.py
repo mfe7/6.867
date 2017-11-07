@@ -56,7 +56,7 @@ class NeuralNetwork:
             print D
             print self.weights[l]
             print delta_list[l]
-            print np.dot(self.weights[l+1], delta_list[l+1])
+            # print np.dot(self.weights[l+1], delta_list[l+1])
             delta = np.dot(D, np.dot(self.weights[l], delta_list[l]))
             delta_list[l] = delta
 

@@ -2,7 +2,7 @@ import numpy as np
 import re
 
 f = open('doc-topics', 'r')
-num_topics = 20
+num_topics = 400
 medicine_count = 0
 hockey_count = 0
 medicine_topics = np.zeros((num_topics))
