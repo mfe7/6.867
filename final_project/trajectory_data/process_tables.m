@@ -137,24 +137,34 @@ else
                     display('no cross.')
                 end
                 
-%                 % Plot global and local frames for a single cluster
-%                 clf;
-%                 subplot(1,2,1);
-%                 hold on;
-%                 plot(veh_pos(:,1), veh_pos(:,2),'r--o');
-%                 plot(veh_pos(1,1), veh_pos(1,2),'r*');
-%                 plot(veh_pos(end,1), veh_pos(end,2),'rx');
-%                 plot(ped_x, ped_y,'b--o');
-%                 plot(ped_x(1), ped_y(1),'b*');
-%                 plot(ped_x(end), ped_y(end),'bx');
-%                 subplot(1,2,2);
-%                 hold on;
-%                 plot(ped_local(:,1), ped_local(:,2),'b--o');
-%                 plot(ped_local(1,1), ped_local(1,2),'b*');
-%                 plot(ped_local(end,1), ped_local(end,2),'bx');
-%                 rectangle('Position',[-1 -3 2 3],'EdgeColor','blue');
-%                 rectangle('Position',[-2 0 4 10],'LineStyle','--','EdgeColor','red');
-%                 pause(1);
+                % Plot global and local frames for a single cluster
+                clf;
+                subplot(1,2,1);
+                hold on;
+                veh_pos_plot = plot(veh_pos(:,1), veh_pos(:,2),'r--o');
+                veh_start_plot = plot(veh_pos(1,1), veh_pos(1,2),'r*');
+                veh_end_plot = plot(veh_pos(end,1), veh_pos(end,2),'rx');
+                ped_pos_plot = plot(ped_x, ped_y,'b--o');
+                ped_start_plot = plot(ped_x(1), ped_y(1),'b*');
+                ped_end_plot = plot(ped_x(end), ped_y(end),'bx');
+                legend([veh_pos_plot, ped_pos_plot],{'Vehicle','Pedestrian'});
+                xlabel('x (m)');
+                ylabel('y (m)');
+                title('Global Frame');
+                subplot(1,2,2);
+                hold on;
+                plot(ped_local(:,1), ped_local(:,2),'b--o');
+                plot(ped_local(1,1), ped_local(1,2),'b*');
+                plot(ped_local(end,1), ped_local(end,2),'bx');
+                rectangle('Position',[-1 -3 2 3],'EdgeColor','blue');
+                rectangle('Position',[-2 0 4 10],'LineStyle','--','EdgeColor','red');
+                if ped_crosses_in_front
+                   text(-1,-0.5,'CROSS!'); 
+                end
+                title('Vehicle`s Local Frame');
+                xlabel('x (m)');
+                ylabel('y (m)');
+                pause(0.2);
                 
                 clusters(end+1).id = length(clusters)+1;
                 clusters(end).time = vehicle_table_p.time(vehicle_table_p.ped_id == cluster_ids(i));
