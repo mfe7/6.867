@@ -20,3 +20,45 @@ After 1500 steps, the training accuracy is 87.4\%, and the validation accuracy i
 These numbers suggest overfitting, because the model does not generalize to unseen data very well.
 
 \subsection{Part 3}
+Next, we try two common techniques to improve CNN performance.
+The first is early stopping.
+Early stopping is when training is stopped after validation accuracy levels out, before it starts to decrease, to avoid overfitting.
+In this scenario, \cref{fig:2_3_num_steps} shows that early stopping does not make much difference, because the validation accuracy levels off but doesn't decline.
+It does have the benefit of shorter training time, though.
+
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
+	keepaspectratio]{figures/2_3_num_steps}
+	\caption{Training and validation accuracy are plotted over 10,000 training steps. Model performance levels off after 1,000 training steps.} 
+	\label{fig:2_3_num_steps} 
+\end{figure}
+
+[todo] pooling layers performance seems to make no difference.
+
+\subsection{Part 4}
+Finally, we use the network on a transformed version of the dataset.
+Results in \cref{table_2_4} show that the performance is not the same for every transormation type.
+For example, the original CNN only gets 10\% accuracy on inverted images, compared to 66.7\% on low contrast images (all relative to a 70.1\% accuracy on normal images).
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{||c c||}  
+ \hline
+ Transformation & Validation Acc (\%) \\ [0.3ex] 
+ \hline\hline
+ Normal & 70.1 \\ \hline
+ Translated & 29.9 \\ \hline
+ Brightened & 47.1 \\ \hline
+ Darkened & 49.4 \\ \hline
+ High Contrast & 63.2 \\ \hline
+ Low Contrast & 66.7 \\ \hline
+ Flipped & 41.4 \\ \hline
+ Inverted & 10.3 \\ \hline
+\end{tabular}
+\caption{Accuracy of CNNs on transformed dataset.}
+\label{table_2_4}
+\end{table}
+
+
+
