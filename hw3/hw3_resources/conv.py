@@ -119,16 +119,6 @@ class ArtistConvNet:
       print "training_acc_list=", training_acc_list
       print "step_list=", step_list
 
-      # pl.figure()
-      # pl.scatter(step_list, training_acc_list,'b-o')
-      # pl.scatter(step_list, val_acc_list,'r-x')
-      # pl.xlabel('Step Number')
-      # pl.ylabel('Accuracy (\%)')
-
-      # pl.legend('Training', 'Validation')
-      # pl.show()
-
-
       # This code is for the final question
       if self.invariance:
         print("\nObtaining final results on invariance sets!")
