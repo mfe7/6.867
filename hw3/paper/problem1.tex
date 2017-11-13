@@ -6,4 +6,25 @@ The network is trained with backpropogation and stochastic gradient descent.
 \subsection{Part 1}
 In this problem, we are mainly interested in classification tasks.
 Thus, we pass the output of the final hidden layer through a softmax layer to generate a probability (outputs are positive and sum to 1) vector where each element $k$ is the probability of the input being in class $k$.
-While ReLU has a simple activation function and derivative ($f(z) = max(0, z)$ and $f'(z) = 1[x > 0]$), the softmax activation and derivative are slightly more complicated ($f(z)_i = \frac{e^{z_i}}{\sum{e^{z_j}}}$ and $f'(z)_i = [todo]$).
+
+In general, the training objective is to minimize loss, so at each training step, we evaluate the loss function and compute its gradient, and then adjust the weights and biases in a direction to decrease loss according to the learning rate.
+According to the backpropogation algorithm, the derivative of loss with respect to final activation is $\delta^L = Diag[f'(z)] \nabla_a loss$.
+For this network with softmax output activation and cross-entropy loss function, we can compute $\delta^L = p(x) - y$, where p(x) is the predicted output for a particular training data point, $x$ in class $y$ (where p is also a function of the network weights, and other parameters).
+
+
+\subsection{Part 2}
+According to the Xavier Initialization, we can initialize weights to be a zero-mean Gaussian with variance [todo].
+We initialize biases to zero, but if we initialize weights to zero as well, [todo].
+
+\subsection{Part 3}
+To add weight regularization, the objective function would look like:
+\begin{equation}
+J(w) = l(w) + \lambda(||w^{(1)}||^2_F + ||w^{(2)}||^2_F)
+\end{equation}
+The only change to the pseudo-code from the lecture notes would be an updated gradient term.
+[todo]: gradient term.
+
+
+
+
+
