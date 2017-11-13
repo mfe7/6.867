@@ -21,9 +21,30 @@ To add weight regularization, the objective function would look like:
 \begin{equation}
 J(w) = l(w) + \lambda(||w^{(1)}||^2_F + ||w^{(2)}||^2_F)
 \end{equation}
-The only change to the pseudo-code from the lecture notes would be an updated gradient term.
-[todo]: gradient term.
+The only change to the pseudo-code from the lecture notes would be an updated gradient term during the output layer's backpropogation step.
 
+The effect of regularization on the network would be the same as regularization in general.
+The $\lambda$ term penalizes weight matrix size, so increasing $\lambda$ causes weight matrices to shrink in size (lower model complexity), which decreases training accuracy (less likely to overfit), but should increase test accuracy, up to a point where $\lambda$ is large enough that the weight term dominates the loss term in the objective function.
+
+
+\subsection{Part 4}
+Next, we use the network for binary classification on the 2D datasets from the previous homework assignment.
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{||c c||}  
+ \hline
+ Dataset & Train & Test (\%) \\ [0.3ex] 
+ \hline\hline
+ 1 & 70.1 \\ \hline
+ 2 & 29.9 \\ \hline
+\end{tabular}
+\caption{Accuracy of NN on 2D datasets.}
+\label{table_1_4}
+\end{table}
+
+\subsection{Part 5}
+Finally, we use the network for digit classification on the MNIST dataset.
 
 
 

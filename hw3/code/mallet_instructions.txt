@@ -1,0 +1,16 @@
+#################
+# Mallet commands
+#################
+
+# Installation
+sudo apt install default-jre default-jdk
+export JAVA_HOME="bin"
+
+
+# Use
+cd ~/code/mallet-2.0.8
+bin/mallet import-dir --input ~/6.867/hw3/hw3_resources/20newsgroups/ --output ~/6.867/hw3/topic-input.mallet --keep-sequence --remove-stopwords
+bin/mallet train-topics --input ~/6.867/hw3/topic-input.mallet --num-topics 100 --output-state ~/6.867/hw3/topic-state.gz --output-doc-topics ~/6.867/hw3/doc-topics --output-topic-keys ~/6.867/hw3/topic-keys
+
+cd ~/6.867/hw3
+gzip -d topic-state.gz
