@@ -1,16 +1,3 @@
-mfe@mfe-ubuntu:~/code/mallet-2.0.8$ ant
-Buildfile: /home/mfe/code/mallet-2.0.8/build.xml
-
-init:
-     [copy] Copying 1 file to /home/mfe/code/mallet-2.0.8/class
-
-compile:
-    [javac] /home/mfe/code/mallet-2.0.8/build.xml:62: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
-
-BUILD SUCCESSFUL
-Total time: 0 seconds
-
-
 #################
 # Mallet commands
 #################
