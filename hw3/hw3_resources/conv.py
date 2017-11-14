@@ -11,15 +11,16 @@ import time
 
 
 DATA_PATH = 'art_data/'
-DATA_FILE = DATA_PATH + 'art_data.pickle'
+DATA_FILE = DATA_PATH + 'augmented_art_data.pickle'
+# DATA_FILE = DATA_PATH + 'art_data.pickle'
 IMAGE_SIZE = 50
 NUM_CHANNELS = 3
 NUM_LABELS = 11
 INCLUDE_TEST_SET = False
 
-BATCH_SIZE = 100
+BATCH_SIZE = 10
 # NUM_TRAINING_STEPS = 10001
-NUM_TRAINING_STEPS = 3001
+NUM_TRAINING_STEPS = 5001
 LEARNING_RATE = 0.01
 
 L2_CONST = 0.0  # Set to > 0 to use L2 regularization

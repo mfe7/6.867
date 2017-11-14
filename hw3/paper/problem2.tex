@@ -10,9 +10,9 @@ If the conv net becomes deeper (more layers), the network can use larger and mor
 
 \subsection{Part 2}
 We are provided with a conv net (conv.py).
-In total, there are [todo] layers: 2 convolutional layers, 1 flatten layer, and 2 dense layers.
-The output is the maximum logit of the final dense layer.
-[todo] confirm activation function. The hidden layer activation function is relu.
+The layers in this network are: 2 convolutional layers, 1 fully-connected layer with ReLU activation, and 1 fully-connected layer with linear activation.
+The output is the maximum logit of the final fully-connected layer.
+The hidden layer activation function is ReLU.
 The loss function is softmax cross entropy with logits.
 Loss is minimized with Gradient Descent (with a tunable learning rate parameter).
 
