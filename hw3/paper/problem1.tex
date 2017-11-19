@@ -22,6 +22,7 @@ If variance is too low, all the weights will be close to zero and we will be fac
 If variance is too high, training the network will take a long time to undo the bias imposed during initialization.
 Even worse, it's possible the network will get stuck in a local minimum that is far from the global optimum.
 This tradeoff of initializing enough randomness to avoid symmetry while not imposing too much bias, is an important piece of neural network training.
+The recommended variance is $\frac{1}{n}$, where $n$ is the number of inputs to that layer.
 
 \subsection{Part 3}
 To add weight regularization, the objective function would look like:
@@ -110,9 +111,6 @@ This makes it less meaningful to compare architectures with results from single 
 In general, the NN classifier works best on the (easy) linearly separable dataset ($\approx 100\%$ on 1), and still does very well on the other datasets with non-linear decision boundaries.
 
 Compared to the classifiers from the previous homework assignment, the NN of course outperforms Linear SVM and LR on the non-linearly separable data, and does approximately as well on the linearly separable ones. The performance is also comparable/better than Guassian RBF SVM and training time seems much faster (though speed depends on quality of implementation).
-
-
-
 
 \subsection{Part 5}
 Finally, we use the network for digit classification on the MNIST dataset.
