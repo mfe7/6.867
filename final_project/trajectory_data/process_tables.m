@@ -47,10 +47,10 @@ end
 [nodes,routes,odpairs,links] = getGraphInfo(network_name,0,plotting);
 
 %% Process data one day at a time
-%for d = days;
-%clear table_v table_p clusters
+for d = days;
+clear table_v table_p clusters
 %% Setup file data    
-date_ = dates(days(2),:);
+date_ = dates(days(d),:);
 display(date_)
 table_filename = [table_folder, '/' , 'tables_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
 clusters_filename = [clusters_folder, '/' , 'clusters2_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];clusters_filename = [clusters_folder, '/' , 'clusters_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
@@ -63,7 +63,7 @@ end
 
 %% Process vehicle data
 % The vehicle's position data is available in the 'table_v' variable
-display('Processing clusters');
+display('Processing vehicle data...');
 t_jump = 0.5; % upper bound on typical time between successive data points
 pos_jump = 1.0; % upper bound on typical distance between successive data points
 t_long_enough = 5.0; % lower bound on time duration of a useful vehicle trajectory segment
@@ -204,33 +204,35 @@ else
                 end
                 
                 % Plot global and local frames for a single cluster
-                clf;
-                subplot(1,2,1);
-                hold on;
-                veh_pos_plot = plot(veh_pos(:,1), veh_pos(:,2),'r--o');
-                veh_start_plot = plot(veh_pos(1,1), veh_pos(1,2),'r*');
-                veh_end_plot = plot(veh_pos(end,1), veh_pos(end,2),'rx');
-                ped_pos_plot = plot(ped_x, ped_y,'b--o');
-                ped_start_plot = plot(ped_x(1), ped_y(1),'b*');
-                ped_end_plot = plot(ped_x(end), ped_y(end),'bx');
-                legend([veh_pos_plot, ped_pos_plot],{'Vehicle','Pedestrian'});
-                xlabel('x (m)');
-                ylabel('y (m)');
-                title('Global Frame');
-                subplot(1,2,2);
-                hold on;
-                plot(ped_local(:,1), ped_local(:,2),'b--o');
-                plot(ped_local(1,1), ped_local(1,2),'b*');
-                plot(ped_local(end,1), ped_local(end,2),'bx');
-                rectangle('Position',[-1 -3 2 3],'EdgeColor','blue');
-                rectangle('Position',[-2 0 4 10],'LineStyle','--','EdgeColor','red');
-                if ped_crosses_in_front
-                   text(-1,-0.5,'CROSS!'); 
+                if plotting == 1
+                    clf;
+                    subplot(1,2,1);
+                    hold on;
+                    veh_pos_plot = plot(veh_pos(:,1), veh_pos(:,2),'r--o');
+                    veh_start_plot = plot(veh_pos(1,1), veh_pos(1,2),'r*');
+                    veh_end_plot = plot(veh_pos(end,1), veh_pos(end,2),'rx');
+                    ped_pos_plot = plot(ped_x, ped_y,'b--o');
+                    ped_start_plot = plot(ped_x(1), ped_y(1),'b*');
+                    ped_end_plot = plot(ped_x(end), ped_y(end),'bx');
+                    legend([veh_pos_plot, ped_pos_plot],{'Vehicle','Pedestrian'});
+                    xlabel('x (m)');
+                    ylabel('y (m)');
+                    title('Global Frame');
+                    subplot(1,2,2);
+                    hold on;
+                    plot(ped_local(:,1), ped_local(:,2),'b--o');
+                    plot(ped_local(1,1), ped_local(1,2),'b*');
+                    plot(ped_local(end,1), ped_local(end,2),'bx');
+                    rectangle('Position',[-1 -3 2 3],'EdgeColor','blue');
+                    rectangle('Position',[-2 0 4 10],'LineStyle','--','EdgeColor','red');
+                    if ped_crosses_in_front
+                       text(-1,-0.5,'CROSS!'); 
+                    end
+                    title('Vehicle`s Local Frame');
+                    xlabel('x (m)');
+                    ylabel('y (m)');
+                    pause(0.2);
                 end
-                title('Vehicle`s Local Frame');
-                xlabel('x (m)');
-                ylabel('y (m)');
-                pause(0.2);
                 
                 clusters(end+1).id = length(clusters)+1;
                 clusters(end).time = vehicle_table_p.time(vehicle_table_p.ped_id == cluster_ids(i));
@@ -264,6 +266,7 @@ else
     end
     save(clusters_filename,'clusters')
 end
-%end
+display('Done processing clusters.')
+end
 
 
