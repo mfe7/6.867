@@ -50,7 +50,7 @@ end
 %for d = days;
 %clear table_v table_p clusters
 %% Setup file data    
-date_ = dates(days(1),:);
+date_ = dates(days(2),:);
 display(date_)
 table_filename = [table_folder, '/' , 'tables_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
 clusters_filename = [clusters_folder, '/' , 'clusters2_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];clusters_filename = [clusters_folder, '/' , 'clusters_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
@@ -83,6 +83,9 @@ if ~isempty(table_v)
         dpos = diff(pos);
         ddist = sqrt(sum(dpos.^2,2));
         % 2) Find indices corresponding to jumps
+        % note: bad_inds is a list of indices where [..., bad_inds] and
+        % [bad_inds+1,...] should be separated. That is, bad_inds to
+        % bad_inds+1 is where the jump occurs.
         bad_dt_inds = find(dt > t_jump);
         bad_dpos_inds = find(ddist > pos_jump);
         bad_inds = union(bad_dt_inds, bad_dpos_inds);
@@ -95,18 +98,18 @@ if ~isempty(table_v)
         % 1) Initialize from t=t0 to first jump
         valid_t = [];
         t_start = vehicle_table_v{1,{'time'}};
-        t_end = vehicle_table_v{bad_inds(1),{'time'}};
+        t_end = vehicle_table_v{bad_inds(2),{'time'}};
         duration = t_end - t_start;
         if duration > t_long_enough
-            valid_t = [valid_t; t_start, t_end, duration, 1, bad_inds(1)];
+            valid_t = [valid_t; t_start, t_end, duration, 1, bad_inds(2)];
         end
         % 2) Iterate through the rest of the jumps and add to valid_t
-        for i=1:(length(bad_inds)-1)
-            t_start = vehicle_table_v{bad_inds(i),{'time'}};
+        for i=2:(length(bad_inds)-1)
+            t_start = vehicle_table_v{bad_inds(i)+1,{'time'}};
             t_end = vehicle_table_v{bad_inds(i+1),{'time'}};
             duration = t_end - t_start;
             if duration > t_long_enough
-                valid_t = [valid_t; t_start, t_end, duration, bad_inds(i), bad_inds(i+1)];
+                valid_t = [valid_t; t_start, t_end, duration, bad_inds(i)+1, bad_inds(i+1)];
             end
         end
         
@@ -121,10 +124,12 @@ if ~isempty(table_v)
 
 
 end
+display('Done processing vehicle trajectory');
 
 %% Process the clusters
 % if do_clusters
-if exist([clusters_filename,'.mat'],'file')
+if 0
+% if exist([clusters_filename,'.mat'],'file')
     load(clusters_filename)
 else
     %% Read clusters from table
@@ -253,7 +258,7 @@ else
         clusters = generateClusterPaths3(clusters,links,routes,'easting','northing');
 
         % Get cluster velocities
-        [clusters.velocity] = num2struct(arrayfun(@(cluster) mean(sqrt(sum(diff([cluster.easting;cluster.northing]').^2,2))./diff(cluster.time)'), clusters2));
+        [clusters.velocity] = num2struct(arrayfun(@(cluster) mean(sqrt(sum(diff([cluster.easting;cluster.northing]').^2,2))./diff(cluster.time)'), clusters));
         
         clusters = merge_and_estimate_cluster_arrivals(clusters,links);
     end
