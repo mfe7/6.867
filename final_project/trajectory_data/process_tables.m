@@ -47,8 +47,8 @@ end
 [nodes,routes,odpairs,links] = getGraphInfo(network_name,0,plotting);
 
 %% Process data one day at a time
-for d = days;
-clear table_v table_p clusters
+%for d = days;
+%clear table_v table_p clusters
 %% Setup file data    
 date_ = dates(days(1),:);
 display(date_)
@@ -59,6 +59,67 @@ clusters_filename = [clusters_folder, '/' , 'clusters2_',num2str(date_(1)),'_',n
 %% Load the day's data
 if exist([table_filename,'.mat'],'file')
     load(table_filename)
+end
+
+%% Process vehicle data
+% The vehicle's position data is available in the 'table_v' variable
+display('Processing clusters');
+t_jump = 0.5; % upper bound on typical time between successive data points
+pos_jump = 1.0; % upper bound on typical distance between successive data points
+t_long_enough = 5.0; % lower bound on time duration of a useful vehicle trajectory segment
+if ~isempty(table_v)
+    unique_vehicle_ids = unique(table_p.vehicle_id);
+    for v=1:length(unique_vehicle_ids) % go through each vehicle
+        vehicle_table_v = table_v(strcmp(table_v.vehicle_id,unique_vehicle_ids(v)),:);
+        
+        % Extract time, position from vehicle table into matrices
+        t = vehicle_table_v{:,{'time'}};
+        pos = vehicle_table_v{:,{'x','y'}};
+        
+        % Find indices where timestamp/position jumps
+        % 1a) Find difference between consecutive timestamps
+        dt = diff(t); 
+        % 1b) Find distance between consecutive vehicle data pts
+        dpos = diff(pos);
+        ddist = sqrt(sum(dpos.^2,2));
+        % 2) Find indices corresponding to jumps
+        bad_dt_inds = find(dt > t_jump);
+        bad_dpos_inds = find(ddist > pos_jump);
+        bad_inds = union(bad_dt_inds, bad_dpos_inds);
+        
+        % Find start/end times of trajectory segments between
+        % timestamp/position jumps and put into valid_t:
+        % valid_t =
+        %   [t_start, t_end, duration (sec), lower index, upper index]
+        %       (one row per smooth trajectory segment)
+        % 1) Initialize from t=t0 to first jump
+        valid_t = [];
+        t_start = vehicle_table_v{1,{'time'}};
+        t_end = vehicle_table_v{bad_inds(1),{'time'}};
+        duration = t_end - t_start;
+        if duration > t_long_enough
+            valid_t = [valid_t; t_start, t_end, duration, 1, bad_inds(1)];
+        end
+        % 2) Iterate through the rest of the jumps and add to valid_t
+        for i=1:(length(bad_inds)-1)
+            t_start = vehicle_table_v{bad_inds(i),{'time'}};
+            t_end = vehicle_table_v{bad_inds(i+1),{'time'}};
+            duration = t_end - t_start;
+            if duration > t_long_enough
+                valid_t = [valid_t; t_start, t_end, duration, bad_inds(i), bad_inds(i+1)];
+            end
+        end
+        
+        % smooth_veh_traj =
+        %   [timestamp, global_x, global_y, heading (rad), r_par, r_orthog]
+        %       where r_par, r_orthog is the unit vector pointing out of the
+        %       vehicle's front
+        %       (one row per timestamp)
+        smooth_veh_traj = find_smooth_veh_traj(vehicle_table_v, valid_t);
+
+    end
+
+
 end
 
 %% Process the clusters
@@ -198,52 +259,6 @@ else
     end
     save(clusters_filename,'clusters')
 end
-end
-
-%% Process vehicle data
-% The vehicle's position data is available in the 'table_v' variable
-display('Processing clusters');
-t_jump = 0.5;
-pos_jump = 1.0;
-t_long_enough = 5.0;
-if ~isempty(table_v)
-    unique_vehicle_ids = unique(table_p.vehicle_id);
-    for v=1:length(unique_vehicle_ids) % go through each vehicle
-%         vehicle_table_p = table_p(strcmp(table_p.vehicle_id,unique_vehicle_ids(v)),:);
-        vehicle_table_v = table_v(strcmp(table_v.vehicle_id,unique_vehicle_ids(v)),:);
-        % Extract time, position from vehicle table into matrices
-        t = vehicle_table_v{:,{'time'}};
-        pos = vehicle_table_v{:,{'x','y'}}
-        dt = diff(t); % find difference between consecutive timestamps
-        dpos = diff(pos);
-        ddist = sqrt(sum(dpos.^2,2));
-        
-        % Find indices where timestamp/position jumps
-        bad_dt_inds = find(dt > t_jump);
-        bad_dpos_inds = find(ddist > pos_jump);
-        bad_inds = union(bad_dt_inds, bad_dpos_inds);
-        
-        valid_t = [];
-        t_start = vehicle_table_v{1,{'time'}};
-        t_end = vehicle_table_v{bad_inds(1),{'time'}};
-        duration = t_end - t_start;
-        if duration > t_long_enough
-            valid_t = [valid_t; t_start, t_end, duration, 1, bad_inds(1)];
-        end
-        for i=1:(length(bad_inds)-1)
-            t_start = vehicle_table_v{bad_inds(i),{'time'}};
-            t_end = vehicle_table_v{bad_inds(i+1),{'time'}};
-            duration = t_end - t_start;
-            if duration > t_long_enough
-                valid_t = [valid_t; t_start, t_end, duration, bad_inds(i), bad_inds(i+1)];
-            end
-        end
-        smooth_veh_traj = find_smooth_veh_trajs(vehicle_table_v, valid_t);
-
-    
-    % YOUR CODE HERE: process table_v vehicle data and associate with clusters
-    display('table_v:'); display(fieldnames(table_v)); pause(1); %Placeholder
-end
+%end
 
 
-end
