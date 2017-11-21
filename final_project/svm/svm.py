@@ -18,14 +18,13 @@ class SVM:
       max_iter=-1, decision_function_shape='ovr', random_state=None)
     
   def train(self, x, y):
-    print '[STATUS] Train SVM with {} samples...'.format(y.shape[0])
+    print('[STATUS] Train SVM with {} samples...'.format(y.shape[0]))
     self._svm.fit(x, y)
-    print '[STATUS] Training finished'.format(y.shape[0])
+    print('[STATUS] Training finished'.format(y.shape[0]))
 
 
   def score(self, x, y):
     acc = self._svm.score(x, y)
-    print '[STATUS] Test accuracy of {0:.2f}\%'.format(acc)
     return acc
 
 
