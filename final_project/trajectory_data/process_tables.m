@@ -158,7 +158,7 @@ else
                 tmp = valid_t(:,1) - t_ped(1);
                 ix = find(tmp>0,1);
                 if t_ped(end) > valid_t(ix,2)
-                    break;
+                    continue;
                 end
                 
                 t_veh = smooth_veh_traj(:,1);
