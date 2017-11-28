@@ -2,7 +2,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy.io as sio
 from collections import OrderedDict # ordered import of keys to dict
+from matplotlib.cbook import get_sample_data
+from matplotlib.offsetbox import (TextArea, DrawingArea, OffsetImage,
+                                  AnnotationBbox)
+import matplotlib.patches as patches
+import os 
 
+##############################################
+# Use latex font in matplotlib plots
+params = {'text.usetex' : True,
+          'font.size' : 12,
+          'font.family' : 'lmodern',
+          'text.latex.unicode': True,
+          }
+plt.rcParams.update(params)
+##############################################
+
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
 class Data:
   def __init__(self, file_name = 'clusters_2016_2_9'):
@@ -83,19 +99,43 @@ class Data:
     x1 = x[:, ::2]
     x2 = x[:, 1::2]
 
-    fig = plt.figure()
+    fig, ax = plt.subplots()
     # Plot trained curve on new data
     print("[INFO] Dimensions of spliced trajectory set (ntraj x length): {} x {}".format(x1.shape[0], x1.shape[1]))
     for i in range(x1.shape[0]):
       if i < max_npoints:
         if y[i] == 0:
-          plt.plot(x1[i], x2[i], '.', color = 'green')
+          ax.plot(x1[i], x2[i], '-', color = 'green')
         else:
-          plt.plot(x1[i], x2[i], '.', color = 'red')#, label = 'y != 1') 
+          ax.plot(x1[i], x2[i], '-', color = 'red')#, label = 'y != 1') 
 
-    plt.xlabel('x1')
-    plt.ylabel('x2')
-    plt.title('red = cross, green = no cross')
+
+    # Add image of vehicle at (0,0)
+    fn = get_sample_data(dir_path+"/car_from_above.png", asfileobj=False)
+    arr_img = plt.imread(fn, format='png')
+    imagebox = OffsetImage(arr_img, zoom=0.2)
+    imagebox.image.axes = ax
+    xy = [0,-3.5]
+    ab = AnnotationBbox(imagebox, xy,
+                        xybox=(0., 0.),
+                        xycoords='data',
+                        boxcoords="offset points",
+                        pad=0.5,
+                        )
+    ax.add_artist(ab)
+
+    # Add rectangle to depict "forbidden zone"
+    forbidden_zone_width = 4
+    forbidden_zone_height = 10
+    rectangle_bottom_left = (0-forbidden_zone_width/2.0, 0)
+    rect = patches.Rectangle(rectangle_bottom_left,forbidden_zone_width,forbidden_zone_height,linewidth=10,edgecolor='b',facecolor='none',linestyle='--')
+    ax.add_patch(rect)
+
+    ax.set_xlim(-20, 20)
+    ax.set_ylim(-10, 30)
+    ax.set_xlabel('x [m]')
+    ax.set_ylabel('y [m]')
+    ax.set_title('red = cross, green = no cross')
     plt.show()
 
 

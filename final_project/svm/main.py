@@ -3,12 +3,16 @@ from svm import SVM
 from read_data import Data
 
 
+
+
 train_file = 'clusters_2016_2_9'
 data = Data(train_file)
 x,y = data.get_XY()
 
 plot_nsnips = 1000 # plot no more than 1000 trajectory sniplets to reduce plotting time
 data.plot_clf(x,y, plot_nsnips)
+
+
 
 
 clf = 'svm_rbf'
