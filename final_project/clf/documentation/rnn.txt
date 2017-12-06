@@ -1,0 +1,79 @@
+
+Learnings from cs231n, Lec 10, RNN
+General
+
+- h is commonly initialized with 0
+- seq. length = length of x vector used for backprop - take traj sniplets?
+ - backprop only operates on seq. length
+ - What is our seq length?
+  - originally seq. length defines the length of how far a rnn can "look" into the past
+  - however it shows, that it can look further than just until the line's beginning
+  - Maybe by using the h(t-1) vector as initial input
+
+- how to train on data of different length?
+ - all parameters are shared among the layers
+ - 
+- what's the RNN layer size?
+- How to display interpretable cells?
+ - What should our interpretable cells look like
+ - e.g."quote detection cell" - 27:50
+ - What is one cell?
+  - each hidden state consists of multiple cells?
+- How do generate text label of image?
+ - Feed image into CNN
+ - Cut off last softmax layer
+ - Use empty x_0 vector for first RNN node
+  - size 1 x vocabulary-length + 1(end token) for one-hot encoding
+  - but size can be boiled down to 1x300 vector representing each word
+ - Train CNN and RNN JOINTLY - trains: what features to look out for to generate text
+ - User last FC layer as input to first RNN node
+ - Straw features influence probability of word straw 
+ - word x_i is sampled from softmax probability distribution of y_i-1
+ - Sample until a <end> token is sampled (full-stop in sentence)
+ - Visualization
+  - Feed RNN softmax output back into CNN (image layer?) and multiply it with each field along the depth to create attention map on image.
+  - Soft attention: Then use selective attention on input, while processing the input (explained in later lecture)
+- Does it matter, if I splice up the data into sniplets?
+
+- Stacking RNNs as recurrence RNNs
+ - Each RNN's y feeds as x into the next RNN
+- Use LSTMs instead
+ - i,f,o are thought of as binary gates, but sigmoids to be diofferentiative
+ - forget resets the cells if 0
+ - i adds negative 1 or one from g onto the cell's state
+  - g: how much or what do we want to add to cell state
+  - i: do we even want to add sth
+ - o tells which cell states leak into the hidden state
+ - Which parts are less important?
+  - tanh(c) works nearly as good as just c
+  - input gate could be removed without influencing performance too much
+  - o can be omitted
+  - 
+ - How can one image the counters?
+ - Why is LSTM better than RNN?
+  - RNN completely transforms each layer
+  - LSTM tweaks the current state by additive interaciton (assuming no forget gate)
+  - Same as PlainNets vs. ResNet on CNNs!
+  - + interactions serve as "gradient superhighway"
+   - Leverages vanishing gradient problem
+    - Gradients die out, because I keep on multiplying it by the weight matrix W (dies or explodes)
+   - Alternatives
+  - Gradient clipping is used to prevent exploding gradients, bc that can still occur in LSTMs
+  - Forget gate stops gradient flow, by killing the cell state
+   - => initialize f with bias to 1, to be turned off in the beginning to allow faster training
+- I can also stack LSTM's 
+ - How many stacked LSTMs do we want? (ml-design stacks 2)
+
+Alternatives:
+- GRU is simpler than LSTM by obligating the cell state
+- Works about the same
+
+
+
+
+
+Do we have a vanishing gradient problem when we use RNNs instead of LSTMs?
+- Injected gradient with normal dist 0.1 died off after ~8 iterations in lecture
+
+Read Handwriting prediction:
+- https://distill.pub/2016/handwriting/
