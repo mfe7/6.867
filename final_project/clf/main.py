@@ -6,6 +6,7 @@ from rnn import RNN
 train_file = 'clusters_2016_2_9'
 data = Data(train_file)
 x,y = data.get_XY()
+# y element of {0,1}
 
 plot = 0
 clf = 'rnn'
@@ -29,8 +30,9 @@ if clf == 'svm_rbf':
 elif clf == 'rnn':
   #x_rnn = data.reshape_rnn(x)
   #print(x_rnn)
+  print(y)
   rnn = RNN()
-  rnn.train(x, y)
+  rnn.initialize_graph(x, y)
 
 
 if test_model == True:

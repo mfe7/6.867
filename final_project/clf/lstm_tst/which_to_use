@@ -1,0 +1,8 @@
+- recurrent_network.py
+	- simplest code
+	- runs with tf 1.2
+	- uses mnist
+- google_tf
+	- more sophisticated
+	- displays tf graph
+	- uses multivariate sinus signal
