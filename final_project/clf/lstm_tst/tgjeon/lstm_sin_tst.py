@@ -1,3 +1,6 @@
+# From https://github.com/tgjeon/TensorFlow-Tutorials-for-Time-Series
+# tgjeon/TensorFlow-Tutorials-for-Time-Series
+
 # coding: utf-8
 
 # In[13]:

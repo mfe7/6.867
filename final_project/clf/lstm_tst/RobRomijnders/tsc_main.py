@@ -1,3 +1,7 @@
+# From https://github.com/RobRomijnders/LSTM_tsc
+# RobRomijnders/LSTM_tsc
+# runs on tf 1.1.
+
 """
 LSTM for time series classification
 
