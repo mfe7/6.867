@@ -22,7 +22,7 @@ plt.rcParams.update(params)
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 class Data:
-  def __init__(self, file_name = 'clusters_2016_2_9'):
+  def __init__(self, file_name = 'clusters_2016_2_9', verbose=True):
     self.file_name = file_name
     self._data = {}
     self._t_steps = 10 # length of trajectory sliplets
@@ -30,6 +30,7 @@ class Data:
     self._X = np.zeros((0, self.dim * self._t_steps))
     self._Y = np.zeros((0, 1))
     self._d_t = 0
+    self.verbose=verbose
     self._init_data()
 
   def _init_data(self):
@@ -79,8 +80,11 @@ class Data:
         self._X = np.append(self._X, x_tmp, axis = 0)
         self._Y = np.append(self._Y, y, axis = 0)
 
-    nsnips_total = self._Y.shape[0]
-    print('[STATUS] compiled {} to {} trajectories with t stepsize {}'.format(ntraj, nsnips_total, self._t_steps))
+    if self.verbose:
+      nsnips_total = self._Y.shape[0]
+      print('[STATUS] Compiled {} orig. traj. to {} traj. snips of length t={} steps each'.format(ntraj, nsnips_total, self._t_steps))
+      n_cross = np.count_nonzero(self._Y)
+      print('[STATUS] Output dataset has {} labeled cross and {} no-cross'.format(n_cross, nsnips_total-n_cross))
 
   def get_XY(self):
     return self._X, np.reshape(self._Y, self._Y.shape[0])

@@ -2,6 +2,8 @@ import numpy as np
 from svm import SVM
 from read_data import Data
 from rnn import RNN
+import tensorflow as tf
+
 
 train_file = 'clusters_2016_2_9'
 data = Data(train_file)
@@ -9,42 +11,60 @@ x,y = data.get_XY()
 # y element of {0,1}
 
 plot = 0
-clf = 'rnn'
-test_model = False
+clf_sel = 'rnn'
+test_model = True
 
 if plot == 1:
   plot_nsnips = 1000 # plot no more than 1000 trajectory sniplets to reduce plotting time
   data.plot_clf(x,y, plot_nsnips)
 
-if clf == 'svm_rbf':
-  C = 1
-  gamma = 'auto'
-  kernel = 'rbf'
-  svm = SVM(C, gamma, kernel)
+for lr in [0.001]:
+  for n_hidden in [128]:
+    for batch_size in [1000]:
+      #print('[STATUS] LEARNING RATE = {}'.format(lr))
+      #print('[STATUS] N hidden units = {}'.format(n_hidden))
+      print('[STATUS] BATCH SIZE = {}'.format(batch_size))
+      
+      ## SVM with RBF kernel
+      if clf_sel == 'svm_rbf':
+        C = 1
+        gamma = 'auto'
+        kernel = 'rbf'
+        clf = SVM(C, gamma, kernel)
 
-  svm.train(x,y)
+        clf.train(x,y)
 
-  train_acc = svm.score(x, y)
-  print('[STATUS] Train accuracy of {0:.2f}%'.format(train_acc*100))
+        train_acc = clf.score(x, y)
+        print('[STATUS] Train accuracy of {0:.2f}%'.format(train_acc*100))
 
-elif clf == 'rnn':
-  #x_rnn = data.reshape_rnn(x)
-  #print(x_rnn)
-  print(y)
-  rnn = RNN()
-  rnn.initialize_graph(x, y)
+      ## RNN
+      elif clf_sel == 'rnn':
 
+        input_dim = 2 # x and y position of pedestrian
+        n_samples = None # set in initialize_graph
+        #n_hidden = 128 # num hidden layers = num features
+        n_classes = 1 # binary: cross / no-cross, not one-hot encoded, {0,1} instead 
+        max_epochs=3
 
-if test_model == True:
-  val_file = 'clusters_2016_2_10'
-  val_data = Data(val_file)
-  x_val,y_val = val_data.get_XY()
-  val_acc = svm.score(x_val, y_val)
-  print('[STATUS] Validation accuracy of {0:.2f}%'.format(val_acc*100))
+        #lr = 0.001 # Learning rate
+        #batch_size = 1
+        max_iter = 10000
 
-  test_file = 'clusters_2016_2_11'
-  test_data = Data(test_file)
-  x_test,y_test = test_data.get_XY()
-  test_acc = svm.score(x_test, y_test)
-  print('[STATUS] Test accuracy of {0:.2f}%'.format(test_acc*100))
+        tf.reset_default_graph()
+        clf = RNN(input_dim, n_hidden, n_classes, lr, batch_size, max_iter, max_epochs)
+        clf.initialize_graph()
+        clf.train_and_predict(x, y)
+
+      if test_model == True:
+        val_file = 'clusters_2016_2_10'
+        val_data = Data(val_file, verbose=False)
+        x_val,y_val = val_data.get_XY()
+        val_acc = clf.score(x_val, y_val)
+        print('[STATUS] Validation accuracy of {0:.2f}%'.format(val_acc*100))
+
+        test_file = 'clusters_2016_2_11'
+        test_data = Data(test_file, verbose=False)
+        x_test,y_test = test_data.get_XY()
+        test_acc = clf.score(x_test, y_test)
+        print('[STATUS] Test accuracy of {0:.2f}%'.format(test_acc*100))
 

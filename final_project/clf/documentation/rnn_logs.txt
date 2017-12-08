@@ -1,0 +1,204 @@
+########################################################################
+Search over max_epochs and learning rate
+batch_size = 1
+n_hidden = 128
+
+Results:
+Best training performance after 3 epochs, LR = 0.001
+########################################################################
+
+MAX_EPOCHS = 2
+
+acl@bjoern-linux:~/Documents/ml_6867/mfe/6.867/final_project/clf$ python main.py 
+[STATUS] Compiled 734 orig. traj. to 2176 traj. snips of length t=10 steps each
+[STATUS] Output dataset has 775 labeled cross and 1401 no-cross
+[STATUS] LEARNING RATE = 0.1
+[STATUS] Start training
+[STATUS] Train accuracy of 75.83%
+[STATUS] Train accuracy of 86.95%
+[STATUS] Validation accuracy of 84.81%
+[STATUS] Test accuracy of 80.50%
+[STATUS] LEARNING RATE = 0.001
+[STATUS] Start training
+[STATUS] Train accuracy of 89.66%
+[STATUS] Train accuracy of 89.94%
+[STATUS] Validation accuracy of 82.31%
+[STATUS] Test accuracy of 79.15%
+[STATUS] LEARNING RATE = 0.0001
+[STATUS] Start training
+[STATUS] Train accuracy of 80.06%
+[STATUS] Train accuracy of 84.47%
+[STATUS] Validation accuracy of 83.10%
+[STATUS] Test accuracy of 78.55%
+[STATUS] LEARNING RATE = 1e-05
+[STATUS] Start training
+[STATUS] Train accuracy of 50.32%
+[STATUS] Train accuracy of 52.30%
+[STATUS] Validation accuracy of 58.70%
+[STATUS] Test accuracy of 53.75%
+
+
+MAX_EPOCHS = 10
+
+acl@bjoern-linux:~/Documents/ml_6867/mfe/6.867/final_project/clf$ python main.py 
+[STATUS] Compiled 734 orig. traj. to 2176 traj. snips of length t=10 steps each
+[STATUS] Output dataset has 775 labeled cross and 1401 no-cross
+
+[STATUS] LEARNING RATE = 0.1
+[STATUS] Start training
+2017-12-08 18:10:13.869958: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+[STATUS] Train accuracy of 81.2959558824% after epoch 0
+[STATUS] Train accuracy of 83.8694852941% after epoch 1
+[STATUS] Train accuracy of 86.9025735294% after epoch 2
+[STATUS] Train accuracy of 87.5919117647% after epoch 3
+[STATUS] Train accuracy of 89.5680147059% after epoch 4
+[STATUS] Train accuracy of 88.5569852941% after epoch 5
+[STATUS] Train accuracy of 88.1433823529% after epoch 6
+[STATUS] Train accuracy of 87.5919117647% after epoch 7
+[STATUS] Train accuracy of 87.7297794118% after epoch 8
+[STATUS] Train accuracy of 87.8676470588% after epoch 9
+[STATUS] Validation accuracy of 84.34%
+[STATUS] Test accuracy of 81.70%
+
+[STATUS] LEARNING RATE = 0.001
+[STATUS] Start training
+[STATUS] Train accuracy of 87.6378676471% after epoch 0
+[STATUS] Train accuracy of 89.8897058824% after epoch 1
+[STATUS] Train accuracy of 90.2573529412% after epoch 2
+[STATUS] Train accuracy of 90.1194852941% after epoch 3
+[STATUS] Train accuracy of 90.2573529412% after epoch 4
+[STATUS] Train accuracy of 90.2113970588% after epoch 5
+[STATUS] Train accuracy of 90.0735294118% after epoch 6
+[STATUS] Train accuracy of 89.9356617647% after epoch 7
+[STATUS] Train accuracy of 89.9356617647% after epoch 8
+[STATUS] Train accuracy of 89.7977941176% after epoch 9
+[STATUS] Validation accuracy of 84.43%
+[STATUS] Test accuracy of 80.35%
+
+[STATUS] LEARNING RATE = 0.0001
+[STATUS] Start training
+[STATUS] Train accuracy of 70.2665441176% after epoch 0
+[STATUS] Train accuracy of 83.2261029412% after epoch 1
+[STATUS] Train accuracy of 84.6507352941% after epoch 2
+[STATUS] Train accuracy of 85.1102941176% after epoch 3
+[STATUS] Train accuracy of 85.1102941176% after epoch 4
+[STATUS] Train accuracy of 85.2481617647% after epoch 5
+[STATUS] Train accuracy of 85.3400735294% after epoch 6
+[STATUS] Train accuracy of 85.6617647059% after epoch 7
+[STATUS] Train accuracy of 85.7996323529% after epoch 8
+[STATUS] Train accuracy of 85.8915441176% after epoch 9
+[STATUS] Validation accuracy of 83.99%
+[STATUS] Test accuracy of 79.85%
+
+[STATUS] LEARNING RATE = 1e-05
+[STATUS] Start training
+[STATUS] Train accuracy of 51.9761029412% after epoch 0
+[STATUS] Train accuracy of 67.2334558824% after epoch 1
+[STATUS] Train accuracy of 73.8051470588% after epoch 2
+[STATUS] Train accuracy of 76.0569852941% after epoch 3
+[STATUS] Train accuracy of 77.1139705882% after epoch 4
+[STATUS] Train accuracy of 78.0330882353% after epoch 5
+[STATUS] Train accuracy of 78.7683823529% after epoch 6
+[STATUS] Train accuracy of 79.3658088235% after epoch 7
+[STATUS] Train accuracy of 79.5955882353% after epoch 8
+[STATUS] Train accuracy of 80.3308823529% after epoch 9
+[STATUS] Validation accuracy of 81.71%
+[STATUS] Test accuracy of 79.50%
+
+########################################################################
+
+SEARCH over Number of hidden units:
+Learning rate = 0.001
+batch_size = 1
+
+Results: 
+- n hidden features rises training accuracy, bc of rising bias and model complexity
+- validation and test acc should be shrinking
+- However differences in the different values for n_hidden are marginal
+########################################################################
+
+acl@bjoern-linux:~/Documents/ml_6867/mfe/6.867/final_project/clf$ python main.py 
+[STATUS] Compiled 734 orig. traj. to 2176 traj. snips of length t=10 steps each
+[STATUS] Output dataset has 775 labeled cross and 1401 no-cross
+
+[STATUS] N hidden units = 16
+[STATUS] Start training
+2017-12-08 18:19:53.562454: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+[STATUS] Train accuracy of 78.6764705882% after epoch 0
+[STATUS] Train accuracy of 84.7886029412% after epoch 1
+[STATUS] Train accuracy of 85.0643382353% after epoch 2
+[STATUS] Validation accuracy of 84.11%
+[STATUS] Test accuracy of 80.40%
+
+[STATUS] N hidden units = 32
+[STATUS] Start training
+[STATUS] Train accuracy of 81.9393382353% after epoch 0
+[STATUS] Train accuracy of 85.5238970588% after epoch 1
+[STATUS] Train accuracy of 86.71875% after epoch 2
+[STATUS] Validation accuracy of 84.72%
+[STATUS] Test accuracy of 79.70%
+
+[STATUS] N hidden units = 64
+[STATUS] Start training
+[STATUS] Train accuracy of 87.5% after epoch 0
+[STATUS] Train accuracy of 88.0514705882% after epoch 1
+[STATUS] Train accuracy of 88.3731617647% after epoch 2
+[STATUS] Validation accuracy of 84.34%
+[STATUS] Test accuracy of 80.25%
+
+[STATUS] N hidden units = 128
+[STATUS] Start training
+[STATUS] Train accuracy of 86.9025735294% after epoch 0
+[STATUS] Train accuracy of 89.6139705882% after epoch 1
+[STATUS] Train accuracy of 89.9816176471% after epoch 2
+[STATUS] Validation accuracy of 82.97%
+[STATUS] Test accuracy of 78.90%
+
+########################################################################
+SEARCH over batch_size:
+learning rate = 0.001
+n_hidden = 128
+
+Results:
+- batch_size = 1 produces the best results
+- accuracy doesn't seem to be increased in following epochs...
+  - why?
+########################################################################
+
+acl@bjoern-linux:~/Documents/ml_6867/mfe/6.867/final_project/clf$ python main.py 
+[STATUS] Compiled 734 orig. traj. to 2176 traj. snips of length t=10 steps each
+[STATUS] Output dataset has 775 labeled cross and 1401 no-cross
+[STATUS] BATCH SIZE = 1
+Brei
+[STATUS] Start training
+2017-12-08 18:30:44.821114: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+[STATUS] Train accuracy of 90.6709558824% after epoch 0
+[STATUS] Train accuracy of 90.2573529412% after epoch 1
+[STATUS] Train accuracy of 90.2113970588% after epoch 2
+[STATUS] Validation accuracy of 83.39%
+[STATUS] Test accuracy of 79.90%
+[STATUS] BATCH SIZE = 10
+Brei
+[STATUS] Start training
+[STATUS] Train accuracy of 70.3686638156% after epoch 0
+[STATUS] Train accuracy of 71.4746545743% after epoch 1
+[STATUS] Train accuracy of 72.1198159223% after epoch 2
+[STATUS] Validation accuracy of 51.93%
+[STATUS] Test accuracy of 44.25%
+[STATUS] BATCH SIZE = 100
+Brei
+[STATUS] Start training
+[STATUS] Train accuracy of 51.2857144787% after epoch 0
+[STATUS] Train accuracy of 52.9999995515% after epoch 1
+[STATUS] Train accuracy of 54.6190474715% after epoch 2
+[STATUS] Validation accuracy of 49.32%
+[STATUS] Test accuracy of 45.85%
+[STATUS] BATCH SIZE = 1000
+Brei
+[STATUS] Start training
+[STATUS] Train accuracy of 30.9500008821% after epoch 0
+[STATUS] Train accuracy of 31.0499995947% after epoch 1
+[STATUS] Train accuracy of 31.25% after epoch 2
+[STATUS] Validation accuracy of 51.90%
+[STATUS] Test accuracy of 47.00%
+

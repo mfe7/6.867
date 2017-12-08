@@ -2,24 +2,33 @@
 import tensorflow as tf
 from tensorflow.contrib import rnn
 import numpy as np
+import math
 
 class RNN:
-  def __init__(self):
+  def __init__(self, input_dim = 2, n_hidden = 128, n_classes=1, lr=0.0001, batch_size=100, max_iter=1000, max_epochs=3):
     self._lstm = None
+    self._t_steps = 10 # length of trajectory: max, const?
+    self.input_dim = input_dim
+    self.n_samples = None # set in initialize_graph
+    self.n_hidden = n_hidden # num hidden layers = num features
+    self.n_classes = n_classes # binary: cross / no-cross, not one-hot encoded, {0,1} instead 
+
+    self.lr = lr # Learning rate
+    self.batch_size = batch_size
+    self.max_iter = max_iter
+    self.max_epochs = max_epochs
+
     self._init_rnn()
 
   def _init_rnn(self):
-    self._t_steps = 10 # length of trajectory: max, const?
     print('Brei')
 
-  # Reshape x from alternating x1x2 to (n_samples, _t_steps, dim)
+    
+  # Reshape x from alternating x1x2 to tf placeholder and np data array
   def format_x(self,x):
 
     self.n_samples = x.shape[0]
-    self.dim = 2
 
-    print('x shape', x.shape)
-    print('n_samples,dim', self.n_samples)
     # Elements from 1D vector x[0] match 2D vector x_new[0]
     x_new = np.array([x[:, ::2], x[:, 1::2]])
     x_new = np.rollaxis(x_new, 1)
@@ -27,48 +36,37 @@ class RNN:
     # Unstack along time to get a list of '_t_steps' tensors of shape (n_samples, dim)
     #x_new = tf.unstack(x_new, self._t_steps, 2)
 
-    # TODO: I think n_sampels should be batch_size here 
-    x_tf1 = tf.placeholder(tf.float32, [self._t_steps, self.batch_size, self.dim])
-
     x_tf_data = tf.convert_to_tensor(x_new, np.float32)
 
-
-    return x_tf1, x_new
+    return x_new
 
   # y of shape (n_samples,)
   def format_y(self,y):
-    y_tf_var = tf.placeholder(tf.float32, [self.batch_size, 1])
 
     #y_tf_data = tf.convert_to_tensor(y, np.float32)
     #y_tf_data = tf.reshape(y_tf_data, (self.n_samples, 1))
     y_new = y.reshape((self.n_samples, 1))
-    return y_tf_var, y_new
+    return y_new
 
   # x should be formatted
   # for basic rnn: https://github.com/aymericdamien/TensorFlow-Examples/blob/master/examples/3_NeuralNetworks/recurrent_network.py
   # for lstm: https://www.tensorflow.org/tutorials/recurrent
-  def initialize_graph(self, x, y):
+  def initialize_graph(self):
 
 
-    self.n_classes = 1 # binary: cross / no-cross, not one-hot encoded, {0,1} instead 
-    self.n_hidden = 128 # num hidden layers = num features
-
-    self.n_samples = x.shape[0]
-    self.batch_size = 100# n_samples # take full data as batch
-    self.lr = 0.0001 # Learning rate
-    self.max_iterations = 1000
-    
-    # Reformat data
-    self.x, self.x_data = self.format_x(x)
-    self.y, self.y_data = self.format_y(y)
+    # Define x and y palaceholders 
+    self.x = tf.placeholder(tf.float32, [self._t_steps, self.batch_size, self.input_dim])
+    self.y = tf.placeholder(tf.float32, [self.batch_size, 1])
 
     # Define weights (only of output layer)
     # This is for binary classification.
     self.weights = {
       'out': tf.Variable(tf.random_normal([self.n_hidden, self.n_classes]))
+      #'out': tf.Variable(tf.zeros([self.n_hidden, self.n_classes]))
     }
     self.bias = {
       'out': tf.Variable(tf.random_normal([self.n_classes]))
+      #'out': tf.Variable(tf.zeros([self.n_classes]))
     }
 
     ## Initialize graph:
@@ -92,7 +90,6 @@ class RNN:
 
     # Define loss and optimizer
     # Use mean square error instead of softmax cross entropy
-    print('shape y, pred', self.y.shape, self.prediction.shape)
     self.loss = tf.losses.mean_squared_error(labels = self.y, predictions = self.prediction)
     #self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=self.y))
     self.optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.lr)
@@ -107,52 +104,79 @@ class RNN:
     # Initialize tf variables
     self.init = tf.global_variables_initializer() # returns Op that initializes the global_variables list
 
+  def train_and_predict(self, x, y):
+
+    print('[STATUS] Start training')
     # Start training:
-    with tf.Session() as sess:
+    self.n_samples = x.shape[0]
+    self.x_data = self.format_x(x)
+    self.y_data = self.format_y(y)
 
-      # Run initializer
-      sess.run(self.init)
+    self.sess = tf.Session()
 
-      for step in range(1, self.max_iterations+1):
-        if (step + self.batch_size) < self.n_samples:
+    # Run initializer
+    self.sess.run(self.init)
+    n_iter = int(math.floor(self.n_samples/self.batch_size))
+
+    for epoch in range(self.max_epochs):
+      accs = np.zeros(n_iter)
+      acc_mean = 0.0
+
+      for step in range(1, self.max_iter+1):
+        # Cuts of last piece of trajectory set, which does not fit the batch_size
+        if (step*self.batch_size + self.batch_size) < self.n_samples:
           
           # TODO 
-          batch_x = self.x_data[:, step:step+self.batch_size, :]
+          batch_x = self.x_data[:, (step*self.batch_size):(step*self.batch_size + self.batch_size), :]
           batch_y = self.y_data[step:step+self.batch_size, :]
         else:
           break        
         # Run graph
         # Omit optional feed_dict parameter for now
-        sess.run(self.train_op, feed_dict = {self.x: batch_x, self.y: batch_y})
+        self.sess.run(self.train_op, feed_dict = {self.x: batch_x, self.y: batch_y})
 
         # Calculate batch loss & acc
-        loss_tmp, acc_tmp = sess.run([self.loss, self.acc], feed_dict = {self.x: batch_x, self.y: batch_y})
+        #loss_tmp, acc_tmp = self.sess.run([self.loss, self.acc], feed_dict = {self.x: batch_x, self.y: batch_y})
+        loss_tmp, acc_tmp, pred_tmp = self.sess.run([self.loss, self.acc, self.prediction], feed_dict = {self.x: batch_x, self.y: batch_y})
+        accs[step] = acc_tmp
 
-        print("Step " + str(step) + ", Minibatch Loss= " + \
-                  "{:.4f}".format(loss_tmp) + ", Training Accuracy= " + \
-                  "{:.3f}".format(acc_tmp))
+        # print("Step " + str(step) + ", Minibatch Loss= " + \
+        #           "{:.4f}".format(loss_tmp) + ", Training Accuracy= " + \
+        #           "{:.3f}".format(acc_tmp))
+        # print('Pred: {}, Truth: {}'.format(pred_tmp, batch_y))
 
-      print('Optimization finished')
+      acc_mean = np.sum(accs)/n_iter
+      # Get full accuracy
+      #loss_tmp, acc_tmp = self.sess.run([self.loss, self.acc], feed_dict = {self.x: self.x_data, self.y: self.y_data})
+      print('[STATUS] Train accuracy of {}% after epoch {}'.format(acc_mean*100, epoch))
+        
 
-      # Calculate test accuracy
-      # def score(self, x, y):
-      # acc = self._svm.score(x, y)
-      # return acc
-
-
-
-### Earlier tests
-
-    # # Initial state of the LSTM memory.
-    # print('state_size', self.lstm.state_size)
-    # self.hidden_state = tf.zeros([self.batch_size, self.lstm.state_size])
-    # self.current_state = tf.zeros([self.batch_size, self.lstm.state_size])
-    # state = hidden_state, current_state
-    # probabilities = []
-    # loss = 0.0
+  def score(self, x, y):
+    n_samples = x.shape[0]
     
+    self.x_data = self.format_x(x)
+    self.y_data = self.format_y(y)
+    
+    accs = np.zeros(n_samples)
+    acc_mean = 0.0
+    
+    n_iter = int(math.floor(self.n_samples/self.batch_size))
+
+    for i in range(n_iter):
+      #x_i = self.x_data[:, i:(i + 1), :]
+      #y_i = self.y_data[i:i+1, :]
+      
+      x_i = self.x_data[:, (i*self.batch_size):(i*self.batch_size + self.batch_size), :]
+      y_i = self.y_data[i:i+self.batch_size, :]
+
+      acc_i = self.sess.run([self.acc], feed_dict = {self.x: x_i, self.y: y_i})
+      accs[i] = acc_i[0]
+    acc_mean = np.sum(accs)/n_iter
+    return acc_mean
 
 
+
+## Template code for word classification:
 
 # # one batch correlates to many words = many sniplets
 # # 
