@@ -1,0 +1,58 @@
+%!TEX root = main.tex
+
+\section{Dataset} \label{sec:dataset}
+
+% where did dataset come from (cite justin's papers)
+
+% what does raw data look like?
+The raw dataset's fields are shown in \cref{table_data}, where (easting,northing) are the latitude/longitude global coordinates, and (x,y) are the coordinates in our global campus map.
+Veh id indicates which of the three vehicles corresponds to that data point, or in the pedestrian case, which vehicle sensed that pedestrian, and ped id is a unique id given to each pedestrian seen.
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{||c||c c c c c c c||}  
+ \hline
+ \multirow{1}{*}{Type} &
+       \multicolumn{7}{c||}{Fields} \\
+ \hline\hline
+ Vechicle & time & easting & northing & x & y & veh id & \\ \hline
+ Pedestrian & time & easting & northing & x & y & veh id & ped id \\ \hline
+\end{tabular}
+\caption{Raw data fields}
+\label{table_data}
+\end{table}
+
+% what are the issues with the raw data
+There are some noise-related issues with the raw data, as it was collected on a research vehicle under development.
+One issue is that the vehicle's (x,y) position sometimes jumps, because the vehicle's localization system does not use GPS and is imperfect.
+
+In addition to addressing noise, the data also needs to be pre-processed to be useful for our classifier.
+Specifically, the pedestrian trajectories must be converted into the vehicle's local frame in order to determine if they cross in front of the vehicle.
+
+% what is strategy to fix issues
+The global-to-local transformation relies on knowledge of vehicle orientation (heading angle) and smooth vehicle trajectories, neither of which we have by default.
+
+\begin{algorithm}
+ \caption{Algorithm for ...}
+ \begin{algorithmic}[1]
+ \renewcommand{\algorithmicrequire}{\textbf{Input:}}
+ \renewcommand{\algorithmicensure}{\textbf{Output:}}
+ \REQUIRE global vehicle/pedestrain trajectories~(\cref{table_data})
+ \ENSURE  pedestrian trajectories in local vehicle frame
+ \\ \textit{Initialization} :
+  \STATE first statement
+ \\ \textit{LOOP Process}
+  \FOR {$i = l-2$ to $0$}
+  \STATE statements..
+  \IF {($i \ne 0$)}
+  \STATE statement..
+  \ENDIF
+  \ENDFOR
+ \RETURN $P$ 
+
+ \end{algorithmic} 
+ \end{algorithm}
+
+% what does fixed dataset look like
+
+

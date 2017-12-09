@@ -50,7 +50,8 @@ end
 for d = days;
 clear table_v table_p clusters
 %% Setup file data    
-date_ = dates(days(d),:);
+% date_ = dates(days(d),:);
+date_ = dates(days(1),:);
 display(date_)
 table_filename = [table_folder, '/' , 'tables_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
 clusters_filename = [clusters_folder, '/' , 'clusters2_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];clusters_filename = [clusters_folder, '/' , 'clusters_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
@@ -114,7 +115,7 @@ if ~isempty(table_v)
         end
         
         % smooth_veh_traj =
-        %   [timestamp, global_x, global_y, heading (rad), r_par, r_orthog]
+        %   [timestamp, global_x, global_y, heading (rad), r_par, r_orthog, easting, northing]
         %       where r_par, r_orthog is the unit vector pointing out of the
         %       vehicle's front
         %       (one row per timestamp)
@@ -125,6 +126,17 @@ if ~isempty(table_v)
 
 end
 display('Done processing vehicle trajectory');
+
+%% Plot the vehicle trajectory
+clf;
+hold on;
+for i=1:length(smooth_veh_traj)
+    veh_pos = [smooth_veh_traj(i,2:3)];
+    plot(veh_pos(1), veh_pos(2),'rx');
+    pause(0.01);
+end
+hold off;
+
 
 %% Process the clusters
 % if do_clusters
