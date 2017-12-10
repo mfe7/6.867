@@ -44,13 +44,10 @@ clear('clusters_all');
 %% Plot trajectores
 ind = 0;
 if use_google_map
-%     plot(smooth_veh_traj(:,7),smooth_veh_traj(:,8),'rx');
-%     drawnow;
-%     pause(1e-9); 
     for i=1:length(smooth_veh_traj)
-        plot(smooth_veh_traj(1:i,7),smooth_veh_traj(1:i,8),'r--');
+%         plot(smooth_veh_traj(1:i,7),smooth_veh_traj(1:i,8),'r--');
         plot(smooth_veh_traj(i,7),smooth_veh_traj(i,8),'rx');
-        pause(1e-3); 
+        pause(1e-5); 
         
     end
     
