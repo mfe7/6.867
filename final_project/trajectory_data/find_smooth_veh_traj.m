@@ -10,6 +10,8 @@ function [ smooth_veh_traj, smooth_valid_t ] = find_smooth_veh_traj( veh_traj, v
 %   important to accurately transform the pedestrian trajectory later on.
 
     should_plot = 0;
+    
+    
 
     % 1) Extract (x,y,timestamp) from raw vehicle trajectory
     smooth_veh_traj = [];
@@ -17,6 +19,9 @@ function [ smooth_veh_traj, smooth_valid_t ] = find_smooth_veh_traj( veh_traj, v
     xys = veh_traj{:,{'x','y'}};
     ts = veh_traj{:,{'time'}};
     latlon = veh_traj{:,{'easting','northing'}};
+    
+    t_end_val = ts(1);
+    ind_end_val = 0;
     
     % 2) Treat each valid_t window independently, and add the relevant 
     %       fields to smooth_veh_traj:
@@ -28,7 +33,7 @@ function [ smooth_veh_traj, smooth_valid_t ] = find_smooth_veh_traj( veh_traj, v
     
     % Iterate through every valid_t window [t_start, t_end]
     for ii=1:length(valid_t)
-%     tmp = 5;
+%     tmp = 6;
 %     for ii=tmp:tmp
         ind_start = valid_t(ii,4);
         ind_end = valid_t(ii,5);
@@ -44,7 +49,7 @@ function [ smooth_veh_traj, smooth_valid_t ] = find_smooth_veh_traj( veh_traj, v
         end
         
         % Iterate through each data pt in a [t_start, t_end] window
-        for jj=ind_start:ind_end
+        for jj=ind_start:ind_end-1
             xy = xys(jj,:);
             for kk=jj+1:ind_end
                 next_xy = xys(kk,:);
@@ -54,7 +59,8 @@ function [ smooth_veh_traj, smooth_valid_t ] = find_smooth_veh_traj( veh_traj, v
                     valid_heading = 1;
                     if jj > ind_start
                         prev_heading = smooth_veh_traj(end, 4);
-                        if abs(mod(heading - prev_heading, 2*pi)) > 0.3
+                        angle_diff = abs(angleDiff(heading, prev_heading));
+                        if angle_diff > 0.3
                             valid_heading = 0;
                         end
                     end
@@ -79,12 +85,15 @@ function [ smooth_veh_traj, smooth_valid_t ] = find_smooth_veh_traj( veh_traj, v
 
             end
         end
-        smooth_valid_t = [smooth_valid_t; valid_t(ii,:)];
-%         dh = diff(headings);
-%         biggest_dh = max(abs(dh));
-%         if (nnz(headings) < length(headings)) && (biggest_dh < 0.2)
-%             smooth_veh_traj = [smooth_veh_traj; ts(ind_start:ind_end), xys(ind_start:ind_end,:), headings];
-%         end
+        
+        % Update smooth_valid_t
+        t_start_val = smooth_veh_traj(ind_end_val+1,1);
+        t_end_val = smooth_veh_traj(end,1);
+        duration_val = t_end_val - t_start_val;
+        ind_start_val = ind_end_val+1;
+        ind_end_val = length(smooth_veh_traj);
+        smooth_valid_t = [smooth_valid_t; t_start_val, t_end_val, duration_val, ind_start_val, ind_end_val];
+
     end
 end
 

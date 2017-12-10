@@ -33,25 +33,30 @@ Specifically, the pedestrian trajectories must be converted into the vehicle's l
 The global-to-local transformation relies on knowledge of vehicle orientation (heading angle) and smooth vehicle trajectories, neither of which we have by default.
 
 \begin{algorithm}
- \caption{Algorithm for ...}
- \begin{algorithmic}[1]
- \renewcommand{\algorithmicrequire}{\textbf{Input:}}
- \renewcommand{\algorithmicensure}{\textbf{Output:}}
- \REQUIRE global vehicle/pedestrain trajectories~(\cref{table_data})
- \ENSURE  pedestrian trajectories in local vehicle frame
- \\ \textit{Initialization} :
-  \STATE first statement
- \\ \textit{LOOP Process}
-  \FOR {$i = l-2$ to $0$}
-  \STATE statements..
-  \IF {($i \ne 0$)}
-  \STATE statement..
-  \ENDIF
-  \ENDFOR
- \RETURN $P$ 
-
- \end{algorithmic} 
- \end{algorithm}
+	\caption{Algorithm for extracting local trajectories}
+	\begin{algorithmic}[1]
+		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+		\renewcommand{\algorithmicensure}{\textbf{Output:}}
+		\REQUIRE $V_g$, $P_g$: global vehicle, pedestrain trajectories~(\cref{table_data})
+		\ENSURE  $P_l$: pedestrian trajectories in local vehicle frame
+		\FOR {each vehicle}
+			\STATE $I_{pos jump}$ = $\{i \in [1,len(V_g)-1] \mid euclid\_dist(V_g(i)-V_g(i+1))>1.0\}$
+			\STATE $I_{time jump}$ = $\{i \in [1,len(V_g)-1] \mid time(V_g(i)-V_g(i+1))>0.5\}$
+			\STATE J = $I_{pos jump}$ $\cup$ $I_{time jump}$
+			\STATE $T_{valid}$ = $\{[J(i), J(i+1)] \mid time(J(i+1) - J(i)) > 5.0\}$
+			% \FOR {each segment in $T_{valid}$}
+				% \STATE abc
+				% \STATE find smooth veh traj
+			% % \ENDFOR
+			% \FOR {each $P_{g,i}$ pedestrian id}
+			% 	\IF {}
+			% 		\STATE vxy = 
+			% 	\ENDIF
+			% \ENDFOR
+		\ENDFOR
+		\RETURN pedestrian trajectories 
+	\end{algorithmic} 
+\end{algorithm}
 
 % what does fixed dataset look like
 

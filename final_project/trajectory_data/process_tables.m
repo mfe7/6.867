@@ -50,11 +50,12 @@ end
 for d = days;
 clear table_v table_p clusters
 %% Setup file data    
-% date_ = dates(days(d),:);
-date_ = dates(days(1),:);
+date_ = dates(days(d),:);
+% date_ = dates(days(1),:);
 display(date_)
 table_filename = [table_folder, '/' , 'tables_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
-clusters_filename = [clusters_folder, '/' , 'clusters2_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];clusters_filename = [clusters_folder, '/' , 'clusters_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
+clusters_filename = [clusters_folder, '/' , 'clusters_',num2str(days(d))];
+% clusters_filename = [clusters_folder, '/' , 'clusters2_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];clusters_filename = [clusters_folder, '/' , 'clusters_',num2str(date_(1)),'_',num2str(date_(2)),'_',num2str(date_(3))];
 
 
 %% Load the day's data
@@ -65,7 +66,8 @@ end
 %% Process vehicle data
 % The vehicle's position data is available in the 'table_v' variable
 display('Processing vehicle data...');
-t_jump = 0.5; % upper bound on typical time between successive data points
+t_jump = 0.5; % upper bound on typical time between successive veh data points
+t_jump_ped = 1.0; % upper bound on typical time between successive ped data points
 pos_jump = 1.0; % upper bound on typical distance between successive data points
 t_long_enough = 5.0; % lower bound on time duration of a useful vehicle trajectory segment
 if ~isempty(table_v)
@@ -119,23 +121,13 @@ if ~isempty(table_v)
         %       where r_par, r_orthog is the unit vector pointing out of the
         %       vehicle's front
         %       (one row per timestamp)
-        smooth_veh_traj = find_smooth_veh_traj(vehicle_table_v, valid_t);
+        [smooth_veh_traj, smooth_valid_t] = find_smooth_veh_traj(vehicle_table_v, valid_t);
 
     end
 
 
 end
 display('Done processing vehicle trajectory');
-
-%% Plot the vehicle trajectory
-clf;
-hold on;
-for i=1:length(smooth_veh_traj)
-    veh_pos = [smooth_veh_traj(i,2:3)];
-    plot(veh_pos(1), veh_pos(2),'rx');
-    pause(0.01);
-end
-hold off;
 
 
 %% Process the clusters
@@ -149,13 +141,17 @@ else
     clusters = struct('id',{},'time',{},'x',{},'y',{},'easting',{},'northing',{},'color',{},'local_x',{},'local_y',{},'cross',{});
     if ~isempty(table_p)
         
-        num_crosses = 0;
+        
         unique_vehicle_ids = unique(table_p.vehicle_id);
         for v=1:length(unique_vehicle_ids) % go through each vehicle
+            num_crosses = 0;
             vehicle_table_p = table_p(strcmp(table_p.vehicle_id,unique_vehicle_ids(v)),:);
             vehicle_table_v = table_v(strcmp(table_v.vehicle_id,unique_vehicle_ids(v)),:);
             cluster_ids = unique(vehicle_table_p.ped_id);
+            num_valid_peds = 0;
             for i=1:length(cluster_ids) % go through each cluster
+%             tmpind = 43;
+%             for i=tmpind:tmpind% go through each cluster
                 
                 % Extract pedestrian cluster time vector, and vehicle's
                 % time vector.
@@ -163,13 +159,31 @@ else
                 % each pedestrian timestamp to make sure positions
                 % are synchronized.
                 t_ped = vehicle_table_p.time(vehicle_table_p.ped_id == cluster_ids(i));
+                ped_x = vehicle_table_p.x(vehicle_table_p.ped_id == cluster_ids(i));
+                ped_y = vehicle_table_p.y(vehicle_table_p.ped_id == cluster_ids(i));
+                
+                % Check that t_ped doesn't have any major jumps in it
+                dt = diff(t_ped); 
+                bad_dt_inds = find(dt > t_jump_ped);
+                dpos = diff([ped_x ped_y]);
+                ddist = sqrt(sum(dpos.^2,2));
+                bad_pos_inds = find(ddist > pos_jump);
+                bad_inds = union(bad_pos_inds, bad_dt_inds);
+                if length(bad_pos_inds) > 0
+                    display('ped traj has POS jump in it');
+                end
+                if length(bad_inds) > 0
+                    display('ped traj has time/pos jump in it');
+                    continue;
+                end
                 
                 % Check that t_ped's upper/lower bounds are within a 
                 % vehicle trajectory window. Skip ped cluster if it
                 % occurs during a vehicle pos/time jump.
-                tmp = valid_t(:,1) - t_ped(1);
-                ix = find(tmp>0,1);
-                if t_ped(end) > valid_t(ix,2)
+                tmp = smooth_valid_t(:,1) - t_ped(1); % diff btwn first timestamp in each valid window and ped's first timestamp
+                ix = find(tmp>0,1)-1; % the index of the first valid window whose lower bnd is before ped's first timestamp
+                if (t_ped(end) > smooth_valid_t(ix,2)) & (ix>0) % confirm ped's final timestamp is below upper bnd of same valid window
+                    display('ped was during localization jump');
                     continue;
                 end
                 
@@ -185,13 +199,18 @@ else
                 r_parallel = smooth_veh_traj(ind_align,5:6);
                 r_orthog = [-r_parallel(:,2), r_parallel(:,1)];
                 
-                ped_x = vehicle_table_p.x(vehicle_table_p.ped_id == cluster_ids(i));
-                ped_y = vehicle_table_p.y(vehicle_table_p.ped_id == cluster_ids(i));
+                
                 d = [ped_x ped_y] - veh_pos;
                 ped_parallel = dot(d, r_parallel,2);
                 ped_orthog = dot(d, r_orthog,2);
                 % Pedestrian position in local vehicle frame
                 ped_local = [ped_orthog, ped_parallel];
+                
+                min_dist_to_veh = min(sqrt(sum(d.^2,2)));
+                if (min_dist_to_veh > 60)
+                    display('ped way too far from veh to be useful');
+                    continue;
+                end
                 
                 % Check if ped_local is ever within rectangle in front
                 % of vehicle
@@ -214,27 +233,28 @@ else
                 else
                     display('no cross.')
                 end
+                num_valid_peds = num_valid_peds + 1;
                 
                 % Plot global and local frames for a single cluster
                 if plotting == 1
                     clf;
                     subplot(1,2,1);
                     hold on;
-                    veh_pos_plot = plot(veh_pos(:,1), veh_pos(:,2),'r--o');
-                    veh_start_plot = plot(veh_pos(1,1), veh_pos(1,2),'r*');
-                    veh_end_plot = plot(veh_pos(end,1), veh_pos(end,2),'rx');
-                    ped_pos_plot = plot(ped_x, ped_y,'b--o');
-                    ped_start_plot = plot(ped_x(1), ped_y(1),'b*');
-                    ped_end_plot = plot(ped_x(end), ped_y(end),'bx');
+                    veh_pos_plot = plot(veh_pos(:,1), veh_pos(:,2),'m--o');
+                    veh_start_plot = plot(veh_pos(1,1), veh_pos(1,2),'ms','MarkerSize',30);
+                    veh_end_plot = plot(veh_pos(end,1), veh_pos(end,2),'mx','MarkerSize',30);
+                    ped_pos_plot = plot(ped_x, ped_y,'g--o');
+                    ped_start_plot = plot(ped_x(1), ped_y(1),'gs','MarkerSize',30);
+                    ped_end_plot = plot(ped_x(end), ped_y(end),'gx','MarkerSize',30);
                     legend([veh_pos_plot, ped_pos_plot],{'Vehicle','Pedestrian'});
                     xlabel('x (m)');
                     ylabel('y (m)');
                     title('Global Frame');
                     subplot(1,2,2);
                     hold on;
-                    plot(ped_local(:,1), ped_local(:,2),'b--o');
-                    plot(ped_local(1,1), ped_local(1,2),'b*');
-                    plot(ped_local(end,1), ped_local(end,2),'bx');
+                    plot(ped_local(:,1), ped_local(:,2),'g--o');
+                    plot(ped_local(1,1), ped_local(1,2),'gs','MarkerSize',30);
+                    plot(ped_local(end,1), ped_local(end,2),'gx','MarkerSize',30);
                     rectangle('Position',[-1 -3 2 3],'EdgeColor','blue');
                     rectangle('Position',[-2 0 4 10],'LineStyle','--','EdgeColor','red');
                     if ped_crosses_in_front
@@ -243,6 +263,7 @@ else
                     title('Vehicle`s Local Frame');
                     xlabel('x (m)');
                     ylabel('y (m)');
+                    axis([-20 20 -10 40]);
                     pause(0.2);
                 end
                 
@@ -261,20 +282,21 @@ else
             end
         end
         display(num_crosses)
+        display(num_valid_peds)
         display(length(cluster_ids))
-        display(num_crosses/length(cluster_ids))
+        display(num_crosses/num_valid_peds)
         display("done")
 
-        %% Remove short/long clusters
-        clusters = filterClusters(clusters,length_threshold_min,length_threshold_max,use_google_map);
-
-        % Get path information
-        clusters = generateClusterPaths3(clusters,links,routes,'easting','northing');
-
-        % Get cluster velocities
-        [clusters.velocity] = num2struct(arrayfun(@(cluster) mean(sqrt(sum(diff([cluster.easting;cluster.northing]').^2,2))./diff(cluster.time)'), clusters));
-        
-        clusters = merge_and_estimate_cluster_arrivals(clusters,links);
+%         %% Remove short/long clusters
+%         clusters = filterClusters(clusters,length_threshold_min,length_threshold_max,use_google_map);
+% 
+%         % Get path information
+%         clusters = generateClusterPaths3(clusters,links,routes,'easting','northing');
+% 
+%         % Get cluster velocities
+%         [clusters.velocity] = num2struct(arrayfun(@(cluster) mean(sqrt(sum(diff([cluster.easting;cluster.northing]').^2,2))./diff(cluster.time)'), clusters));
+%         
+%         clusters = merge_and_estimate_cluster_arrivals(clusters,links);
     end
     save(clusters_filename,'clusters')
 end
