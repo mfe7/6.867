@@ -18,7 +18,7 @@ class SVM:
       max_iter=-1, decision_function_shape='ovr', random_state=None)
     
   def train(self, x, y):
-    print('[STATUS] Train SVM with {} samples...'.format(y.shape[0]))
+    print('[STATUS] Train SVM with {} sniplets...'.format(y.shape[0]))
     self._svm.fit(x, y)
     print('[STATUS] Training finished'.format(y.shape[0]))
 
@@ -27,5 +27,7 @@ class SVM:
     acc = self._svm.score(x, y)
     return acc
 
-
+  def predict(self, x):
+    pred = self._svm.predict(x)
+    return pred
 

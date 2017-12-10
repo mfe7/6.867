@@ -22,10 +22,10 @@ plt.rcParams.update(params)
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 class Data:
-  def __init__(self, file_name = 'clusters_2016_2_9', verbose=True):
+  def __init__(self, file_name = 'clusters_2016_2_9', verbose=True, _t_steps=10):
     self.file_name = file_name
     self._data = {}
-    self._t_steps = 10 # length of trajectory sliplets
+    self._t_steps = _t_steps # length of trajectory sliplets
     self.dim = 2
     self._X = np.zeros((0, self.dim * self._t_steps))
     self._Y = np.zeros((0, 1))
@@ -74,11 +74,22 @@ class Data:
         y = self.data_full[0][traj_id][y_id]
 
         # alternate x1x2
-        x_tmp[0, ::2] = np.reshape(x1[:], x1.shape[0])
-        x_tmp[0, 1::2] = np.reshape(x2[:], x2.shape[0])        
-        
-        self._X = np.append(self._X, x_tmp, axis = 0)
-        self._Y = np.append(self._Y, y, axis = 0)
+        if self._t_steps > 1:
+          x_tmp[0, ::2] = np.reshape(x1[:], x1.shape[0])
+          x_tmp[0, 1::2] = np.reshape(x2[:], x2.shape[0])        
+          self._X = np.append(self._X, x_tmp, axis = 0)
+          self._Y = np.append(self._Y, y, axis = 0)
+
+        # for t_steps == 1
+        elif self._t_steps == 1:
+          x_tmp = np.zeros((1, 2))
+          if snip_id < nsnips-1:
+            x_tmp[0,0] = x1[0,0]
+            x_tmp[0,1] = x2[0,0]
+
+            self._X = np.append(self._X, x_tmp, axis = 0)
+            self._Y = np.append(self._Y, y, axis = 0)
+
 
     if self.verbose:
       nsnips_total = self._Y.shape[0]

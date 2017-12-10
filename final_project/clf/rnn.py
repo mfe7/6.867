@@ -5,18 +5,20 @@ import numpy as np
 import math
 
 class RNN:
-  def __init__(self, input_dim = 2, n_hidden = 128, n_classes=1, lr=0.0001, batch_size=100, max_iter=1000, max_epochs=3):
+  def __init__(self, _t_steps=10, input_dim = 2, n_hidden = 128, n_classes=1, lr=0.0001, batch_size=100, max_iter=1000, max_epochs=3):
     self._lstm = None
-    self._t_steps = 10 # length of trajectory: max, const?
     self.input_dim = input_dim
-    self.n_samples = None # set in initialize_graph
     self.n_hidden = n_hidden # num hidden layers = num features
     self.n_classes = n_classes # binary: cross / no-cross, not one-hot encoded, {0,1} instead 
-
+    
     self.lr = lr # Learning rate
     self.batch_size = batch_size
     self.max_iter = max_iter
     self.max_epochs = max_epochs
+    
+    # Data params
+    self._t_steps = _t_steps # length of trajectory sniples
+    self.n_samples = None # set in initialize_graph
 
     self._init_rnn()
 
@@ -52,7 +54,7 @@ class RNN:
   # for basic rnn: https://github.com/aymericdamien/TensorFlow-Examples/blob/master/examples/3_NeuralNetworks/recurrent_network.py
   # for lstm: https://www.tensorflow.org/tutorials/recurrent
   def initialize_graph(self):
-
+    # This is a single-stack LSTM
 
     # Define x and y palaceholders 
     self.x = tf.placeholder(tf.float32, [self._t_steps, self.batch_size, self.input_dim])
@@ -173,6 +175,72 @@ class RNN:
       accs[i] = acc_i[0]
     acc_mean = np.sum(accs)/n_iter
     return acc_mean
+
+  def init_sin_graph(self):
+    # This is a single-stack LSTM
+
+    # The target vector y is x_t+1. Hence, x and y have same dimension
+    self.x = tf.placeholder(tf.float32, [self._t_steps, self.batch_size, self.input_dim])
+    self.y = tf.placeholder(tf.float32, [self._t_steps, self.batch_size, self.input_dim])
+
+    # What should the output number of classes be?
+    # NOUT = 1 + self.num_mixture * 6 # end_of_stroke + prob + 2*(mu + sig) + corr for handwriting paper
+    # Set them to 50 here. Because just random try.
+    n_random_try_output_dim = 50
+    self.weights = {
+      'out': tf.Variable(tf.random_normal([self.n_hidden, n_random_try_output_dim]))
+      #'out': tf.Variable(tf.zeros([self.n_hidden, self.n_classes]))
+    }
+    self.bias = {
+      'out': tf.Variable(tf.random_normal([n_random_try_output_dim]))
+      #'out': tf.Variable(tf.zeros([self.n_classes]))
+    }
+
+    ## Initialize graph:
+    # Define lstm cell
+    self.lstm_cell = rnn.BasicLSTMCell(self.n_hidden, forget_bias = 1.0) # bias forget layer for faster direct gradient pass and faster initial training
+
+    # Initialize initial state 
+    init_state = self.lstm_cell.zero_state(batch_size=self.batch_size, dtype=tf.float32)
+    self.state_in = tf.identity(init_state, name='state_in') # tf identity copies the vector
+
+    # Unstack along time to get a list of '_t_steps' tensors of shape (n_samples, dim)
+    x_seq = tf.unstack(self.x, num=self._t_steps, axis=0)
+
+    # Define rnn decoder
+    # loop_function applies fct(y_i) for input x_i+1
+    # scope = VariableScope for created subgraph, default='rnn_decoder'
+    self.outputs, self.states = rnn.legacy_seq2seq.rnn_decoder(decoder_inputs=x_seq, initial_state=init_state, cell=self.lstm_cell, loop_function=None)
+
+    # TODO:Transform output in some useful form
+    #output = tf.reshape(tf.concat(axis=1, values=outputs), [-1, args.rnn_size])
+    #output = tf.nn.xw_plus_b(output, output_w, output_b)
+    self.state_out = tf.identity(self.outputs, name='state_out')
+
+    # Return output layer linear activation
+    self.logits= tf.matmul(self.outputs[-1], self.weights['out']) + self.bias['out']
+    
+    # Predict with logistic (binary) instead of softmax(multiclass)
+    #self.prediction = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.logits)
+    self.prediction = tf.sigmoid(x=self.logits)
+
+    # Define loss and optimizer
+    # Use mean square error instead of softmax cross entropy
+    self.loss = tf.losses.mean_squared_error(labels = self.y, predictions = self.prediction)
+    #self.loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=logits, labels=self.y))
+    self.optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.lr)
+    self.train_op = self.optimizer.minimize(self.loss)
+
+    # Evaluate model
+    correct_pred = tf.equal(tf.round(self.prediction), self.y)
+    #correct_pred = tf.equal(tf.argmax(self.prediction, 1), tf.argmax(self.y, 1))
+    # Set accuracy to the mean of elements
+    self.acc = tf.reduce_mean(tf.cast(correct_pred, dtype=tf.float32))
+
+    # Initialize tf variables
+    self.init = tf.global_variables_initializer() # returns Op that initializes the global_variables list
+
+
 
 
 

@@ -3,17 +3,40 @@ from svm import SVM
 from read_data import Data
 from rnn import RNN
 import tensorflow as tf
+from plotBoundary import plotDecisionBoundary 
+import matplotlib.pyplot as plt
 
 
-train_file = 'clusters_2016_2_9'
-data = Data(train_file)
-x,y = data.get_XY()
-# y element of {0,1}
-
-plot = 1
 clf_sel = 'rnn'
+
+plot = False
+plot_dec_bound = True # prints dec bound for linear svm, requires t_steps = 1
 test_model = True
 
+dim = 2
+t_steps = 10 # trajectory sniplet length
+
+# Read training data
+x = -1 * np.ones((0, dim * t_steps))
+y = -1 * np.ones((0,))
+
+for i in range(3, 10):
+  train_file = 'clusters_2016_2_'+str(i)
+  data = Data(train_file, verbose=False, _t_steps=t_steps)
+  x_i,y_i = data.get_XY()
+  
+  # y element of {0,1}
+  x = np.append(x, x_i, axis=0)
+  y = np.append(y, y_i, axis=0)
+
+## Save and load txt from file
+np.savetxt("data/clusters_2016_2_x.csv", x, delimiter=",")
+np.savetxt("data/clusters_2016_2_y.csv", y, delimiter=",")
+
+x = np.loadtxt('data/clusters_2016_2_x.csv', delimiter=',')
+y = np.loadtxt('data/clusters_2016_2_y.csv', delimiter=',')
+
+## Training parameters:
 #for lr in [0.001]:
 #  for n_hidden in [128]:
 #    for batch_size in [1]:
@@ -33,6 +56,14 @@ if clf_sel == 'svm_rbf':
   train_acc = clf.score(x, y)
   print('[STATUS] Train accuracy of {0:.2f}%'.format(train_acc*100))
 
+  if plot_dec_bound == True:
+    values = [0,1]
+    x_plot = x[0:1000,:]
+    y_plot = y[0:1000]
+    print('x shape, y shape', x.shape, y.shape)
+    plotDecisionBoundary(x, y, clf.predict, values, title = '')
+
+
 ## RNN
 elif clf_sel == 'rnn':
 
@@ -47,26 +78,25 @@ elif clf_sel == 'rnn':
   max_iter = 10000
 
   tf.reset_default_graph()
-  clf = RNN(input_dim, n_hidden, n_classes, lr, batch_size, max_iter, max_epochs)
+  clf = RNN(t_steps, input_dim, n_hidden, n_classes, lr, batch_size, max_iter, max_epochs)
   clf.initialize_graph()
   clf.train_and_predict(x, y)
 
 if test_model == True:
   val_file = 'clusters_2016_2_10'
-  val_data = Data(val_file, verbose=False)
+  val_data = Data(val_file, verbose=False, _t_steps=t_steps)
   x_val,y_val = val_data.get_XY()
   val_acc = clf.score(x_val, y_val)
   print('[STATUS] Validation accuracy of {0:.2f}%'.format(val_acc*100))
 
   test_file = 'clusters_2016_2_11'
-  test_data = Data(test_file, verbose=False)
+  test_data = Data(test_file, verbose=False, _t_steps=t_steps)
   x_test,y_test = test_data.get_XY()
   test_acc = clf.score(x_test, y_test)
   print('[STATUS] Test accuracy of {0:.2f}%'.format(test_acc*100))
 
-
-if plot == 1:
-  print('[STATUS] Plot train set]')
+if plot == True:
+  print('[STATUS] Plot train set')
   plot_nsnips = 1000 # plot no more than 1000 trajectory sniplets to reduce plotting time
   data.plot_clf(x,y, plot_nsnips)
 
