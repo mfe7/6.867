@@ -270,7 +270,7 @@ class RNN:
         loss_tmp, y_true, y_pred = self.sess.run([self.loss, self.y, self.pred], feed_dict = {self.x: batch_x, self.y: batch_y})
         loss_total += loss_tmp
 
-      print('[STATUS] Total loss of {}% after epoch {}'.format(loss_total, epoch))
+      print('[STATUS] Total loss of {} after epoch {}'.format(loss_total, epoch))
         
   def score_pred(self, x):
     n_samples = x.shape[0]
@@ -282,6 +282,9 @@ class RNN:
     self.y_data[:,-1,:] = self.x_data[:,-1,:]
 
     loss_total = 0.0
+    
+    t_predict = 10 # Length of predicted trajectory
+    plot_one_future_t_step = False # Plot only one step in the future
     
     n_iter = int(math.floor(self.n_samples/self.batch_size))
 
@@ -298,12 +301,7 @@ class RNN:
 
       if i > 150: # give him some time for whatever
 
-        print("Step " + str(i) + ", Minibatch Loss= " + \
-                   "{:.4f}".format(loss_tmp) + \
-                   'y_true', y_true, 'y_pred', y_pred)
-        
-        # Plot the next predicted value
-        plot_one_future_t_step = False
+        # Plot onyl one step in the future
         if plot_one_future_t_step:
           plt.plot(y_true[:,:,0], y_true[:,:,1], '-', color = 'green')
           plt.plot(y_pred[0,0], y_pred[0,1], 'o', color = 'red')
@@ -312,7 +310,6 @@ class RNN:
             plt.show()
 
         ## Predict by feeding itself
-        t_predict = 10
 
         y_preds = np.zeros((t_predict, 1, self.input_dim))
         for t_i in range(t_predict):
@@ -326,6 +323,8 @@ class RNN:
           y_past, y_pred = self.sess.run([self.y, self.pred], feed_dict = {self.x: x_i, self.y: y_i})
           
           y_preds[t_i,:,:] = y_pred[:,:]
+        
+        print('[STATUS] Print predicted test trajectory (red) for given trajectory (green) for sniplet {}'.format(i))
         plt.plot(y_true[:,:,0], y_true[:,:,1], '-', color = 'green')
         plt.plot(y_preds[:,0,0], y_preds[:,0,1], '-', color = 'red')
         plt.show()

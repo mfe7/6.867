@@ -71,7 +71,7 @@ elif clf_sel == 'rnn':
   n_samples = None # set in initialize_graph
   n_hidden = 128 # num hidden layers = num features
   n_classes = 1 # binary: cross / no-cross, not one-hot encoded, {0,1} instead 
-  max_epochs=5
+  max_epochs = 5 # reduce this for faster runtime
 
   lr = 0.001 # Learning rate
   batch_size = 1
@@ -86,27 +86,30 @@ elif clf_sel == 'rnn':
     clf.train_clf(x, y)
   # Create graph for trajectory prediction
   else:
+    print('[STATUS] Train trajectory predictor for {} epochs'.format(max_epochs))
     clf.init_pred_graph()
     clf.train_pred(x)
 
+  print('[STATUS] Training finished')
 
 if test_model == True:
   val_file = 'clusters_2'
   val_data = Data(val_file, verbose=False, _t_steps=t_steps)
   x_val,y_val = val_data.get_XY()
-  val_acc = clf.score(x_val, y_val)
-  print('[STATUS] Validation accuracy of {0:.2f}%'.format(val_acc*100))
 
   test_file = 'clusters_3'
   test_data = Data(test_file, verbose=False, _t_steps=t_steps)
   x_test,y_test = test_data.get_XY()
-  test_acc = clf.score(x_test, y_test)
-  print('[STATUS] Test accuracy of {0:.2f}%'.format(test_acc*100))
-
   # Test and predict RNN trajectories
   if clf_sel == 'rnn' and rnn_classify == False:  
     test_loss = clf.score_pred(x_test)
     print('[STATUS] Total test loss of {0:.2f}'.format(test_loss))
+  else:
+    val_acc = clf.score(x_val, y_val)
+    print('[STATUS] Validation accuracy of {0:.2f}%'.format(val_acc*100))
+
+    test_acc = clf.score(x_test, y_test)
+    print('[STATUS] Test accuracy of {0:.2f}%'.format(test_acc*100))
   
 
 # Plot train, val and test dataset with ground_truth scores

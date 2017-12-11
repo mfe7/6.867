@@ -1,0 +1,13 @@
+\section{RNN} \label{sec:rnn}
+
+
+\subsection{GRUs}
+From: $http://www.jackdermody.net/brightwire/article$
+Sequence_to_Sequence_with_LSTM
+
+Long Short Term Memory (LSTM) networks are a recurrent neural network that can be used with STS neural networks. They are similar to Gated Recurrent Units (GRU) but have an extra memory state buffer and an extra gate which gives them more parameters and hence a longer training time. While performance with GRU is usually comparable, there are some tasks that each architecture outperforms the other on, so comparing each for a given learning task is usually a good idea.
+
+\subsection{Hyperparameters}
+\subsubsection{Hyperparameters}
+- Dropout?
+	- $cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob = args.keep_prob)$
