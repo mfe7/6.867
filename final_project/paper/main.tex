@@ -15,7 +15,7 @@
 % \usepackage{amsmath} % assumes amsmath package installed
 % \usepackage{amssymb} % assumes amsmath package installed
 
-\usepackage[pdftex,pdfauthor={anonymous},pdftitle={6.867 Pset 1}]{hyperref}
+\usepackage[pdftex,pdfauthor={MFE},pdftitle={6.867 Final Project}]{hyperref}
 \hypersetup{colorlinks,linkcolor={green!50!black},citecolor={green!50!black},urlcolor={blue!80!black}}
 \makeatletter \let\NAT@parse\undefined \makeatother
 % \usepackage[square,comma,sort&compress]{natbib}
@@ -66,15 +66,9 @@
 \definechangesauthor[name={M.~E.}, color={red}]{me}
 \setremarkmarkup{(#2)}
 
-%\newcommand{\mXX}[1]{{\color{DarkRed} \bf XX #1 XX\ }}
-\newcommand{\mXX}[1]{\added[id=ml,remark={}]{#1}}
-\newcommand{\sXX}[1]{\added[id=sc,remark={}]{#1}}
-%\newcommand{\XX}[1]{{\bf \color{red} XX #1 XX}}
 \newcommand{\XX}[1]{\added[id=jh,remark={}]{#1}}
 \newcommand{\jmXX}[1]{\added[id=jm,remark={}]{#1}}
 \newcommand{\meXX}[1]{\added[id=me,remark={}]{#1}}
-
-
 
 \newcommand{\jsec}[1]{\marginpar{\fcolorbox{yellow}{yellow}{\parbox{0.7in}{\raggedright
         \color{blue} \tiny #1 }}}}
@@ -124,8 +118,8 @@ TODO
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{intro}
 \input{data}
-\input{svm}
-\input{rnn}
+% \input{svm}
+% \input{rnn}
 %\listofchanges
 
 %\balance
@@ -151,9 +145,9 @@ TODO
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %\clearpage
 \balance
-% \bibliographystyle{IEEEtran} 
-% %\bibliographystyle{unsrt} 
-% \bibliography{biblio}
-% %\balance
+\bibliographystyle{IEEEtran} 
+% \bibliographystyle{unsrt} 
+\bibliography{biblio}
+% \balance
 \end{document}
 %\grid
