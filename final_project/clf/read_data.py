@@ -150,6 +150,8 @@ class Data:
 
     ax.set_xlim(-20, 20)
     ax.set_ylim(-10, 30)
+    ax.set_xlim(-100, 100)
+    ax.set_ylim(-100, 100)
     ax.set_xlabel('x [m]')
     ax.set_ylabel('y [m]')
     ax.set_title('red = cross, green = no cross')

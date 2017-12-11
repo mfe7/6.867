@@ -14,14 +14,14 @@ plot_dec_bound = True # prints dec bound for linear svm, requires t_steps = 1
 test_model = True
 
 dim = 2
-t_steps = 10 # trajectory sniplet length
+t_steps = 50 # trajectory sniplet length
 
 # Read training data
 x = -1 * np.ones((0, dim * t_steps))
 y = -1 * np.ones((0,))
 
-for i in range(3, 10):
-  train_file = 'clusters_2016_2_'+str(i)
+for i in range(1,2):
+  train_file = 'clusters_'+str(i)
   data = Data(train_file, verbose=False, _t_steps=t_steps)
   x_i,y_i = data.get_XY()
   
@@ -30,11 +30,11 @@ for i in range(3, 10):
   y = np.append(y, y_i, axis=0)
 
 ## Save and load txt from file
-np.savetxt("data/clusters_2016_2_x.csv", x, delimiter=",")
-np.savetxt("data/clusters_2016_2_y.csv", y, delimiter=",")
+# np.savetxt("data/clusters_train.csv", x, delimiter=",")
+# np.savetxt("data/clusters_train.csv", y, delimiter=",")
 
-x = np.loadtxt('data/clusters_2016_2_x.csv', delimiter=',')
-y = np.loadtxt('data/clusters_2016_2_y.csv', delimiter=',')
+# x = np.loadtxt('data/clusters_train.csv', delimiter=',')
+# y = np.loadtxt('data/clusters_train.csv', delimiter=',')
 
 ## Training parameters:
 #for lr in [0.001]:
@@ -71,7 +71,7 @@ elif clf_sel == 'rnn':
   n_samples = None # set in initialize_graph
   n_hidden = 128 # num hidden layers = num features
   n_classes = 1 # binary: cross / no-cross, not one-hot encoded, {0,1} instead 
-  max_epochs=3
+  max_epochs=5
 
   lr = 0.001 # Learning rate
   batch_size = 1
@@ -79,22 +79,37 @@ elif clf_sel == 'rnn':
 
   tf.reset_default_graph()
   clf = RNN(t_steps, input_dim, n_hidden, n_classes, lr, batch_size, max_iter, max_epochs)
-  clf.initialize_graph()
-  clf.train_and_predict(x, y)
+  
+  rnn_classify = False
+  if rnn_classify == True:
+    clf.initialize_graph()
+    clf.train_clf(x, y)
+  # Create graph for trajectory prediction
+  else:
+    clf.init_pred_graph()
+    clf.train_pred(x)
+
 
 if test_model == True:
-  val_file = 'clusters_2016_2_10'
+  val_file = 'clusters_2'
   val_data = Data(val_file, verbose=False, _t_steps=t_steps)
   x_val,y_val = val_data.get_XY()
   val_acc = clf.score(x_val, y_val)
   print('[STATUS] Validation accuracy of {0:.2f}%'.format(val_acc*100))
 
-  test_file = 'clusters_2016_2_11'
+  test_file = 'clusters_3'
   test_data = Data(test_file, verbose=False, _t_steps=t_steps)
   x_test,y_test = test_data.get_XY()
   test_acc = clf.score(x_test, y_test)
   print('[STATUS] Test accuracy of {0:.2f}%'.format(test_acc*100))
 
+  # Test and predict RNN trajectories
+  if clf_sel == 'rnn' and rnn_classify == False:  
+    test_loss = clf.score_pred(x_test)
+    print('[STATUS] Total test loss of {0:.2f}'.format(test_loss))
+  
+
+# Plot train, val and test dataset with ground_truth scores
 if plot == True:
   print('[STATUS] Plot train set')
   plot_nsnips = 1000 # plot no more than 1000 trajectory sniplets to reduce plotting time

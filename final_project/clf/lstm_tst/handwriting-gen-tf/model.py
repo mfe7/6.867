@@ -46,10 +46,12 @@ class Model():
     # inputs = [tf.squeeze(input_, [1]) for input_ in inputs]
     inputs = tf.unstack(self.input_data, axis=1)
     
-    # outputs, state_out = tf.contrib.legacy_seq2seq.rnn_decoder(inputs, self.state_in, cell, loop_function=None, scope='rnnlm')
+    # Compute target output / prediction vector and hidden cell state. Can be same for RNN, but different for LSTM
     outputs, state_out = tf.contrib.legacy_seq2seq.rnn_decoder(inputs, zero_state, cell, loop_function=None, scope='rnnlm')
 
+    # Concatenate all outputs to one vector.
     output = tf.reshape(tf.concat(axis=1, values=outputs), [-1, args.rnn_size])
+    # Apply linear transformation of output vector - WHY?
     output = tf.nn.xw_plus_b(output, output_w, output_b)
     self.state_out = tf.identity(state_out, name='state_out')
 
