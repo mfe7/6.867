@@ -44,23 +44,23 @@ clear('clusters_all');
 %% Plot trajectores
 ind = 0;
 if use_google_map
-    for i=1:length(smooth_veh_traj)
-%         plot(smooth_veh_traj(1:i,7),smooth_veh_traj(1:i,8),'r--');
-        plot(smooth_veh_traj(i,7),smooth_veh_traj(i,8),'rx');
-        pause(1e-5); 
-        
-    end
-    
-%     for i=1:length(clusters)
-%         if mod(i,0)==0 || i>0.7*length(clusters) %clusters(i).velocity<5
-%         if norm([clusters(i).easting(end),clusters(i).northing(end)]-[clusters(i).easting(1),clusters(i).northing(1)]) >= length_threshold
-%             h{1}(i) = plot(clusters(i).easting,clusters(i).northing,'color',clusters(i).color,'LineWidth',2);
-%             h{2}(i) = plot(clusters(i).easting(end),clusters(i).northing(end),'o','color',clusters(i).color,'LineWidth',2);
-%             drawnow;
-%             pause(1e-9);
-%         end
-%         end
+%     for i=1:length(smooth_veh_traj)
+% %         plot(smooth_veh_traj(1:i,7),smooth_veh_traj(1:i,8),'r--');
+%         plot(smooth_veh_traj(i,7),smooth_veh_traj(i,8),'rx');
+%         pause(1e-5); 
+%         
 %     end
+    
+    for i=1:length(clusters)
+        if mod(i,0)==0 || i>0.7*length(clusters) %clusters(i).velocity<5
+        if norm([clusters(i).easting(end),clusters(i).northing(end)]-[clusters(i).easting(1),clusters(i).northing(1)]) >= length_threshold
+            h{1}(i) = plot(clusters(i).easting,clusters(i).northing,'color',clusters(i).color,'LineWidth',2);
+            h{2}(i) = plot(clusters(i).easting(end),clusters(i).northing(end),'o','color',clusters(i).color,'LineWidth',2);
+            drawnow;
+            pause(1e-9);
+        end
+        end
+    end
 else
     for i=1:length(clusters)
         if norm([clusters(i).x(end),clusters(i).y(end)]-[clusters(i).x(1),clusters(i).y(1)]) >= length_threshold

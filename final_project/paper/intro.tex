@@ -15,6 +15,24 @@ Humans use many strategies to predict pedestrian intent while driving, such as b
 The information from sensors is typically fused: Lidar is used to measure the pedestrian position, and the camera is used to label the particular obstacle as a pedestrian.
 Therefore the only measurements collected are position over time (from which velocity can also be computed).
 
+\begin{figure}
+\centering
+\begin{subfigure}{.25\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{figures/rover_d}
+  \caption{Ground robot in Stata}
+  \label{fig:jackal}
+\end{subfigure}%
+\begin{subfigure}{.25\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{figures/mod_testbed}
+  \caption{Golf carts (MIT MoD fleet)}
+  \label{fig:golf_carts}
+\end{subfigure}
+\caption{Many types of autonomous vehicles operate among pedestrians and must account for pedestrian motion in the vehicle motion planning algorithms.}
+\label{fig:vehicles}
+\end{figure}
+
 This project uses a dataset collected on MIT's campus over several months by three golf cart shuttles providing Mobility on Demand service to students, while simultaneously collecting pedestrian trajectory data to optimize vehicle routing strategy.
 The dataset contains about 65,000 pedestrian trajectories as well as the vehicles' trajectories, all in a global frame across the MIT campus.
 
@@ -28,7 +46,7 @@ This classifier could be a useful component of an autonomous vehicle, or part of
 
 % what are contributions
 The main contributions of this work are 
-(i) a pedestrian trajectory dataset with 65,000 trajectories over three months, (ii) an SVM classifier for predicting when pedestrians will step in front of a vehicle, and (iii) \meXX{Which?} a classifier using Deep RNNs / a pedestrian motion prediction algorithm using Deep RNNs.
+(i) a pedestrian trajectory dataset with 65,000 trajectories over three months, (ii) an SVM classifier for predicting when pedestrians will step in front of a vehicle, (iii) a classifier using Deep RNNs for that same objective, and (iv) a pedestrian motion predictor using Deep RNNs.
 
 
 
