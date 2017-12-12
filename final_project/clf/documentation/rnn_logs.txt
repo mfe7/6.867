@@ -202,3 +202,75 @@ Brei
 [STATUS] Validation accuracy of 51.90%
 [STATUS] Test accuracy of 47.00%
 
+
+########################################################################
+SEARCH over hidden units :
+learning rate = 0.001
+n_hidden = 512
+max_epochs = 10
+batch_size = 1
+
+Results:
+- loss decreases to a very low number with many units and many epochs
+- Training time ~ 15min
+- Predicted traj looked better but not too good
+- Higher number of units created a higher initial loss
+########################################################################
+
+acl@bjoern-linux:~/Documents/ml_6867/mfe/6.867/final_project/clf$ python main.py
+Brei
+[STATUS] Train trajectory predictor for 10 epochs
+[STATUS] Start training
+2017-12-11 17:22:57.215788: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+[STATUS] Total loss of 28937.027669 after epoch 0
+[STATUS] Total loss of 2495.38746399 after epoch 1
+[STATUS] Total loss of 659.608781639 after epoch 2
+[STATUS] Total loss of 453.125527758 after epoch 3
+[STATUS] Total loss of 315.843150191 after epoch 4
+[STATUS] Total loss of 180.884319541 after epoch 5
+[STATUS] Total loss of 140.177754777 after epoch 6
+[STATUS] Total loss of 110.291247708 after epoch 7
+[STATUS] Total loss of 94.0453296192 after epoch 8
+[STATUS] Total loss of 88.5502129301 after epoch 9
+[STATUS] Training finished
+
+########################################################################
+SEARCH over output activation functions:
+learning rate = 0.001
+n_hidden = 128
+max_epochs = 6
+batch_size = 1
+
+Results:
+- Switching to tanh, or sigm activation on top of the linear output activation prevented the system from training
+- The loss is not decreasing
+########################################################################
+
+
+# tanh activation
+acl@bjoern-linux:~/Documents/ml_6867/mfe/6.867/final_project/clf$ python main.py
+Brei
+[STATUS] Train trajectory predictor for 6 epochs
+[STATUS] Start training
+2017-12-11 18:14:47.663325: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+[STATUS] Total loss of 148751.911066 after epoch 0
+[STATUS] Total loss of 148634.100566 after epoch 1
+[STATUS] Total loss of 148614.636404 after epoch 2
+[STATUS] Total loss of 148613.062659 after epoch 3
+
+# Sigmoid activation
+acl@bjoern-linux:~/Documents/ml_6867/mfe/6.867/final_project/clf$ python main.py
+Brei
+[STATUS] Train trajectory predictor for 6 epochs
+[STATUS] Start training
+2017-12-11 18:15:47.226620: I tensorflow/core/platform/cpu_feature_guard.cc:137] Your CPU supports instructions that this TensorFlow binary was not compiled to use: SSE4.1 SSE4.2 AVX AVX2 FMA
+[STATUS] Total loss of 152223.580285 after epoch 0
+[STATUS] Total loss of 152202.221649 after epoch 1
+[STATUS] Total loss of 152194.947942 after epoch 2
+[STATUS] Total loss of 152195.521803 after epoch 3
+
+
+########################################################################
+Random guess equals
+loss = 152223.580285
+########################################################################
