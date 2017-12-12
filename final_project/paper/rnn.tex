@@ -1,5 +1,18 @@
 \section{RNN} \label{sec:rnn}
 
+- challenge: predict real-valued sequence
+- low dimensionality and ease of visualization
+- no sophisticated preprocessing or feature-extraction techniques (graves p.18)
+	- reduce variation in data (normalize character size, slant, skew,)
+- Compare our dataset to handwritten dataset size (graves p.18)
+- handwriting has 25 timesteps per character and 700 timesteps per line
+- 5000 training, two val of 1500 lines, test 4000 lines (each line 700 tsteps)
+
+\subsection{Network architecture}
+- explain $x_t$
+	- feeding relative x and y would not respect car position and its influence on pedestrian behavior
+- explain $y_t$
+- copy picture of LSTM from GRAVES
 
 \subsection{GRUs}
 From: $http://www.jackdermody.net/brightwire/article$
@@ -7,7 +20,23 @@ Sequence_to_Sequence_with_LSTM
 
 Long Short Term Memory (LSTM) networks are a recurrent neural network that can be used with STS neural networks. They are similar to Gated Recurrent Units (GRU) but have an extra memory state buffer and an extra gate which gives them more parameters and hence a longer training time. While performance with GRU is usually comparable, there are some tasks that each architecture outperforms the other on, so comparing each for a given learning task is usually a good idea.
 
-\subsection{Hyperparameters}
+\subsection{Training}
+- random batch selection
+- Optimizer
+	- Gradient Descent
+		- use momentum?
+
 \subsubsection{Hyperparameters}
 - Dropout?
 	- $cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob = args.keep_prob)$
+
+\subsubsection{Regularization}
+- Random weight initialization
+	- See graves (p.7), weight noise, adaptive weight noise
+- use validation set for early stopping
+- Gradient clipping?
+	- could prove vital for numerical stability
+	
+\subsection{Results}
+- print total loss
+- print avg LSE per datapoint
