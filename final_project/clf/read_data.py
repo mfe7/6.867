@@ -12,7 +12,7 @@ import os
 ##############################################
 # Use latex font in matplotlib plots
 params = {'text.usetex' : True,
-          'font.size' : 24,
+          'font.size' : 20,
           'font.family' : 'lmodern',
           'text.latex.unicode': True,
           }
