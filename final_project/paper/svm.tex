@@ -73,10 +73,24 @@ The test accuracy with these values was 74.4\%.
 \label{table_svm}
 \end{table*}
 
+\subsection{Training Set Size}
+Another parameter that affects classifier accuracy is size of training set.
+We show in~\cref{fig:svm_num_datapts} that increasing the training set size increases the test accuracy.
+The curve levels off around 20,000 trajectory snippets, which corresponds to about 2 weeks of data collection.
+
+\begin{figure}
+  \centering
+  \includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
+  keepaspectratio]{figures/svm_num_datapts}
+  \caption{SVM trained on various dataset sizes. As expected, test accuracy increases with more training data, but levels off after about 20k trajectory snippets.} 
+  \label{fig:svm_num_datapts} 
+\end{figure}
+
+
 \subsection{Results}
-With these optimized hyperparameters, we then trained on 1 week of data (9700 trajectory snippets).
-The test accuracy was 84.8\%.
-This is higher than the accuracy from hyperparameter optimization because there was more training data.
+With these optimized hyperparameters and training set size, we then trained on 2 weeks of data (22,481 trajectory snippets).
+The test accuracy was 86.3\%.
+Note that this is higher than the accuracy from hyperparameter optimization because there was more training data.
 
 We show the various combinations of true/predicted labels in~\cref{fig:svm_labels}, with numerical listings in~\cref{table_svm_outputs}.
 On the left (\cref{fig:svm_label0}), we show the trajectory snippets for which our classifier predicted a label of 0.
@@ -95,10 +109,10 @@ Some of the long trajectories are still classified correctly, indicating the cla
  \hline
  Classification & Number & Percent \\
  \hline\hline
- False Positives & 101 & 4.6 \\ \hline
- False Negatives & 234 & 10.6 \\ \hline
- True Positives & 787 & 35.8 \\ \hline
- True Negatives & 1076 & 49.0 \\ \hline\hline
+ False Positives & 100 & 4.5 \\ \hline
+ False Negatives & 199 & 9.1 \\ \hline
+ True Positives & 822 & 37.4 \\ \hline
+ True Negatives & 1077 & 49.0 \\ \hline\hline
  Total & 2198 & 100.0\\ \hline
 \end{tabular}
 \caption{Classification matrix}
