@@ -46,7 +46,6 @@ The highest validation accuracy of 79.8\% occurs with $l=25$ and $C=10$, so we c
 
 The test accuracy with these values was 74.4\%.
 
-\meXX{add plot with our trajectories labeled as 0/1}
 
 
 \begin{table*}[ht!]
@@ -74,6 +73,47 @@ The test accuracy with these values was 74.4\%.
 \caption{Accuracy of SVM for various values of hyperparameters $C$, $l$.}
 \label{table_svm}
 \end{table*}
+
+\subsection{Results}
+With these optimized hyperparameters, we show the various combinations of true/predicted labels in~\cref{fig:svm_labels}.
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{||c||c c||}  
+ \hline
+ Classification & Number & Percent \\
+ \hline\hline
+ False Positives & 136 & 5.0 \\ \hline
+ False Negatives & 554 & 20.4 \\ \hline
+ True Positives & 691 & 25.4 \\ \hline
+ True Negatives & 1339 & 49.2 \\ \hline\hline
+ Total & 2720 & 100.0\\ \hline
+\end{tabular}
+\caption{Classification matrix}
+\label{table_svm_outputs}
+\end{table}
+
+
+\begin{figure}
+\centering
+\begin{subfigure}{.25\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{figures/svm_label0}
+  \caption{Trajs. labeled "No Cross"}
+  \label{fig:svm_label0}
+\end{subfigure}%
+\begin{subfigure}{.25\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{figures/svm_label1}
+  \caption{Trajs. labeled "Cross"}
+  \label{fig:svm_label1}
+\end{subfigure}
+\caption{}
+\label{fig:svm_labels}
+\end{figure}
+
+\meXX{add plot with our trajectories labeled as 0/1}
+
 
 \subsection{Kernel Choice}
 \meXX{discuss kernel options?}

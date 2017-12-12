@@ -22,7 +22,7 @@ def plotDecisionBoundary(X, Y, predict, values, title = ""):
     CS = pl.contour(xx, yy, zz, values, colors = 'green', linestyles = 'solid', linewidths = 5)
     pl.clabel(CS, fontsize=9, inline=1)
     # Plot the training points
-    pl.scatter(X[:, 0], X[:, 1], c=(1.-Y), s=20, cmap = pl.cm.cool, linestyles='-')
+    # pl.scatter(X[:, 0], X[:, 1], c=(1.-Y), s=20, cmap = pl.cm.cool, linestyles='-')
     pl.title(title)
     pl.axis('tight')
 
