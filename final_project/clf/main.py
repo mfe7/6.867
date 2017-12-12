@@ -5,13 +5,14 @@ from rnn import RNN
 import tensorflow as tf
 from plotBoundary import plotDecisionBoundary 
 import matplotlib.pyplot as plt
-
+from gen_data import Data_gen
 
 clf_sel = 'rnn'
 
 plot = False
 plot_dec_bound = True # prints dec bound for linear svm, requires t_steps = 1
 test_model = True
+generate_data = False # generates sinusodial train and test data and predicts traj
 
 dim = 2
 t_steps = 50 # trajectory sniplet length
@@ -28,6 +29,26 @@ for i in range(1,2):
   # y element of {0,1}
   x = np.append(x, x_i, axis=0)
   y = np.append(y, y_i, axis=0)
+
+# x = [np.array([1, 2]),np.array([2, 3]),np.array([3,4 ]),np.array([4,5])]
+# y = [0,1,2,3]
+# print(len(x), x[0].shape)
+# plt.plot(x[:][0],x[:][1])
+# plt.show()
+
+# Generate test data of linear, sinusoidal, nonlinear shape:
+# Only generate x1, x2 position - no label
+n_samples = 8000
+if generate_data:
+  data_gen = Data_gen(_t_steps=t_steps, input_dim=dim)
+  x = data_gen.gen_data(fct='sin', n_samples=n_samples)
+
+  # Plot generated data
+  # for n in range(n_samples):
+  #   plt.plot(x[n, ::2], x[n, 1::2])
+  # plt.xlabel('x1')
+  # plt.xlabel('x2')
+  # plt.show()
 
 ## Save and load txt from file
 # np.savetxt("data/clusters_train.csv", x, delimiter=",")
@@ -68,7 +89,6 @@ if clf_sel == 'svm_rbf':
 elif clf_sel == 'rnn':
 
   input_dim = 2 # x and y position of pedestrian
-  n_samples = None # set in initialize_graph
   n_hidden = 128 # num hidden layers = num features
   n_classes = 1 # binary: cross / no-cross, not one-hot encoded, {0,1} instead 
   max_epochs = 5 # reduce this for faster runtime
@@ -81,6 +101,10 @@ elif clf_sel == 'rnn':
   clf = RNN(t_steps, input_dim, n_hidden, n_classes, lr, batch_size, max_iter, max_epochs)
   
   rnn_classify = False
+
+  print('[STATUS] Start training {} to classify {} with input_dim={}, n_hidden={}, max_epochs={}, lr={}, batch_size={}, max_iter={}'.format(clf_sel, 
+    rnn_classify, input_dim, n_hidden, max_epochs, lr, batch_size, max_iter))
+  print('x, y shape', x.shape, y.shape)
   if rnn_classify == True:
     clf.initialize_graph()
     clf.train_clf(x, y)
@@ -92,18 +116,53 @@ elif clf_sel == 'rnn':
 
   print('[STATUS] Training finished')
 
+## Test
 if test_model == True:
+  # Get val and test data
   val_file = 'clusters_2'
   val_data = Data(val_file, verbose=False, _t_steps=t_steps)
   x_val,y_val = val_data.get_XY()
 
-  test_file = 'clusters_3'
+  test_file = 'clusters_1'
   test_data = Data(test_file, verbose=False, _t_steps=t_steps)
   x_test,y_test = test_data.get_XY()
+  if generate_data == True:
+    n_tst_samples = 1000
+    x_test = data_gen.gen_data(fct='sin', n_samples=n_tst_samples)
+    # Take training data, to see if i overfit?
+
   # Test and predict RNN trajectories
   if clf_sel == 'rnn' and rnn_classify == False:  
-    test_loss = clf.score_pred(x_test)
-    print('[STATUS] Total test loss of {0:.2f}'.format(test_loss))
+    test_loss, plot_trajs = clf.score_pred(x_test)
+    avg_loss = test_loss/x_test.shape[0]
+    print('[STATUS] Total test loss of {0:.2f} with loss per sample {1:.2f}'.format(test_loss, avg_loss))
+
+    # Print predicted trajectories
+    print('[STATUS] Print predicted trajectories')
+    y_true_arr = plot_trajs[0]
+    y_preds_arr = plot_trajs[1]
+    y_pred_future_arr = plot_trajs[2]
+    y_pred_true_arr = plot_trajs[3]
+    
+
+    for y_t in plot_trajs:
+      print(len(y_t))
+
+    for i, (y_true, y_pred, y_pred_fut, y_pred_true) in enumerate(zip(y_true_arr, y_preds_arr, y_pred_future_arr, y_pred_true_arr)):
+      y_pred_plt = np.asarray(y_pred)
+      plt.plot(y_pred_plt[:,0,0], y_pred_plt[:,0,1], '--', color='blue')
+      
+      y_t_plt = np.asarray(y_true)
+      plt.plot(y_t_plt[:,0,0], y_t_plt[:,0,1], '-', color='green')
+      plt.plot(y_t_plt[0,0,0], y_t_plt[0,0,1], 'o', color='green')
+
+      y_f = np.asarray(y_pred_fut)
+      plt.plot(y_f[:,0,0], y_f[:,0,1], 'o', color='red')
+      # if predicted trajectory existing, plot it. Only plots the correct trajectory, if its a sniplet of a longer trajectory
+      #plt.plot(y_pred_true[:,:,0], y_pred_true[:,:,1], '--', color = 'blue')
+
+      plt.show()
+
   else:
     val_acc = clf.score(x_val, y_val)
     print('[STATUS] Validation accuracy of {0:.2f}%'.format(val_acc*100))

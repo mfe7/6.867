@@ -189,6 +189,7 @@ class RNN:
 
     # output_dim = input_dim
     output_dim = self.input_dim
+    #output_dim = self.input_dim
     self.weights = {
       'out': tf.Variable(tf.random_normal([self.n_hidden, output_dim]))
     }
@@ -216,13 +217,30 @@ class RNN:
 
     # Return output layer linear activation
     # Logits are of shape (1,2) and predict x_t+1
-    self.logits= tf.matmul(self.outputs[-1], self.weights['out']) + self.bias['out']
+    
+    # self.yoyo = self.outputs[2]
 
-    # Predict 
+    #self.logits = 5*[tf.Variable(tf.zeros((1, 2)))]
+    #for i in range(self._t_steps):
+    #  self.logits[i] = tf.matmul(self.outputs[i], self.weights['out']) + self.bias['out']# for i in range(self._t_steps)
+    self.logits = [tf.matmul(self.outputs[i], self.weights['out']) + self.bias['out'] for i in range(self._t_steps)]
+
+    # Predict
     self.pred = self.logits
 
+    self.debug = self.pred
+    #print('pred shape', self.predshape)
+    #self.pred = tf.sigmoid(x=self.logits)
+
     # Loss is LMSE between predicted logit and x_t+1
-    self.loss = tf.losses.mean_squared_error(labels = self.y[-1], predictions = self.pred)
+    
+    # TODO Assure that is taking the correct differences!
+    #tmp_loss = 0
+    #for i in range(self._t_steps):
+      #print('y, pred shape', self.y[i].shape, self.pred[i].shape)
+      #tmp_loss += tf.losses.mean_squared_error(labels = self.y[i], predictions = self.pred[i])
+    # self.loss = tmp_loss
+    self.loss = tf.losses.mean_squared_error(labels = self.y, predictions = self.pred)
     self.optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.lr)
     self.train_op = self.optimizer.minimize(self.loss)
 
@@ -249,28 +267,32 @@ class RNN:
     n_iter = int(math.floor(self.n_samples/self.batch_size))
 
     for epoch in range(self.max_epochs):
-      #accs = np.zeros(n_iter)
-      #acc_mean = 0.0
       loss_total = 0.0
-      for step in range(1, self.max_iter+1):
-        # Cuts of last piece of trajectory set, which does not fit the batch_size
-        if (step*self.batch_size + self.batch_size) < self.n_samples:
-          
-          # TODO 
-          batch_x = self.x_data[:, (step*self.batch_size):(step*self.batch_size + self.batch_size), :]
-          batch_y = self.y_data[:, (step*self.batch_size):(step*self.batch_size + self.batch_size), :]
+      for step in range(n_iter):
+        # Select random batch
+        random_step = int(np.random.rand()*(n_iter-1))
+        
+        # Cuts of last piece of trajectory set, which does not fit the batch_size  
+        batch_x = self.x_data[:, (random_step*self.batch_size):(random_step*self.batch_size + self.batch_size), :]
+        batch_y = self.y_data[:, (random_step*self.batch_size):(random_step*self.batch_size + self.batch_size), :]
 
-        else:
-          break        
         # Run graph
-        # Omit optional feed_dict parameter for now
-        self.sess.run(self.train_op, feed_dict = {self.x: batch_x, self.y: batch_y})
+        _, dy, dp = self.sess.run([self.train_op, self.y, self.pred], feed_dict = {self.x: batch_x, self.y: batch_y})
+        #print('y, pred:', dy, dp)
+        #print('len():', len(dy), len(dp))
+        #print('.shape:', dy[0].shape, dp[0].shape)
+
+        #print('debug:', debug)
+        #print('len(debug):', len(debug))
+        #print('debug[0].shape:', debug[0].shape)
+        #import sys; sys.exit()
 
         # Calculate batch loss & pred
         loss_tmp, y_true, y_pred = self.sess.run([self.loss, self.y, self.pred], feed_dict = {self.x: batch_x, self.y: batch_y})
         loss_total += loss_tmp
 
-      print('[STATUS] Total loss of {} after epoch {}'.format(loss_total, epoch))
+      avg_loss = loss_total / self.n_samples
+      print('[STATUS] Total loss of {0:.2f} and loss per sample {1:.2f} after epoch {2:.0f}'.format(loss_total, avg_loss, epoch))
         
   def score_pred(self, x):
     n_samples = x.shape[0]
@@ -281,56 +303,101 @@ class RNN:
     self.y_data[:,:-1,:] = self.x_data[:,1:,:]
     self.y_data[:,-1,:] = self.x_data[:,-1,:]
 
-    loss_total = 0.0
-    
     t_predict = 10 # Length of predicted trajectory
-    plot_one_future_t_step = False # Plot only one step in the future
-    
+    loss_total = 0.0
     n_iter = int(math.floor(self.n_samples/self.batch_size))
+    # Store every ith traj
+    store_ith_traj = 10
+    plot_trajs = []
+    y_t_ar = []
+    y_p_ar = []
+    y_p_fut_ar = []
+    y_p_t_ar = []
 
+    # Predict trajectories
     for i in range(n_iter):
-      #x_i = self.x_data[:, i:(i + 1), :]
-      #y_i = self.y_data[i:i+1, :]
-      
       x_i = self.x_data[:, (i*self.batch_size):(i*self.batch_size + self.batch_size), :]
       y_i = self.y_data[:, (i*self.batch_size):(i*self.batch_size + self.batch_size), :]
-
-      loss_tmp, y_true, y_pred = self.sess.run([self.loss, self.y, self.pred], feed_dict = {self.x: x_i, self.y: y_i})
-      loss_total += loss_tmp
       
+      # Set ground truth vector for trained and predicted traj
+      y_true = np.copy(self.y_data[:, (i*self.batch_size):(i*self.batch_size + self.batch_size), :])
+      if ((i+1)*self.batch_size + self.batch_size) < self.n_samples:
+        y_pred_true = np.copy(self.y_data[0:t_predict, ((i+1)*self.batch_size):((i+1)*self.batch_size + self.batch_size), :])
+      
+      # y pred is an array over the full trajectory time
 
-      if i > 150: # give him some time for whatever
+      use_old_prediction = False
 
-        # Plot onyl one step in the future
-        if plot_one_future_t_step:
-          plt.plot(y_true[:,:,0], y_true[:,:,1], '-', color = 'green')
-          plt.plot(y_pred[0,0], y_pred[0,1], 'o', color = 'red')
-          print_i_steps = 1
-          if i%print_i_steps == 0: # print every ... steps
-            plt.show()
+      if not use_old_prediction:
+        loss_tmp, y_pred = self.sess.run([self.loss, self.pred], feed_dict = {self.x: x_i, self.y: y_i})
+        loss_total += loss_tmp
+        y_p_ar.append(y_pred) 
 
-        ## Predict by feeding itself
-
-        y_preds = np.zeros((t_predict, 1, self.input_dim))
-        for t_i in range(t_predict):
-          # Shift everything one index into the future
-          x_i[:, :-1,:] = x_i[:, 1:,:]
-          x_i[:, -1, :] = y_pred[0]
-          # TODO assign useful values to y_i[-1]
-          y_i[:, :-1,:] = y_i[:, 1:,:]
-          y_i[:, -1, :] = y_pred[0]
-          # Predict
-          y_past, y_pred = self.sess.run([self.y, self.pred], feed_dict = {self.x: x_i, self.y: y_i})
-          
-          y_preds[t_i,:,:] = y_pred[:,:]
+        #y_pred_plt = np.asarray(y_pred)
+        #plt.plot(y_pred_plt[:,0,0], y_pred_plt[:,0,1], '--', color='blue')
         
-        print('[STATUS] Print predicted test trajectory (red) for given trajectory (green) for sniplet {}'.format(i))
-        plt.plot(y_true[:,:,0], y_true[:,:,1], '-', color = 'green')
-        plt.plot(y_preds[:,0,0], y_preds[:,0,1], '-', color = 'red')
-        plt.show()
+        #y_t_plt = np.asarray(y_true)
+        #plt.plot(y_t_plt[:,0,0], y_t_plt[:,0,1], '-', color='green')
+        #plt.plot(y_t_plt[0,0,0], y_t_plt[0,0,1], 'o', color='green')
+        
+        if i%store_ith_traj == 0: # give him some time for whatever
+          ## Predict by feeding itself
+
+          y_pred_fut = np.zeros((t_predict, 1, self.input_dim))
+          for t_i in range(t_predict):
+            # Shift everything one original time index into the future
+            x_i = np.roll(x_i, shift=-1, axis=0)
+            x_i[-1,:,:] = y_pred[-1]
+            # TODO assign useful values to y_i[-1]
+            y_i = np.roll(y_i, shift=-1, axis=0)
+            y_i[-1, :,:] = y_pred[-1]
+            # Predict
+            y_pred = self.sess.run([self.pred], feed_dict = {self.x: x_i})
+            y_pred = y_pred[0]
+
+            y_pred_fut[t_i,:,:] = y_pred[-1]
+            #y_p_plt = np.asarray(y_pred)
+            #plt.plot(y_p_plt[-1,0,0], y_p_plt[-1,0,1], 'o', color='red')
+        
+        #plt.show()
+        
+        y_t_ar.append(y_true)
+        # TODO: get ground truth prediction for real pedestrian
+        y_p_t_ar.append(y_pred)
+        y_p_fut_ar.append(y_pred_fut)
 
 
-    return loss_total
+
+
+
+      # Old prediction with y_pred = (1,2) vector at last step and not list over time
+      if use_old_prediction:
+        loss_tmp, y_pred = self.sess.run([self.loss, self.pred], feed_dict = {self.x: x_i, self.y: y_i})
+        loss_total += loss_tmp
+        
+        if i%store_ith_traj == 0: # give him some time for whatever
+          ## Predict by feeding itself
+
+          y_preds = np.zeros((t_predict, 1, self.input_dim))
+          for t_i in range(t_predict):
+            # Shift everything one original time index into the future
+            x_i = np.roll(x_i, shift=-1, axis=0)
+            x_i[-1,:,:] = y_pred
+            # TODO assign useful values to y_i[-1]
+            y_i = np.roll(y_i, shift=-1, axis=0)
+            y_i[-1, :,:] = y_pred
+            # Predict
+            y_pred = self.sess.run([self.pred], feed_dict = {self.x: x_i})
+            y_pred = y_pred[0]
+            
+            y_preds[t_i,:,:] = y_pred[:,:]
+          
+          y_t_ar.append(y_true)
+          y_p_ar.append(y_preds)
+          y_p_t_ar.append(y_pred_true)
+    
+    plot_trajs = [y_t_ar, y_p_ar, y_p_fut_ar, y_p_t_ar]
+    return loss_total, plot_trajs
 
 
 
