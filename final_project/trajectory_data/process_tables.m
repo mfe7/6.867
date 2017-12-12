@@ -149,9 +149,9 @@ else
             vehicle_table_v = table_v(strcmp(table_v.vehicle_id,unique_vehicle_ids(v)),:);
             cluster_ids = unique(vehicle_table_p.ped_id);
             num_valid_peds = 0;
-            for i=1:length(cluster_ids) % go through each cluster
-%             tmpind = 43;
-%             for i=tmpind:tmpind% go through each cluster
+%             for i=1:length(cluster_ids) % go through each cluster
+            tmpind = 11;
+            for i=tmpind:tmpind% go through each cluster
                 
                 % Extract pedestrian cluster time vector, and vehicle's
                 % time vector.
@@ -239,6 +239,8 @@ else
                 if plotting == 1
                     clf;
                     subplot(1,2,1);
+                    set(gca,'FontSize',30);
+                    set(gca,'FontName','STIXGeneral');
                     hold on;
                     veh_pos_plot = plot(veh_pos(:,1), veh_pos(:,2),'m--o');
                     veh_start_plot = plot(veh_pos(1,1), veh_pos(1,2),'ms','MarkerSize',30);
@@ -250,7 +252,10 @@ else
                     xlabel('x (m)');
                     ylabel('y (m)');
                     title('Global Frame');
+                    axis([50 65 -15 0]);
                     subplot(1,2,2);
+                    set(gca,'FontSize',30);
+                    set(gca,'FontName','STIXGeneral');
                     hold on;
                     plot(ped_local(:,1), ped_local(:,2),'g--o');
                     plot(ped_local(1,1), ped_local(1,2),'gs','MarkerSize',30);
@@ -263,7 +268,7 @@ else
                     title('Vehicle`s Local Frame');
                     xlabel('x (m)');
                     ylabel('y (m)');
-                    axis([-20 20 -10 40]);
+                    axis([-10 10 -10 20]);
                     pause(0.2);
                 end
                 

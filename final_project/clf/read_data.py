@@ -7,12 +7,12 @@ from matplotlib.offsetbox import (TextArea, DrawingArea, OffsetImage,
                                   AnnotationBbox)
 import matplotlib.patches as patches
 import os 
-import tensorflow as tf
+# import tensorflow as tf
 
 ##############################################
 # Use latex font in matplotlib plots
 params = {'text.usetex' : True,
-          'font.size' : 12,
+          'font.size' : 24,
           'font.family' : 'lmodern',
           'text.latex.unicode': True,
           }
@@ -130,14 +130,14 @@ class Data:
     # Add image of vehicle at (0,0)
     fn = get_sample_data(dir_path+"/car_from_above.png", asfileobj=False)
     arr_img = plt.imread(fn, format='png')
-    imagebox = OffsetImage(arr_img, zoom=0.2)
+    imagebox = OffsetImage(arr_img, zoom=0.05)
     imagebox.image.axes = ax
-    xy = [0,-3.5]
+    xy = [0,-1.5]
     ab = AnnotationBbox(imagebox, xy,
                         xybox=(0., 0.),
                         xycoords='data',
                         boxcoords="offset points",
-                        pad=0.5,
+                        pad=0.,
                         )
     ax.add_artist(ab)
 
@@ -145,13 +145,11 @@ class Data:
     forbidden_zone_width = 4
     forbidden_zone_height = 10
     rectangle_bottom_left = (0-forbidden_zone_width/2.0, 0)
-    rect = patches.Rectangle(rectangle_bottom_left,forbidden_zone_width,forbidden_zone_height,linewidth=10,edgecolor='b',facecolor='none',linestyle='--')
+    rect = patches.Rectangle(rectangle_bottom_left,forbidden_zone_width,forbidden_zone_height,linewidth=6,edgecolor='b',facecolor='none',linestyle='--')
     ax.add_patch(rect)
 
     ax.set_xlim(-20, 20)
     ax.set_ylim(-10, 30)
-    ax.set_xlim(-100, 100)
-    ax.set_ylim(-100, 100)
     ax.set_xlabel('x [m]')
     ax.set_ylabel('y [m]')
     ax.set_title('red = cross, green = no cross')
@@ -159,4 +157,7 @@ class Data:
 
 
   
-
+if __name__ == '__main__':
+  d = Data(file_name='clusters_2')
+  x,y = d.get_XY()
+  d.plot_clf(x,y,1000)
