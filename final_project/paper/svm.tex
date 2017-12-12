@@ -33,6 +33,7 @@ After this quick sanity check, we can proceed to larger values of $l$, but lose 
 There are several hyperparameters that affect the behavior of the classifier.
 The main ones that we experimented with were $l$ (snippet length) and $C$ (SVM regularizer).
 A grid search for optimal parameter values is shown in~\cref{table_svm} (optimal w.r.t. high validation accuracy).
+Beacuse of the time required to train so many combinations (especially affected by Gaussian RBF Kernel), we trained on a smaller subset of the training set during hyperparameter optimization.
 
 As $C$ increases, training accuracy increases for all scenarios, which is expected because this corresponds to more penalty on mis-classified points.
 We can tell when $C$ is too high, because training accuracy is much higher than validation accuracy, a symptom of overfitting.
@@ -45,8 +46,6 @@ This intuition aligns with our observed validation accuracies.
 The highest validation accuracy of 79.8\% occurs with $l=25$ and $C=10$, so we choose those as the optimal hyperparameters.
 
 The test accuracy with these values was 74.4\%.
-
-
 
 \begin{table*}[ht!]
 \centering
@@ -75,7 +74,20 @@ The test accuracy with these values was 74.4\%.
 \end{table*}
 
 \subsection{Results}
-With these optimized hyperparameters, we show the various combinations of true/predicted labels in~\cref{fig:svm_labels}.
+With these optimized hyperparameters, we then trained on 1 week of data (9700 trajectory snippets).
+The test accuracy was 84.8\%.
+This is higher than the accuracy from hyperparameter optimization because there was more training data.
+
+We show the various combinations of true/predicted labels in~\cref{fig:svm_labels}, with numerical listings in~\cref{table_svm_outputs}.
+On the left (\cref{fig:svm_label0}), we show the trajectory snippets for which our classifier predicted a label of 0.
+Our accuracy on trajectories that don't cross in front of the vehicle are pretty high.
+It is interesting to note the rectangular gap in the center; this demonstrates that our classifier learned that trajectories that enter that region should never be classified as 1.
+There are some red trajectories around the edge of the rectangle which are particularly challenging. 
+
+On the right (\cref{fig:svm_label1}), the trajectories our classifier labeled as 1 are relatively somewhat less accurate.
+Recall that the trajectories are split into snippets, so for long trajectories that are split into many snippets, this classifier seems to perform much worse on the snippets that are far away from the vehicle.
+It is expected that the performance would be worse further away from the vehicle.
+Some of the long trajectories are still classified correctly, indicating the classifier is learning some notion of direction, since we are only feeding in pedestrian positions over time.
 
 \begin{table}[ht!]
 \centering
@@ -83,40 +95,40 @@ With these optimized hyperparameters, we show the various combinations of true/p
  \hline
  Classification & Number & Percent \\
  \hline\hline
- False Positives & 136 & 5.0 \\ \hline
- False Negatives & 554 & 20.4 \\ \hline
- True Positives & 691 & 25.4 \\ \hline
- True Negatives & 1339 & 49.2 \\ \hline\hline
- Total & 2720 & 100.0\\ \hline
+ False Positives & 101 & 4.6 \\ \hline
+ False Negatives & 234 & 10.6 \\ \hline
+ True Positives & 787 & 35.8 \\ \hline
+ True Negatives & 1076 & 49.0 \\ \hline\hline
+ Total & 2198 & 100.0\\ \hline
 \end{tabular}
 \caption{Classification matrix}
 \label{table_svm_outputs}
 \end{table}
-
 
 \begin{figure}
 \centering
 \begin{subfigure}{.25\textwidth}
   \centering
   \includegraphics[width=.9\linewidth]{figures/svm_label0}
-  \caption{Trajs. labeled "No Cross"}
+  \caption{Trajs. labeled ``No Cross''}
   \label{fig:svm_label0}
 \end{subfigure}%
 \begin{subfigure}{.25\textwidth}
   \centering
   \includegraphics[width=.9\linewidth]{figures/svm_label1}
-  \caption{Trajs. labeled "Cross"}
+  \caption{Trajs. labeled ``Cross''}
   \label{fig:svm_label1}
 \end{subfigure}
-\caption{}
+\caption{Predicted labels on test set with SVM classifier. On the left, trajectory snippets that were predicted label 0 (green is correct, red is incorrect). Notice the large rectangular gap in the center, corresponding to learned ``cross zone''. On the right, trajectory snippets that were predicted label 1 (cyan correct, orange incorrect). Across the whole test set, 84\% accuracy was achieved.}
 \label{fig:svm_labels}
 \end{figure}
 
-\meXX{add plot with our trajectories labeled as 0/1}
-
-
 \subsection{Kernel Choice}
-\meXX{discuss kernel options?}
+According to~\cite{Rüping01svmkernels}, time series data can be classified with a SVM with many different types of kernels, but the most broadly applicable one is Gaussian RBF.
+Therefore, we used a Gaussian RBF kernel with $\gamma$ set automatically by SKLearn's implementation.
+This kernel allows non-linear combinations of feature elements, which could be useful for this task.
+Ideally, we would use some kernel that was designed specifically for our time-series trajectory data, but we didn't focus much on this aspect of the problem.
+Instead, we considered a different learning method (RNN) to try to better capture the time dependence of our data.
 
 
 % t_steps: 2, C: 0.001000, Train: 0.708, Val: 0.631, Test: 0.590
