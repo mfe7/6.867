@@ -21,12 +21,6 @@ class RNN:
     self._t_steps = _t_steps # length of trajectory sniples
     self.n_samples = None # set in initialize_graph
 
-    self._init_rnn()
-
-  def _init_rnn(self):
-    print('Brei')
-
-    
   # Reshape x from alternating x1x2 to tf placeholder and np data array
   def format_x(self,x):
 
@@ -58,8 +52,8 @@ class RNN:
     # This is a single-stack LSTM
 
     # Define x and y palaceholders 
-    self.x = tf.placeholder(tf.float32, [self._t_steps, self.batch_size, self.input_dim])
-    self.y = tf.placeholder(tf.float32, [self.batch_size, 1])
+    self.x = tf.placeholder(tf.float32, [self._t_steps, None, self.input_dim])
+    self.y = tf.placeholder(tf.float32, [None, 1])
 
     # Define weights (only of output layer)
     # This is for binary classification.
@@ -90,6 +84,7 @@ class RNN:
     # Predict with logistic (binary) instead of softmax(multiclass)
     #self.prediction = tf.nn.sigmoid_cross_entropy_with_logits(logits=self.logits)
     self.prediction = tf.sigmoid(x=self.logits)
+    self.predicted_binary_class = tf.round(self.prediction)
 
     # Define loss and optimizer
     # Use mean square error instead of softmax cross entropy
@@ -99,83 +94,53 @@ class RNN:
     self.train_op = self.optimizer.minimize(self.loss)
 
     # Evaluate model
-    correct_pred = tf.equal(tf.round(self.prediction), self.y)
+    self.correct_pred = tf.equal(tf.round(self.prediction), self.y)
     #correct_pred = tf.equal(tf.argmax(self.prediction, 1), tf.argmax(self.y, 1))
     # Set accuracy to the mean of elements
-    self.acc = tf.reduce_mean(tf.cast(correct_pred, dtype=tf.float32))
+    self.acc = tf.reduce_mean(tf.cast(self.correct_pred, dtype=tf.float32))
 
     # Initialize tf variables
     self.init = tf.global_variables_initializer() # returns Op that initializes the global_variables list
 
-  def train_clf(self, x, y):
+  def train_clf(self, x_train, y_train):
 
     print('[STATUS] Start training')
-    # Start training:
-    self.n_samples = x.shape[0]
-    self.x_data = self.format_x(x)
-    self.y_data = self.format_y(y)
 
     self.sess = tf.Session()
 
     # Run initializer
     self.sess.run(self.init)
-    n_iter = int(math.floor(self.n_samples/self.batch_size))
 
     for epoch in range(self.max_epochs):
-      accs = np.zeros(n_iter)
-      acc_mean = 0.0
+      self.n_samples = x_train.shape[0]
+      x_data = self.format_x(x_train)
+      y_data = self.format_y(y_train)
+      n_iter = int(math.floor(self.n_samples/self.batch_size))
+      for step in range(n_iter):
+        rand_inds = np.random.randint(self.n_samples, size=self.batch_size)
 
-      for step in range(1, self.max_iter+1):
-        # Cuts of last piece of trajectory set, which does not fit the batch_size
-        if (step*self.batch_size + self.batch_size) < self.n_samples:
-          
-          # TODO 
-          batch_x = self.x_data[:, (step*self.batch_size):(step*self.batch_size + self.batch_size), :]
-          batch_y = self.y_data[step:step+self.batch_size, :]
-        else:
-          break        
-        # Run graph
-        # Omit optional feed_dict parameter for now
+        batch_x = x_data[:, rand_inds, :]
+        batch_y = y_data[rand_inds, :]
         self.sess.run(self.train_op, feed_dict = {self.x: batch_x, self.y: batch_y})
+        # loss_tmp, acc_tmp, pred_tmp = self.sess.run([self.loss, self.acc, self.prediction], feed_dict = {self.x: batch_x, self.y: batch_y})
 
-        # Calculate batch loss & acc
-        #loss_tmp, acc_tmp = self.sess.run([self.loss, self.acc], feed_dict = {self.x: batch_x, self.y: batch_y})
-        loss_tmp, acc_tmp, pred_tmp = self.sess.run([self.loss, self.acc, self.prediction], feed_dict = {self.x: batch_x, self.y: batch_y})
-        accs[step] = acc_tmp
-
-        # print("Step " + str(step) + ", Minibatch Loss= " + \
-        #           "{:.4f}".format(loss_tmp) + ", Training Accuracy= " + \
-        #           "{:.3f}".format(acc_tmp))
-        # print('Pred: {}, Truth: {}'.format(pred_tmp, batch_y))
-
-      acc_mean = np.sum(accs)/n_iter
-      # Get full accuracy
-      #loss_tmp, acc_tmp = self.sess.run([self.loss, self.acc], feed_dict = {self.x: self.x_data, self.y: self.y_data})
-      print('[STATUS] Train accuracy of {}% after epoch {}'.format(acc_mean*100, epoch))
-        
+      train_acc = self.score(x_train,y_train)
+      # val_acc = self.score(x_val,y_val)
+      print '[STATUS] Train accuracy: %.4f after epoch %i' %(train_acc*100, epoch)
+      # print '[STATUS] Train accuracy: %.4f, Val accuracy: %.4f after epoch %i' %(train_acc*100, val_acc*100, epoch)
+      
 
   def score(self, x, y):
-    n_samples = x.shape[0]
-    
-    self.x_data = self.format_x(x)
-    self.y_data = self.format_y(y)
-    
-    accs = np.zeros(n_samples)
-    acc_mean = 0.0
-    
-    n_iter = int(math.floor(self.n_samples/self.batch_size))
+    x_data = self.format_x(x)
+    y_data = self.format_y(y)
+    acc, correct, pred, label = self.sess.run([self.acc, self.correct_pred, self.predicted_binary_class, self.y], feed_dict = {self.x: x_data, self.y: y_data})
+    # print acc, correct, pred, label
+    return acc
 
-    for i in range(n_iter):
-      #x_i = self.x_data[:, i:(i + 1), :]
-      #y_i = self.y_data[i:i+1, :]
-      
-      x_i = self.x_data[:, (i*self.batch_size):(i*self.batch_size + self.batch_size), :]
-      y_i = self.y_data[i:i+self.batch_size, :]
-
-      acc_i = self.sess.run([self.acc], feed_dict = {self.x: x_i, self.y: y_i})
-      accs[i] = acc_i[0]
-    acc_mean = np.sum(accs)/n_iter
-    return acc_mean
+  def predict(self, x):
+    x_data = self.format_x(x)
+    output = self.sess.run([self.predicted_binary_class], feed_dict = {self.x: x_data})
+    return output
 
   ############################################
   ### Init RNN for trajectory prediction task

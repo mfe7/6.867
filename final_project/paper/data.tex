@@ -4,7 +4,7 @@
 
 
 An important realization we made during this project is the challenge of working with a real dataset.
-Understanding the raw data became a significant portion of the project, so this chapter provides a thorough explanation of our findings and methods to process the data.
+Understanding the raw data became a significant portion of the project, so this chapter provides an explanation of our findings and methods to process the data.
 
 \subsection{Raw Data}
 
@@ -47,44 +47,53 @@ In addition to addressing noise, we also pre-process the data by converting pede
 Our objective is to classify whether pedestrians cross in front of the vehicle, so the pedestrian trajectories must be converted into the vehicle's local frame.
 That is, our dataset is initially unlabeled, and we must generate the ground truth label that we wish to learn to classify later.
 
-It might be possible to somehow feed both the vehicle trajectory and pedestrian trajectory into a classifier, and have it learn the transformation, but it seemed much more straightforward for us to rotate the data ahead of time.
+It might be possible to somehow feed both the global vehicle trajectory and global pedestrian trajectory into a classifier, but it seemed much more straightforward for us to rotate the data ahead of time rather than hoping the algorithm would learn how the two data streams interact.
+Further, the global coordinates span 100s of meters, so we constrain the size of the input space by transforming into a local frame.
+
 Using global coordinates could potentially allow the classifier to learn a global understanding of the map (e.g. where sidewalks/intersections are), but we chose to focus on a more structured problem for this project.
 Since global coordinates should have an impact on pedestrian motion, we could in the future try a hybrid approach where we feed local coordinates along with some context features (e.g. distance to curb, traffic light state) as in~\cite{casnsc_NIPS}.
 
 \subsection{Global-to-Local Transformation}
 
 % what is strategy to fix issues
-The global-to-local transformation relies on knowledge of vehicle orientation (heading angle) and smooth vehicle trajectories, neither of which we have by default.
-\cref{alg:global_to_local} describes the procedure for filtering, transforming, and labeling the raw dataset.
-\meXX{explain fig 3}
-\meXX{explain how to do global-to-local transform}
+The global-to-local transformation relies on knowledge of vehicle orientation (heading angle) and smooth vehicle trajectories, neither of which exist in the raw dataset.
+The global-to-local transformation projects the vehicle-to-pedestrian relative position vector onto the coordinate frame that points straight out of the vehicle's front and left side.
+% \cref{alg:global_to_local} 
+We omit a detailed description for the procedure for filtering, transforming, and labeling the raw dataset, since the focus of the project is the learning algorithms.
 
-\begin{algorithm}\label{alg:global_to_local}
-	\caption{Algorithm for extracting local trajectories}
-	\begin{algorithmic}[1]
-		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
-		\renewcommand{\algorithmicensure}{\textbf{Output:}}
-		\REQUIRE $V_g$, $P_g$: global vehicle, pedestrain trajectories~(\cref{table_data})
-		\ENSURE  $P_l$: pedestrian trajectories in local vehicle frame
-		\FOR {each vehicle}
-			\STATE $I_{pos jump}$ = $\{i \in [1,len(V_g)-1] \mid euclid\_dist(V_g(i)-V_g(i+1))>1.0\}$
-			\STATE $I_{time jump}$ = $\{i \in [1,len(V_g)-1] \mid time(V_g(i)-V_g(i+1))>0.5\}$
-			\STATE J = $I_{pos jump}$ $\cup$ $I_{time jump}$
-			\STATE $T_{valid}$ = $\{[J(i), J(i+1)] \mid time(J(i+1) - J(i)) > 5.0\}$
-			\meXX{finish}
-			% \FOR {each segment in $T_{valid}$}
-				% \STATE abc
-				% \STATE find smooth veh traj
-			% % \ENDFOR
-			% \FOR {each $P_{g,i}$ pedestrian id}
-			% 	\IF {}
-			% 		\STATE vxy = 
-			% 	\ENDIF
-			% \ENDFOR
-		\ENDFOR
-		\RETURN pedestrian trajectories 
-	\end{algorithmic} 
-\end{algorithm}
+The transformation is visualized in~\cref{fig:global_to_local_matlab}.
+On the left, the global frame shows the vehicle (magenta) moving from left to right, and the pedestrian (green) moving from bottom right toward the left.
+Therefore, the pedestrian is moving along the vehicle's right side.
+This is exactly what we see in the vehicle's local frame on the right plot.
+The blue rectangle represents the vehicle, and the dashed red rectangle is the ``cross zone''.
+This pedestrian does not enter the ``cross zone'', so it is given label 0.
+
+% \begin{algorithm}\label{alg:global_to_local}
+% 	\caption{Algorithm for extracting local trajectories}
+% 	\begin{algorithmic}[1]
+% 		\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+% 		\renewcommand{\algorithmicensure}{\textbf{Output:}}
+% 		\REQUIRE $V_g$, $P_g$: global vehicle, pedestrain trajectories~(\cref{table_data})
+% 		\ENSURE  $P_l$: pedestrian trajectories in local vehicle frame
+% 		\FOR {each vehicle}
+% 			\STATE $I_{pos jump}$ = $\{i \in [1,len(V_g)-1] \mid euclid\_dist(V_g(i)-V_g(i+1))>1.0\}$
+% 			\STATE $I_{time jump}$ = $\{i \in [1,len(V_g)-1] \mid time(V_g(i)-V_g(i+1))>0.5\}$
+% 			\STATE J = $I_{pos jump}$ $\cup$ $I_{time jump}$
+% 			\STATE $T_{valid}$ = $\{[J(i), J(i+1)] \mid time(J(i+1) - J(i)) > 5.0\}$
+% 			\meXX{finish}
+% 			% \FOR {each segment in $T_{valid}$}
+% 				% \STATE abc
+% 				% \STATE find smooth veh traj
+% 			% % \ENDFOR
+% 			% \FOR {each $P_{g,i}$ pedestrian id}
+% 			% 	\IF {}
+% 			% 		\STATE vxy = 
+% 			% 	\ENDIF
+% 			% \ENDFOR
+% 		\ENDFOR
+% 		\RETURN pedestrian trajectories 
+% 	\end{algorithmic} 
+% \end{algorithm}
 
 \begin{figure}
 	\centering
@@ -104,12 +113,12 @@ Green trajectories are local pedestrian trajectories that do not cross into the 
 A few important observations about the processed dataset are the jaggedness and locations of trajectories.
 The jaggedness is due to the transformation and sensor rates: the Lidar provides pedestrian trajectory at high rate (50 Hz), but the vehicle position is updated at a slower rate (10 Hz), so the pedestrian trajectory jumps a bit each time vehicle time step.
 Since the rotation is dependent on vehicle heading angle, and vehicle heading angle is computed from consecutive vehicle positions, this process is subject to some noise.
-It is also somewhat difficult to imagine what local trajectories \textit{should} look like, because these trajectories are showing how the vehicle and pedestrian move relative to one another, and an observer doesn't know what the vehicle's velocity was for any particular trajectory.
+It is also somewhat difficult to imagine what local trajectories \textit{should} look like, because these trajectories show how the vehicle and pedestrian move relative to one another, and an observer doesn't know what the vehicle's velocity was for any particular trajectory.
 For example, a trajectory that arcs along the front of the vehicle could be the vehicle turning as a pedestrian walks straight, or a pedestrian walking in a curve while the vehicle is parked.
 All of this could have been avoided if we had access to raw sensor measurements, as these provide local coordinates by default.
 
 The second observation is that the trajectories are in front/along the sides of the vehicle, and have a limited range of about 20m.
-This makes sense given our sensor: it is mounted on the vehicle's front and sees a 270$^{\circ}$ cone.
+This makes sense given our sensor: it is mounted on the vehicle's front and sees a 270$^{\circ}$ region.
 Its maximum range is more than 20m, but tracking pedestrians reliably is difficult beyond this distance.
 
 \begin{figure}

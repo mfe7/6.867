@@ -79,7 +79,7 @@ Include oscillating plot for convergence property.
 ~\cref{fig:rnn_hidden} also illustrates how LSTM starts by guessing $y_0$ purely based on the input $x_0$. 
 
 % minimum snippet length.
-Our tuning showed, that the model needs a minimum snippet length to be able to estimate the curve. For very low snippet length ($T<10$) our loss was increasing ($Loss_b=0.02$$ for model $n_h=4$ from ~\cref{tab:rnn_hidden}). An increase in the snippet length over the threshold snippet length $T=50$ was not observed. Therefore, we have set the default snippet length to $T=50$. If we would use RNNs instead of LSTM, the threshold snippet length would be lower, because RNNs have a shorter memory in comparison to LSTMs.
+Our tuning showed, that the model needs a minimum snippet length to be able to estimate the curve. For very low snippet length ($T<10$) our loss was increasing ($Loss_b=0.02$ for model $n_h=4$ from ~\cref{tab:rnn_hidden}). An increase in the snippet length over the threshold snippet length $T=50$ was not observed. Therefore, we have set the default snippet length to $T=50$. If we would use RNNs instead of LSTM, the threshold snippet length would be lower, because RNNs have a shorter memory in comparison to LSTMs.
 
 % learning rate, TODO include plot of oscillating learning rate.
 The learning rate $lr$ influences the rate of convergence. The higher, the faster the model should converge. However, too high values of the learning rate can cause an oscillation over the minimum. In our case, all learning rates in the interval $[0.1, 0.01, 0.001, 0.0001]$ have been able to find a reasonably low loss. $Lr=0.1$ made the loss oscillate in the interval $[0.01, 0.07]$ for our 32-unit model. A learning rate of $lr=0.01$ for the 32-unit model showed the best tradeoff in terms of minimal loss, while maintaining fast training.
@@ -123,7 +123,7 @@ $e_c$ 			& 25 	& 85 	& 35	& 10 		\\
 $L_{e_c}$		&  0.30	& 0.03	& 0.0058& 0.004 	\\
 $L_{test, e_c}$	& 0.34	& 0.04	&0.003	& 0.003 	\\     
 \end{tabular}
-
+\end{table}
 
 %TODO we have used adam optimizer instead of SGD
 
@@ -133,15 +133,6 @@ $L_{test, e_c}$	& 0.34	& 0.04	&0.003	& 0.003 	\\
 %TODO oscillating to fit 
 In ~\cref{fig:rnn_hidden} (bottom-left), we can see how the error between predicted and true path quickly converges after approximately three timesteps.
 
-The use of dropout is generally not recommended for LSTMs, because it essentially erases parts of the memory. Our tests have shown similar results, where dropout caused results similar to random guessing ~\cref{fig:rnn_dropout}
-
-\begin{figure}
-	\centering
-	\includegraphics [trim=0 0 0 0, clip, angle=0, width=1.0\columnwidth,
-	keepaspectratio]{figures/rnn_dropout}
-	\caption{Dropout for LSTMs with dropout rate $d_r = 0.5$. The predicted paths approach random guessing with $mean = x_{t-1}$, $Loss_b = 1.53$ with $b=100$.}
-	\label{fig:rnn_dropout}
-\end{figure}
 
 \subsubsection{Linear data}
 

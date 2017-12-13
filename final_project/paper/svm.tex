@@ -6,44 +6,44 @@ We trained a Support Vector Machine (SVM) to do binary classification on local p
 A portion of the pedestrian trajectory is fed into the classifier, and it outputs a binary label.
 This could be a useful safety feature on a car to identify which pedestrians might cross in front of the vehicle.
 
-The trajectories are all of different length, so we split them up into equal ``snippets'' of length $l$.
+The trajectories are all of different length, so we split them up into equal ``snippets'' of length $T$.
 Each trajectory has a single 0/1 label, and this same label is applied to each snippet.
 This allows us to learn some notion of direction from (x,y) sequences, because a snippet that never crosses in front of the vehicle can still be labeled as such, if a later portion of its trajectory eventually does cross in front.
-These $l$-long lists of (x,y) points are fed into the classifier as the feature vector of length $2l$, as:
-$(x_i = [x_1, y_1, x_2, y_2, ... , x_l, y_l]; y_i = 0/1)$.
+These $T$-long lists of (x,y) points are fed into the classifier as the feature vector of length $2T$, as:
+$(x_i = [x_1, y_1, x_2, y_2, ... , x_T, y_T]; y_i = 0/1)$.
 
 We used the SKLearn implementation of SVM~\cite{scikit-learn} with Gaussian RBF Kernel.
 
 \subsection{Simple Example}
-We first tried training with $l=1$, so that we could easily visualize the decision boundary in~\cref{fig:svm_snippet1}.
-The data (magenta/cyan) aren't particularly meaningful, because it's hard to learn anything from a single (x,y) position of a pedestrian ($l=1$).
+We first tried training with $T=1$, so that we could easily visualize the decision boundary in~\cref{fig:svm_snippet1}.
+The data (magenta/cyan) aren't particularly meaningful, because it's hard to learn anything from a single (x,y) position of a pedestrian ($T=1$).
 But, we can observe that the green decision boundary roughly resembles our arbitrarily-created rectangular ``cross zone''.
 This figure indicates the SVM is correctly learning that there is a region in space that causes trajectories to be labeled a certain way.
-After this quick sanity check, we can proceed to larger values of $l$, but lose the ability to easily visualize the results.
+After this quick sanity check, we can proceed to larger values of $T$, but lose the ability to easily visualize the decision boundary.
 
 \begin{figure}
 	\centering
 	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
 	keepaspectratio]{figures/svm_snippet1}
-	\caption{SVM trained on snippets with $l=1$ allow visualization of decision boundary. The important part of this plot is the green decision boundary in the center that resembles our arbitrary ``cross zone''. The SVM has roughly learned the location/shape of zone for simple input data. There is some overfitting evident by other green regions, but this is likely more of an artifact of $l=1$ hyperparameter.} 
+	\caption{SVM trained on snippets with $T=1$ allow visualization of decision boundary. The important part of this plot is the green decision boundary in the center that resembles our arbitrary ``cross zone''. The SVM has roughly learned the location/shape of zone for simple input data. There is some overfitting evident by other green regions, but this is likely more of an artifact of $T=1$ hyperparameter.} 
 	\label{fig:svm_snippet1} 
 \end{figure}
 
 \subsection{Hyperparameters}
 There are several hyperparameters that affect the behavior of the classifier.
-The main ones that we experimented with were $l$ (snippet length) and $C$ (SVM regularizer).
+The main ones that we experimented with were $T$ (snippet length) and $C$ (SVM regularizer).
 A grid search for optimal parameter values is shown in~\cref{table_svm} (optimal w.r.t. high validation accuracy).
 Beacuse of the time required to train so many combinations (especially affected by Gaussian RBF Kernel), we trained on a smaller subset of the training set during hyperparameter optimization.
 
 As $C$ increases, training accuracy increases for all scenarios, which is expected because this corresponds to more penalty on mis-classified points.
 We can tell when $C$ is too high, because training accuracy is much higher than validation accuracy, a symptom of overfitting.
 
-As $l$ increases, more time steps of pedestrian positions are used in the feature vector, so there is more information on which to classify.
-Intuitively, large $l$ would seem preferable than small, but if $l$ is too large, the noise in the data may outweigh the value of the information.
+As $T$ increases, more time steps of pedestrian positions are used in the feature vector, so there is more information on which to classify.
+Intuitively, large $T$ would seem preferable than small, but if $T$ is too large, the noise in the data may outweigh the value of the information.
 To be more concrete, it seems unlikely that one would need 50 points worth of trajectory data to do the binary classification (especially given the noise seen in~\cref{fig:training_set}).
 
 This intuition aligns with our observed validation accuracies.
-The highest validation accuracy of 79.8\% occurs with $l=25$ and $C=10$, so we choose those as the optimal hyperparameters.
+The highest validation accuracy of 79.8\% occurs with $T=25$ and $C=10$, so we choose those as the optimal hyperparameters.
 
 The test accuracy with these values was 74.4\%.
 
@@ -52,8 +52,8 @@ The test accuracy with these values was 74.4\%.
 \begin{tabular}{||c| c c c c c c c| c c c c c c c||}  
  \hline
  \multirow{2}{*}{Dataset} &
-       \multicolumn{7}{c|}{$l=2$} &
-       \multicolumn{7}{c||}{$l=10$} \\
+       \multicolumn{7}{c|}{$T=2$} &
+       \multicolumn{7}{c||}{$T=10$} \\
  & $C=10^{-3}$ & $10^{-2}$ & $10^{-1}$ & $10^{0}$ & $10^{1}$ & $10^{2}$ & $10^{3}$ & $10^{-3}$ & $10^{-2}$ & $10^{-1}$ & $10^{0}$ & $10^{1}$ & $10^{2}$ & $10^{3}$ \\ [0.5ex] 
  \hline\hline
  Train & 70.8 & 83.2 & 84.8 & 85.9 & 87.1 & 89.1 & 91.9 & 63.8 & 76.1 & 84.6 & 86.8 & 92.6 & 97.2 & 99.6  \\ \hline
@@ -62,21 +62,35 @@ The test accuracy with these values was 74.4\%.
 \begin{tabular}{||c| c c c c c c c| c c c c c c c||}  
  \hline
  \multirow{2}{*}{Dataset} &
-       \multicolumn{7}{c|}{$l=25$} &
-       \multicolumn{7}{c||}{$l=50$} \\
+       \multicolumn{7}{c|}{$T=25$} &
+       \multicolumn{7}{c||}{$T=50$} \\
  & $C=10^{-3}$ & $10^{-2}$ & $10^{-1}$ & $10^{0}$ & $10^{1}$ & $10^{2}$ & $10^{3}$ & $10^{-3}$ & $10^{-2}$ & $10^{-1}$ & $10^{0}$ & $10^{1}$ & $10^{2}$ & $10^{3}$ \\ [0.5ex] 
  \hline\hline
  Train & 62.9 & 64.9 & 82.4 & 88.7 & 96.8 & 99.9 & 100 & 60.4 & 60.4 & 77.6 & 92.2 & 99.3 & 100 & 100  \\ \hline
  Val & 59.2 & 59.3 & 75.0 & 79.7 & 79.8 & 78.8 & 78.8 & 52.3 & 52.3 & 64.8 & 75.0 & 74.8 & 74.5 & 74.5  \\ \hline
 \end{tabular}
-\caption{Accuracy of SVM for various values of hyperparameters $C$, $l$.}
+\caption{Accuracy of SVM for various values of hyperparameters $C$, $T$.}
 \label{table_svm}
 \end{table*}
 
+\subsection{Training Set Size}
+Another parameter that affects classifier accuracy is size of training set.
+We show in~\cref{fig:svm_num_datapts} that increasing the training set size increases the test accuracy.
+The curve levels off around 20,000 trajectory snippets, which corresponds to about 2 weeks of data collection.
+
+\begin{figure}
+  \centering
+  \includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
+  keepaspectratio]{figures/svm_num_datapts}
+  \caption{Effect of training set size on SVM and LSTM binary classifiers. As expected, test accuracy increases with more training data, but levels off after about 20k trajectory snippets for SVM, and 10k for LSTM.} 
+  \label{fig:svm_num_datapts} 
+\end{figure}
+
+
 \subsection{Results}
-With these optimized hyperparameters, we then trained on 1 week of data (9700 trajectory snippets).
-The test accuracy was 84.8\%.
-This is higher than the accuracy from hyperparameter optimization because there was more training data.
+With these optimized hyperparameters and training set size, we then trained on 22,481 trajectory snippets.
+The test accuracy was 86.3\%.
+Note that this is higher than the accuracy from hyperparameter optimization because there was more training data.
 
 We show the various combinations of true/predicted labels in~\cref{fig:svm_labels}, with numerical listings in~\cref{table_svm_outputs}.
 On the left (\cref{fig:svm_label0}), we show the trajectory snippets for which our classifier predicted a label of 0.
@@ -89,21 +103,33 @@ Recall that the trajectories are split into snippets, so for long trajectories t
 It is expected that the performance would be worse further away from the vehicle.
 Some of the long trajectories are still classified correctly, indicating the classifier is learning some notion of direction, since we are only feeding in pedestrian positions over time.
 
+
+
 \begin{table}[ht!]
 \centering
-\begin{tabular}{||c||c c||}  
+\begin{tabular}{||c||c c| c c||}  
  \hline
- Classification & Number & Percent \\
+ \multirow{2}{*}{Classification} &
+       \multicolumn{2}{c|}{SVM} &
+       \multicolumn{2}{c||}{LSTM} \\
+ & Number & Percent & Number & Percent \\ [0.5ex] 
  \hline\hline
- False Positives & 101 & 4.6 \\ \hline
- False Negatives & 234 & 10.6 \\ \hline
- True Positives & 787 & 35.8 \\ \hline
- True Negatives & 1076 & 49.0 \\ \hline\hline
- Total & 2198 & 100.0\\ \hline
+ False Positives & 100 & 4.5 & 349 & 6.0 \\ \hline
+ False Negatives & 199 & 9.1 & 791 & 13.5 \\ \hline
+ True Positives & 822 & 37.4 & 1840 & 31.6 \\ \hline
+ True Negatives & 1077 & 49.0 & 2850 & 48.9 \\ \hline\hline
+ Total & 2198 & 100.0 & 5830 & 100.0 \\ \hline
 \end{tabular}
 \caption{Classification matrix}
 \label{table_svm_outputs}
 \end{table}
+
+% RNN
+% false_pos: 349 0.0598627787307
+% false_neg: 791 0.135677530017
+% true_pos: 1840 0.315608919383
+% true_neg: 2850 0.48885077187
+% test acc: 0.804459691252
 
 \begin{figure}
 \centering

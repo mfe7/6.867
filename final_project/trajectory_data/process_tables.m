@@ -257,9 +257,9 @@ else
                     set(gca,'FontSize',30);
                     set(gca,'FontName','STIXGeneral');
                     hold on;
-                    plot(ped_local(:,1), ped_local(:,2),'g--o');
-                    plot(ped_local(1,1), ped_local(1,2),'gs','MarkerSize',30);
-                    plot(ped_local(end,1), ped_local(end,2),'gx','MarkerSize',30);
+                    plot(-ped_local(:,1), ped_local(:,2),'g--o');
+                    plot(-ped_local(1,1), ped_local(1,2),'gs','MarkerSize',30);
+                    plot(-ped_local(end,1), ped_local(end,2),'gx','MarkerSize',30);
                     rectangle('Position',[-1 -3 2 3],'EdgeColor','blue');
                     rectangle('Position',[-2 0 4 10],'LineStyle','--','EdgeColor','red');
                     if ped_crosses_in_front
