@@ -1,0 +1,385 @@
+--------------
+bs: 1 n_hidden: 8 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 80.5121, Val accuracy: 74.3559 after epoch 0
+[STATUS] Train accuracy: 82.3261, Val accuracy: 77.8545 after epoch 1
+[STATUS] Train accuracy: 82.8883, Val accuracy: 78.0810 after epoch 2
+[STATUS] Train accuracy: 83.9248, Val accuracy: 78.2180 after epoch 3
+[STATUS] Train accuracy: 84.3025, Val accuracy: 77.8703 after epoch 4
+--------------
+bs: 5 n_hidden: 8 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 70.1467, Val accuracy: 60.6302 after epoch 0
+[STATUS] Train accuracy: 71.0690, Val accuracy: 58.0484 after epoch 1
+[STATUS] Train accuracy: 73.2783, Val accuracy: 59.8398 after epoch 2
+[STATUS] Train accuracy: 73.9547, Val accuracy: 60.9252 after epoch 3
+[STATUS] Train accuracy: 75.2108, Val accuracy: 62.4954 after epoch 4
+--------------
+bs: 10 n_hidden: 8 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 66.2772, Val accuracy: 58.1748 after epoch 0
+[STATUS] Train accuracy: 67.1073, Val accuracy: 56.7259 after epoch 1
+[STATUS] Train accuracy: 67.0942, Val accuracy: 55.8934 after epoch 2
+[STATUS] Train accuracy: 67.5290, Val accuracy: 55.6036 after epoch 3
+[STATUS] Train accuracy: 72.4789, Val accuracy: 59.0600 after epoch 4
+--------------
+bs: 1 n_hidden: 64 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 83.8589, Val accuracy: 75.9682 after epoch 0
+[STATUS] Train accuracy: 83.5734, Val accuracy: 76.2053 after epoch 1
+[STATUS] Train accuracy: 83.7184, Val accuracy: 76.1368 after epoch 2
+[STATUS] Train accuracy: 84.1839, Val accuracy: 77.2960 after epoch 3
+[STATUS] Train accuracy: 81.8210, Val accuracy: 75.6889 after epoch 4
+--------------
+bs: 5 n_hidden: 64 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 81.9791, Val accuracy: 72.5697 after epoch 0
+[STATUS] Train accuracy: 82.4139, Val accuracy: 73.4180 after epoch 1
+[STATUS] Train accuracy: 82.9278, Val accuracy: 74.2400 after epoch 2
+[STATUS] Train accuracy: 82.6116, Val accuracy: 75.2832 after epoch 3
+[STATUS] Train accuracy: 83.0771, Val accuracy: 74.7352 after epoch 4
+--------------
+bs: 10 n_hidden: 64 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 81.0875, Val accuracy: 71.4737 after epoch 0
+[STATUS] Train accuracy: 81.3642, Val accuracy: 71.2261 after epoch 1
+[STATUS] Train accuracy: 82.2734, Val accuracy: 72.6751 after epoch 2
+[STATUS] Train accuracy: 82.6160, Val accuracy: 73.3600 after epoch 3
+[STATUS] Train accuracy: 82.8531, Val accuracy: 73.9765 after epoch 4
+--------------
+bs: 1 n_hidden: 128 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 81.2939, Val accuracy: 74.0239 after epoch 0
+[STATUS] Train accuracy: 81.0216, Val accuracy: 70.7097 after epoch 1
+[STATUS] Train accuracy: 83.3494, Val accuracy: 76.9746 after epoch 2
+[STATUS] Train accuracy: 82.5237, Val accuracy: 72.4538 after epoch 3
+[STATUS] Train accuracy: 84.1225, Val accuracy: 76.8059 after epoch 4
+--------------
+bs: 5 n_hidden: 128 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 80.2442, Val accuracy: 70.3409 after epoch 0
+[STATUS] Train accuracy: 82.9981, Val accuracy: 73.3811 after epoch 1
+[STATUS] Train accuracy: 83.1342, Val accuracy: 75.0040 after epoch 2
+[STATUS] Train accuracy: 83.0815, Val accuracy: 73.9923 after epoch 3
+[STATUS] Train accuracy: 83.5954, Val accuracy: 75.4307 after epoch 4
+--------------
+bs: 10 n_hidden: 128 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 80.4067, Val accuracy: 70.7255 after epoch 0
+[STATUS] Train accuracy: 81.9264, Val accuracy: 71.2946 after epoch 1
+[STATUS] Train accuracy: 82.0625, Val accuracy: 71.9321 after epoch 2
+[STATUS] Train accuracy: 82.9366, Val accuracy: 74.3348 after epoch 3
+[STATUS] Train accuracy: 82.7960, Val accuracy: 75.7153 after epoch 4
+--------------
+bs: 1 n_hidden: 256 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 82.6643, Val accuracy: 73.4707 after epoch 0
+[STATUS] Train accuracy: 83.3407, Val accuracy: 76.3423 after epoch 1
+[STATUS] Train accuracy: 83.8589, Val accuracy: 73.9238 after epoch 2
+[STATUS] Train accuracy: 83.5734, Val accuracy: 73.3969 after epoch 3
+[STATUS] Train accuracy: 79.6776, Val accuracy: 66.6842 after epoch 4
+--------------
+bs: 5 n_hidden: 256 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 78.6059, Val accuracy: 72.1956 after epoch 0
+[STATUS] Train accuracy: 81.3554, Val accuracy: 70.0511 after epoch 1
+[STATUS] Train accuracy: 83.3934, Val accuracy: 73.8395 after epoch 2
+[STATUS] Train accuracy: 83.6788, Val accuracy: 76.0894 after epoch 3
+[STATUS] Train accuracy: 82.7829, Val accuracy: 75.8786 after epoch 4
+--------------
+bs: 10 n_hidden: 256 tsteps: 2
+[STATUS] Start training
+[STATUS] Train accuracy: 81.6892, Val accuracy: 70.7993 after epoch 0
+[STATUS] Train accuracy: 81.8473, Val accuracy: 70.2566 after epoch 1
+[STATUS] Train accuracy: 81.7287, Val accuracy: 71.0733 after epoch 2
+[STATUS] Train accuracy: 82.7126, Val accuracy: 73.9765 after epoch 3
+[STATUS] Train accuracy: 82.8312, Val accuracy: 74.7194 after epoch 4
+--------------
+bs: 1 n_hidden: 8 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 61.9629, Val accuracy: 44.9107 after epoch 0
+[STATUS] Train accuracy: 74.9435, Val accuracy: 57.6069 after epoch 1
+[STATUS] Train accuracy: 76.1194, Val accuracy: 63.3730 after epoch 2
+[STATUS] Train accuracy: 77.7476, Val accuracy: 62.7775 after epoch 3
+[STATUS] Train accuracy: 77.9738, Val accuracy: 68.6248 after epoch 4
+--------------
+bs: 5 n_hidden: 8 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 59.3171, Val accuracy: 40.7959 after epoch 0
+[STATUS] Train accuracy: 59.7467, Val accuracy: 41.5268 after epoch 1
+[STATUS] Train accuracy: 60.3347, Val accuracy: 41.6892 after epoch 2
+[STATUS] Train accuracy: 60.9227, Val accuracy: 42.0141 after epoch 3
+[STATUS] Train accuracy: 61.1488, Val accuracy: 42.4201 after epoch 4
+--------------
+bs: 10 n_hidden: 8 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 63.8173, Val accuracy: 46.2642 after epoch 0
+[STATUS] Train accuracy: 63.8173, Val accuracy: 46.2642 after epoch 1
+[STATUS] Train accuracy: 63.8173, Val accuracy: 46.2913 after epoch 2
+[STATUS] Train accuracy: 63.8173, Val accuracy: 46.2913 after epoch 3
+[STATUS] Train accuracy: 63.8173, Val accuracy: 46.2913 after epoch 4
+--------------
+bs: 1 n_hidden: 64 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 83.5142, Val accuracy: 74.8240 after epoch 0
+[STATUS] Train accuracy: 82.9037, Val accuracy: 76.3400 after epoch 1
+[STATUS] Train accuracy: 83.7178, Val accuracy: 74.6616 after epoch 2
+[STATUS] Train accuracy: 81.9991, Val accuracy: 74.0931 after epoch 3
+[STATUS] Train accuracy: 82.3835, Val accuracy: 73.4434 after epoch 4
+--------------
+bs: 5 n_hidden: 64 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 81.2302, Val accuracy: 71.6297 after epoch 0
+[STATUS] Train accuracy: 82.7680, Val accuracy: 74.6616 after epoch 1
+[STATUS] Train accuracy: 83.0393, Val accuracy: 74.7970 after epoch 2
+[STATUS] Train accuracy: 83.1750, Val accuracy: 76.0152 after epoch 3
+[STATUS] Train accuracy: 82.7680, Val accuracy: 74.2826 after epoch 4
+--------------
+bs: 10 n_hidden: 64 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 81.1398, Val accuracy: 70.3573 after epoch 0
+[STATUS] Train accuracy: 81.5694, Val accuracy: 72.9020 after epoch 1
+[STATUS] Train accuracy: 81.0719, Val accuracy: 73.1727 after epoch 2
+[STATUS] Train accuracy: 82.2252, Val accuracy: 73.8766 after epoch 3
+[STATUS] Train accuracy: 82.4740, Val accuracy: 72.8749 after epoch 4
+--------------
+bs: 1 n_hidden: 128 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 82.1800, Val accuracy: 77.9101 after epoch 0
+[STATUS] Train accuracy: 82.8358, Val accuracy: 76.0693 after epoch 1
+[STATUS] Train accuracy: 81.3659, Val accuracy: 69.7076 after epoch 2
+[STATUS] Train accuracy: 81.7503, Val accuracy: 72.5501 after epoch 3
+[STATUS] Train accuracy: 79.3758, Val accuracy: 67.9210 after epoch 4
+--------------
+bs: 5 n_hidden: 128 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 81.5016, Val accuracy: 71.1695 after epoch 0
+[STATUS] Train accuracy: 81.9991, Val accuracy: 75.9881 after epoch 1
+[STATUS] Train accuracy: 82.7001, Val accuracy: 73.9578 after epoch 2
+[STATUS] Train accuracy: 83.3107, Val accuracy: 73.6058 after epoch 3
+[STATUS] Train accuracy: 83.1976, Val accuracy: 75.2301 after epoch 4
+--------------
+bs: 10 n_hidden: 128 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 82.1348, Val accuracy: 71.5755 after epoch 0
+[STATUS] Train accuracy: 82.3835, Val accuracy: 74.3909 after epoch 1
+[STATUS] Train accuracy: 82.0217, Val accuracy: 72.4418 after epoch 2
+[STATUS] Train accuracy: 83.7404, Val accuracy: 75.6903 after epoch 3
+[STATUS] Train accuracy: 83.4690, Val accuracy: 75.6362 after epoch 4
+--------------
+bs: 1 n_hidden: 256 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 76.6395, Val accuracy: 72.6313 after epoch 0
+[STATUS] Train accuracy: 83.4690, Val accuracy: 75.8527 after epoch 1
+[STATUS] Train accuracy: 84.1022, Val accuracy: 78.0455 after epoch 2
+[STATUS] Train accuracy: 83.2881, Val accuracy: 78.0725 after epoch 3
+[STATUS] Train accuracy: 82.0443, Val accuracy: 77.5582 after epoch 4
+--------------
+bs: 5 n_hidden: 256 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 75.3505, Val accuracy: 69.1121 after epoch 0
+[STATUS] Train accuracy: 81.1171, Val accuracy: 72.1982 after epoch 1
+[STATUS] Train accuracy: 83.4690, Val accuracy: 78.8035 after epoch 2
+[STATUS] Train accuracy: 83.1976, Val accuracy: 75.8257 after epoch 3
+[STATUS] Train accuracy: 83.9891, Val accuracy: 75.8798 after epoch 4
+--------------
+bs: 10 n_hidden: 256 tsteps: 10
+[STATUS] Start training
+[STATUS] Train accuracy: 76.5038, Val accuracy: 70.1408 after epoch 0
+[STATUS] Train accuracy: 79.4663, Val accuracy: 71.8192 after epoch 1
+[STATUS] Train accuracy: 79.2854, Val accuracy: 65.7011 after epoch 2
+[STATUS] Train accuracy: 83.3333, Val accuracy: 75.7174 after epoch 3
+[STATUS] Train accuracy: 83.2203, Val accuracy: 75.4196 after epoch 4
+--------------
+bs: 1 n_hidden: 8 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 62.1493, Val accuracy: 44.0714 after epoch 0
+[STATUS] Train accuracy: 62.2090, Val accuracy: 44.0714 after epoch 1
+[STATUS] Train accuracy: 62.1493, Val accuracy: 44.0000 after epoch 2
+[STATUS] Train accuracy: 62.2090, Val accuracy: 44.1429 after epoch 3
+[STATUS] Train accuracy: 62.5075, Val accuracy: 44.2857 after epoch 4
+--------------
+bs: 5 n_hidden: 8 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 52.7164, Val accuracy: 69.9286 after epoch 0
+[STATUS] Train accuracy: 61.4328, Val accuracy: 47.5000 after epoch 1
+[STATUS] Train accuracy: 65.0746, Val accuracy: 56.7857 after epoch 2
+[STATUS] Train accuracy: 68.8358, Val accuracy: 61.1429 after epoch 3
+[STATUS] Train accuracy: 73.5522, Val accuracy: 64.5714 after epoch 4
+--------------
+bs: 10 n_hidden: 8 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 56.9552, Val accuracy: 42.8571 after epoch 0
+[STATUS] Train accuracy: 57.2537, Val accuracy: 44.4286 after epoch 1
+[STATUS] Train accuracy: 58.0298, Val accuracy: 46.3571 after epoch 2
+[STATUS] Train accuracy: 58.3284, Val accuracy: 47.4286 after epoch 3
+[STATUS] Train accuracy: 59.7612, Val accuracy: 48.9286 after epoch 4
+--------------
+bs: 1 n_hidden: 64 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 80.6567, Val accuracy: 70.2143 after epoch 0
+[STATUS] Train accuracy: 81.6716, Val accuracy: 73.2857 after epoch 1
+[STATUS] Train accuracy: 83.0448, Val accuracy: 73.7143 after epoch 2
+[STATUS] Train accuracy: 80.1194, Val accuracy: 71.7143 after epoch 3
+[STATUS] Train accuracy: 80.8955, Val accuracy: 70.2143 after epoch 4
+--------------
+bs: 5 n_hidden: 64 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 79.2836, Val accuracy: 72.7143 after epoch 0
+[STATUS] Train accuracy: 82.3284, Val accuracy: 72.5000 after epoch 1
+[STATUS] Train accuracy: 81.0746, Val accuracy: 71.5714 after epoch 2
+[STATUS] Train accuracy: 82.5075, Val accuracy: 75.7143 after epoch 3
+[STATUS] Train accuracy: 83.7015, Val accuracy: 76.2143 after epoch 4
+--------------
+bs: 10 n_hidden: 64 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 67.0448, Val accuracy: 54.4286 after epoch 0
+[STATUS] Train accuracy: 74.5075, Val accuracy: 61.5000 after epoch 1
+[STATUS] Train accuracy: 74.8060, Val accuracy: 62.9286 after epoch 2
+[STATUS] Train accuracy: 78.3881, Val accuracy: 69.1429 after epoch 3
+[STATUS] Train accuracy: 80.8955, Val accuracy: 70.0000 after epoch 4
+--------------
+bs: 1 n_hidden: 128 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 80.7761, Val accuracy: 71.2143 after epoch 0
+[STATUS] Train accuracy: 81.3731, Val accuracy: 75.5714 after epoch 1
+[STATUS] Train accuracy: 81.6119, Val accuracy: 76.4286 after epoch 2
+[STATUS] Train accuracy: 81.0746, Val accuracy: 74.9286 after epoch 3
+[STATUS] Train accuracy: 78.4478, Val accuracy: 64.0000 after epoch 4
+--------------
+bs: 5 n_hidden: 128 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 81.9104, Val accuracy: 75.7857 after epoch 0
+[STATUS] Train accuracy: 83.8209, Val accuracy: 77.2143 after epoch 1
+[STATUS] Train accuracy: 82.9254, Val accuracy: 78.3571 after epoch 2
+[STATUS] Train accuracy: 83.2239, Val accuracy: 75.0000 after epoch 3
+[STATUS] Train accuracy: 81.0746, Val accuracy: 76.7143 after epoch 4
+--------------
+bs: 10 n_hidden: 128 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 78.5672, Val accuracy: 65.0000 after epoch 0
+[STATUS] Train accuracy: 81.2537, Val accuracy: 73.3571 after epoch 1
+[STATUS] Train accuracy: 80.6567, Val accuracy: 68.6429 after epoch 2
+[STATUS] Train accuracy: 82.0298, Val accuracy: 71.0714 after epoch 3
+[STATUS] Train accuracy: 83.2836, Val accuracy: 74.5714 after epoch 4
+--------------
+bs: 1 n_hidden: 256 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 81.0149, Val accuracy: 71.3571 after epoch 0
+[STATUS] Train accuracy: 80.9552, Val accuracy: 72.0714 after epoch 1
+[STATUS] Train accuracy: 81.1343, Val accuracy: 70.7143 after epoch 2
+[STATUS] Train accuracy: 78.5672, Val accuracy: 65.5714 after epoch 3
+[STATUS] Train accuracy: 80.1194, Val accuracy: 68.6429 after epoch 4
+--------------
+bs: 5 n_hidden: 256 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 81.6716, Val accuracy: 71.0714 after epoch 0
+[STATUS] Train accuracy: 75.7612, Val accuracy: 57.7857 after epoch 1
+[STATUS] Train accuracy: 83.1045, Val accuracy: 75.7857 after epoch 2
+[STATUS] Train accuracy: 83.3433, Val accuracy: 74.7857 after epoch 3
+[STATUS] Train accuracy: 81.4328, Val accuracy: 71.2143 after epoch 4
+--------------
+bs: 10 n_hidden: 256 tsteps: 25
+[STATUS] Start training
+[STATUS] Train accuracy: 79.9403, Val accuracy: 67.2857 after epoch 0
+[STATUS] Train accuracy: 81.0746, Val accuracy: 70.2857 after epoch 1
+[STATUS] Train accuracy: 83.1045, Val accuracy: 75.0000 after epoch 2
+[STATUS] Train accuracy: 83.4030, Val accuracy: 75.2143 after epoch 3
+[STATUS] Train accuracy: 81.2537, Val accuracy: 72.2143 after epoch 4
+--------------
+bs: 1 n_hidden: 8 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 67.4635, Val accuracy: 65.0316 after epoch 0
+[STATUS] Train accuracy: 69.1899, Val accuracy: 56.1709 after epoch 1
+[STATUS] Train accuracy: 70.6507, Val accuracy: 56.3291 after epoch 2
+[STATUS] Train accuracy: 71.8459, Val accuracy: 58.8608 after epoch 3
+[STATUS] Train accuracy: 72.7756, Val accuracy: 58.2278 after epoch 4
+--------------
+bs: 5 n_hidden: 8 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 58.9641, Val accuracy: 42.0886 after epoch 0
+[STATUS] Train accuracy: 59.2297, Val accuracy: 42.5633 after epoch 1
+[STATUS] Train accuracy: 59.4954, Val accuracy: 42.5633 after epoch 2
+[STATUS] Train accuracy: 59.4954, Val accuracy: 42.8797 after epoch 3
+[STATUS] Train accuracy: 59.7610, Val accuracy: 43.0380 after epoch 4
+--------------
+bs: 10 n_hidden: 8 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 47.0120, Val accuracy: 65.5063 after epoch 0
+[STATUS] Train accuracy: 46.7463, Val accuracy: 65.3481 after epoch 1
+[STATUS] Train accuracy: 46.7463, Val accuracy: 65.5063 after epoch 2
+[STATUS] Train accuracy: 46.6135, Val accuracy: 65.3481 after epoch 3
+[STATUS] Train accuracy: 46.7463, Val accuracy: 65.1899 after epoch 4
+--------------
+bs: 1 n_hidden: 64 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 73.9708, Val accuracy: 61.2342 after epoch 0
+[STATUS] Train accuracy: 77.1580, Val accuracy: 68.9873 after epoch 1
+[STATUS] Train accuracy: 77.8220, Val accuracy: 71.8354 after epoch 2
+[STATUS] Train accuracy: 83.3997, Val accuracy: 74.5253 after epoch 3
+[STATUS] Train accuracy: 81.5405, Val accuracy: 74.0506 after epoch 4
+--------------
+bs: 5 n_hidden: 64 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 77.9548, Val accuracy: 66.9304 after epoch 0
+[STATUS] Train accuracy: 79.1501, Val accuracy: 67.8797 after epoch 1
+[STATUS] Train accuracy: 80.0797, Val accuracy: 71.3608 after epoch 2
+[STATUS] Train accuracy: 77.0252, Val accuracy: 65.9810 after epoch 3
+[STATUS] Train accuracy: 78.4861, Val accuracy: 70.4114 after epoch 4
+--------------
+bs: 10 n_hidden: 64 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 55.9097, Val accuracy: 40.3481 after epoch 0
+[STATUS] Train accuracy: 59.2297, Val accuracy: 41.7722 after epoch 1
+[STATUS] Train accuracy: 72.3772, Val accuracy: 66.9304 after epoch 2
+[STATUS] Train accuracy: 77.1580, Val accuracy: 69.7785 after epoch 3
+[STATUS] Train accuracy: 78.8845, Val accuracy: 71.9937 after epoch 4
+--------------
+bs: 1 n_hidden: 128 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 74.9004, Val accuracy: 68.6709 after epoch 0
+[STATUS] Train accuracy: 81.6733, Val accuracy: 71.5190 after epoch 1
+[STATUS] Train accuracy: 81.4077, Val accuracy: 74.6835 after epoch 2
+[STATUS] Train accuracy: 79.2829, Val accuracy: 72.7848 after epoch 3
+[STATUS] Train accuracy: 83.6653, Val accuracy: 73.7342 after epoch 4
+--------------
+bs: 5 n_hidden: 128 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 77.9548, Val accuracy: 69.9367 after epoch 0
+[STATUS] Train accuracy: 80.8765, Val accuracy: 72.7848 after epoch 1
+[STATUS] Train accuracy: 81.1421, Val accuracy: 73.8924 after epoch 2
+[STATUS] Train accuracy: 80.7437, Val accuracy: 74.2089 after epoch 3
+[STATUS] Train accuracy: 80.7437, Val accuracy: 71.6772 after epoch 4
+--------------
+bs: 10 n_hidden: 128 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 69.3227, Val accuracy: 62.5000 after epoch 0
+[STATUS] Train accuracy: 75.2988, Val accuracy: 61.3924 after epoch 1
+[STATUS] Train accuracy: 77.8220, Val accuracy: 66.7722 after epoch 2
+[STATUS] Train accuracy: 76.3612, Val accuracy: 70.4114 after epoch 3
+[STATUS] Train accuracy: 79.6813, Val accuracy: 71.2025 after epoch 4
+--------------
+bs: 1 n_hidden: 256 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 72.6428, Val accuracy: 64.3987 after epoch 0
+[STATUS] Train accuracy: 81.1421, Val accuracy: 74.3671 after epoch 1
+[STATUS] Train accuracy: 82.7357, Val accuracy: 74.6835 after epoch 2
+[STATUS] Train accuracy: 79.9469, Val accuracy: 74.8418 after epoch 3
+[STATUS] Train accuracy: 81.4077, Val accuracy: 75.3165 after epoch 4
+--------------
+bs: 5 n_hidden: 256 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 72.5100, Val accuracy: 73.5759 after epoch 0
+[STATUS] Train accuracy: 81.4077, Val accuracy: 72.3101 after epoch 1
+[STATUS] Train accuracy: 82.2045, Val accuracy: 77.3734 after epoch 2
+[STATUS] Train accuracy: 83.6653, Val accuracy: 75.7911 after epoch 3
+[STATUS] Train accuracy: 80.8765, Val accuracy: 73.5759 after epoch 4
+--------------
+bs: 10 n_hidden: 256 tsteps: 50
+[STATUS] Start training
+[STATUS] Train accuracy: 77.1580, Val accuracy: 68.5127 after epoch 0
+[STATUS] Train accuracy: 78.8845, Val accuracy: 71.9937 after epoch 1
+[STATUS] Train accuracy: 81.6733, Val accuracy: 74.0506 after epoch 2
+[STATUS] Train accuracy: 82.4701, Val accuracy: 73.7342 after epoch 3
+[STATUS] Train accuracy: 79.8141, Val accuracy: 69.4620 after epoch 4
+[STATUS] Training RNN finished

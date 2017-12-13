@@ -82,7 +82,7 @@ The curve levels off around 20,000 trajectory snippets, which corresponds to abo
   \centering
   \includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
   keepaspectratio]{figures/svm_num_datapts}
-  \caption{SVM trained on various dataset sizes. As expected, test accuracy increases with more training data, but levels off after about 20k trajectory snippets.} 
+  \caption{Effect of training set size on SVM and LSTM binary classifiers. As expected, test accuracy increases with more training data, but levels off after about 20k trajectory snippets for SVM, and 10k for LSTM.} 
   \label{fig:svm_num_datapts} 
 \end{figure}
 
@@ -105,19 +105,29 @@ Some of the long trajectories are still classified correctly, indicating the cla
 
 \begin{table}[ht!]
 \centering
-\begin{tabular}{||c||c c||}  
+\begin{tabular}{||c||c c| c c||}  
  \hline
- Classification & Number & Percent \\
+ \multirow{2}{*}{Classification} &
+       \multicolumn{2}{c|}{SVM} &
+       \multicolumn{2}{c||}{LSTM} \\
+ & Number & Percent & Number & Percent \\ [0.5ex] 
  \hline\hline
- False Positives & 100 & 4.5 \\ \hline
- False Negatives & 199 & 9.1 \\ \hline
- True Positives & 822 & 37.4 \\ \hline
- True Negatives & 1077 & 49.0 \\ \hline\hline
- Total & 2198 & 100.0\\ \hline
+ False Positives & 100 & 4.5 & 349 & 6.0 \\ \hline
+ False Negatives & 199 & 9.1 & 791 & 13.5 \\ \hline
+ True Positives & 822 & 37.4 & 1840 & 31.6 \\ \hline
+ True Negatives & 1077 & 49.0 & 2850 & 48.9 \\ \hline\hline
+ Total & 2198 & 100.0 & 5830 & 100.0 \\ \hline
 \end{tabular}
 \caption{Classification matrix}
 \label{table_svm_outputs}
 \end{table}
+
+% RNN
+% false_pos: 349 0.0598627787307
+% false_neg: 791 0.135677530017
+% true_pos: 1840 0.315608919383
+% true_neg: 2850 0.48885077187
+% test acc: 0.804459691252
 
 \begin{figure}
 \centering

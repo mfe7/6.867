@@ -4,7 +4,7 @@
 \section{Recurrent Neural Network: Binary classification} \label{sec:rnn_clf}
 
 We first briefly describe RNNs and LSTMs, as these were not covered in homework assignments.
-Then, we examine a
+Then, we analyze the performance of an LSTM for the same binary classification as before, and compare with the SVM implementation.
 
 \subsection{Introduction}
 
@@ -74,18 +74,45 @@ The weight matrices and biases are initialized with random noise $\sim\mathcal{N
 We use the least mean squared error (LMSE) loss function.
 The network is optimized by a stochastic gradient descent (SGD) method with the goal to minimize the loss over the weight matrices and their biases.
 
-\subsubsection{Hyperparams in bin class}
-- Optimize number of hidden units
-- batchsize
-- learning rate
-- maximum epochs
- 
+\subsection{Hyperparameters}
+Again, there are many hyperparameters to optimize, including the number of hidden units, batch size, learning rate, and number of training epochs.
+It is very time intensive to search over all hyperparamters.
+We briefly summarize the hyperparameters' effects on performance, using validation accuracy as the performance metric.
+The output of our full grid search is in our posted code (file: rnn\_classifier\_hyperparameters.txt).
 
+The best hyperparameters were batch size of 5, $n_{hidden}=256$, $T=10$, and 3 training epochs, and we used a learning rate of 0.001.
 
-- challenge: predict real-valued sequence
-- low dimensionality and ease of visualization
-- no sophisticated preprocessing or feature-extraction techniques (graves p.18)
-	- reduce variation in data (normalize character size, slant, skew,)
-- Compare our dataset to handwritten dataset size (graves p.18)
-- handwriting has 25 timesteps per character and 700 timesteps per line
-- 5000 training, two val of 1500 lines, test 4000 lines (each line 700 tsteps)
+Performance generally levels off after 3-5 training epochs.
+For large T, more hidden units are required to handle the higher dimension of the input data.
+Specifically, when $T>10$, $n_{hidden}=8$ got $<50\%$ accuracy, but performance improved with $n_{hidden}=64$ (we ranged T from 2-50, and $n_{hidden}$ from 8-256).
+Small batch size tended to improve the performance, but it was not a clear trend (we ranged batch size from 1-10).
+
+We also investigate the effect of training set size on performance in~\cref{fig:svm_num_datapts}.
+The blue line corresponds to the LSTM classifier, which is not greatly affected by training set size (close to 80\% throughout).
+The LSTM classifier is not as sensitive as SVM to training set size. 
+
+\subsection{Results}
+After optimizing hyperparameters and confirming we have a sufficient amount of training data, we trained the LSTM binary classifier.
+The overall test accuracy was 80.4\%.
+
+\cref{fig:svm_labels} \& \cref{fig:rnn_labels} look pretty similar.
+Both classifiers learned about the ``cross zone'', perform relatively well on data that is predicted to be class 0, and struggle with false negatives far from the vehicle.
+The fact that both classifiers indicates that type of data is especially challenging to classify correctly.
+
+\begin{figure}
+\centering
+\begin{subfigure}{.25\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{figures/rnn_label0}
+  \caption{Trajs. labeled ``No Cross''}
+  \label{fig:rnn_label0}
+\end{subfigure}%
+\begin{subfigure}{.25\textwidth}
+  \centering
+  \includegraphics[width=.9\linewidth]{figures/rnn_label1}
+  \caption{Trajs. labeled ``Cross''}
+  \label{fig:rnn_label1}
+\end{subfigure}
+\caption{Predicted labels on test set with LSTM classifier. On the left, trajectory snippets that were predicted label 0 (green is correct, red is incorrect). On the right, trajectory snippets that were predicted label 1 (cyan correct, orange incorrect). Across the whole test set, 80\% accuracy was achieved. Compare with~\cref{fig:svm_labels}}
+\label{fig:rnn_labels}
+\end{figure}

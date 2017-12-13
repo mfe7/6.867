@@ -55,9 +55,13 @@ Since global coordinates should have an impact on pedestrian motion, we could in
 
 % what is strategy to fix issues
 The global-to-local transformation relies on knowledge of vehicle orientation (heading angle) and smooth vehicle trajectories, neither of which we have by default.
+The global-to-local transformation projects the vehicle-to-pedestrian relative position vector onto the coordinate frame that points straight out of the vehicle's front and left side.
 \cref{alg:global_to_local} describes the procedure for filtering, transforming, and labeling the raw dataset.
-\meXX{explain fig 3}
-\meXX{explain how to do global-to-local transform}
+
+The transformation is visualized in~\cref{fig:global_to_local_matlab}.
+On the left, the global frame shows the vehicle (magenta) moving from left to right, and the pedestrian moving from bottom right toward the left.
+Therefore, the pedestrian is moving along the vehicle's right side.
+This is exactly what we see in the vehicle's local frame on the right plot.
 
 \begin{algorithm}\label{alg:global_to_local}
 	\caption{Algorithm for extracting local trajectories}

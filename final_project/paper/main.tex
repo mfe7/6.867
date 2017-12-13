@@ -113,10 +113,10 @@ distance=1cm] \tikzstyle{input} = [coordinate] \tikzstyle{output} =
 
 \begin{abstract}
 In this project, we applied techniques from the course to a dataset of pedestrian trajectories recorded on a golf cart around MIT's campus.
-Our objective was to classify whether a pedestrian's trajectory would enter a 4x10m rectangle in front of the vehicle, which could be used as an active safety feature on various types of vehicles that interact with pedestrians.
+Our main objective was to classify whether a pedestrian's trajectory would enter a 4x10m rectangle in front of the vehicle, which could be used as an active safety feature on various types of vehicles that interact with pedestrians.
 We trained a SVM with Gaussian RBF Kernel and optimized hyperparameters to achieve 86.3\% test accuracy.
-We then trained an RNN for the same task and achieved \meXX{RNN accuracy?} accuracy.
-Finally, we experimented with pedestrian motion prediction, to predict the future pedestrian trajectory.
+We then trained an RNN for the same task and achieved 80.4\% test accuracy.
+Finally, we experimented with pedestrian motion prediction, to predict the future pedestrian trajectory, which is more complicated than binary classification.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -146,7 +146,7 @@ Finally, we experimented with pedestrian motion prediction, to predict the futur
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section*{Division of Labor \& Link to code}
-Michael mostly worked on the dataset processing and SVM optimization, and Bj{\"o}rn did the RNN work and the rest of the SVM work.
+Michael mostly worked on the dataset processing and SVM/RNN classifier optimization, and Bj{\"o}rn did the RNN prediction/classifier implementations and the rest of the SVM work.
 We have been a 2-person team since Milestone 2.
 This project is not used for any other classes.
 Our code can be found at: \url{https://github.com/mfe7/6.867}.
