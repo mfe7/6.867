@@ -23,10 +23,15 @@ class Data_gen:
 
     for i in range(self.n_samples):
       # range x
-      range_x = 1+np.random.rand()*(20-1)
-      x1 = np.linspace(start=0, stop=range_x, num=self._t_steps, endpoint=False,dtype=float)
-      x2 = np.sin(x1)
 
+      if fct == 'sin':
+        range_x = 1+np.random.rand()*(20-1)
+        x1 = np.linspace(start=0, stop=range_x, num=self._t_steps, endpoint=False,dtype=float)
+        x2 = np.sin(x1)
+      elif fct == 'lin':
+        range_x = 1+np.random.rand()*(3-1)
+        x1 = np.linspace(start=0, stop=range_x, num=self._t_steps, endpoint=False,dtype=float)
+        x2 = x1
       # scale on y
       scale_y = 1 + 5*np.random.rand()
       x2 = np.dot(x2,scale_y)
