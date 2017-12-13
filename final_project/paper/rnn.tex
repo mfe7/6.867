@@ -1,60 +1,183 @@
-%TODO Figure 4: trajectories are not continuous because of snipping them. That's why a red traj is red and outside the collision area.
-
+%!TEX root = main.tex
 \section{Recurrent Neural Network: Prediction} \label{sec:rnn_pred}
 
+In addition to classification, we also investigated applying LSTMs to the task of pedestrian motion prediction.
+That is, rather than a binary label, we try to predict \textit{where} the pedestrian will walk next.
+This is much more challenging, but also would be more insightful to an end-user in vehicle applications.
+
 \subsection{Introduction}
+Existing research has been conducted in predicting trajectories in a 2D space. 
+One relevant work used LSTMs to generate human handwriting from the IAM online handwriting database~\cite{DBLP:journals/corr/Graves13}.
 
-Recurrent Neural Networks (RNNs) have been shown to extract sequential information and generate highly complex sequences as documents, translations, music and more. In comparison to n-gram models, which have been used in language model for speech recognition, a RNN makes a prediction by a high-dimensional interpolation between training samples. N-gram models predict by creating a distribution, based on the number of exact matches between the recent history and the training set (graves). 
+LSTMs can be used to predict sequences, by feeding themselves their output as an input.
+To switch from binary classification to trajectory predicting LSTM, we change the network architecture from many-to-one to many-to-many.
+The output $y_t \Re^{Tx2}$ is computed from every time step as given in ~\cref{eq:eq:bin_class_out}.
 
+Many works can be found for the task of text prediction (e.g. \cite{ICML2011Sutskever_524}).
+However, our application domain is real-valued, as opposed to the discrete-valued domain of word prediction.
 
-\begin{figure}
-	\centering
-	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
-	keepaspectratio]{figures/rnn_unrolled}
-	\caption{Illustration of a RNN in it's enrolled (left) and unrolled (right) form. Each sequential input $x_t$ is fed in at timestep $t$, transformed by the activation cell $A$ and output and fed into the next cell as hidden state $h_t$. (colah)} 
-	\label{fig:rnn_unrolled} 
-\end{figure}
+The literature proposes several transformations, which could be applied to the output $y_t$.
+For example, (Graves) uses mixture density networks (MDNs) and calculates $x_{t+1}$ by the conditional probability $P(x_{t+1}|y_t, )$ and uses a Gaussian mixture prior on the probability distribution.
+The loss is the negative-log likelihood of the conditional probability, and SGD is applied to update the weights along with the parameters of the distribution: mean $\mu_m$, standard deviation $\sigma_m$, correlation $\rho_m$, mixture weights $\pi_m$ for $M$ mixture components.
+However, the proposed transition function is quite complicated and leads to longer training time, which is not promising. 
 
-In theory RNNs can be trained by backpropagating the error along the chain of cells. However, every step involves a multiplication with the weight matrix $W$, which, in many cases, results in either an exploding or vanishing gradient (see class exercise). The exploding gradient problem is, in practice, leveraged by gradient clipping (cs232 lecture). The $\textit{vanishing gradient problem}$ is leveraged by a specific architecture of RNNs, called $\textit{Long Short-term Memory}$ (LSTM) networks. They are splitting up the RNNs hidden state into a hidden and a cell state, whereas the cell state, like ResNets, is updated by a sum-operation, rather than a whole transformation (SEE FIGURE ... for the comparison of RNN to LSTM cell). The gradient along a sum-operation splits up equally and thereby allows to propagate until the beginning of the sequence without vanishing.
+Additionally, (graves) used the relative position between timesteps $\delta x = x_{t+1} - x_t$ as input vector.
+In our case, we cannot use the relative position, because we would lose the information of proximity to the car.
+In other words, we would ignore that a pedestrian might avoid an approaching car.
+For the MDN approach, our means $\mu_m$ would be further spread among the full absolute position space, which would presumably require even longer training time than the earlier approach.
+Therefore, we have decided to linearly compute the output, as stated in ~\cref{eq:bin_class_out}. 
+
+As we cannot use the loss function proposed by (graves), our chosen loss function is the mean squared error of each predicted output and next ground truth input, over the whole time sequence.
+We have used the $L_2$ norm instead of the $L_1$ norm to be more robust against outliers.
+
+\begin{equation}
+Loss_{pred}(x_t) = \frac{1}{T} \sum_{t=0}^{T}(y_t - x_{t+1})^2
+\label{eq:loss_pred} 
+\end{equation}
+%TODO write about last point.
+
+% random batch
+The loss function is computed for every batch and we update the parameters in the activation cells via SGD.
+We randomly draw batches from our training dataset for each SGD parameter update.
+Therefore, we break apart the dependency of previously concatenated trajectories, that we have split apart into snippets.
+This is necessary, as a test trajectory will be independent of the training trajectories.
+
+% prediction, parameter-sharing
+For prediction, the parameter-sharing property of RNNs and LSTMs is essential.
+The activation units' parameters have been trained to predict the next state based on the current state.
+Therefore, for prediction, where the ground truth input vector is unkown, the LSTM can use the output $y_{t-1}$ as input for $x_t$.
+This gives us the predicted pedestrian position $y_t$.
+
+\subsection{Generated Data}
+As seen in the previous sections, the given pedestrian trajectories are highly complex nonlinear functions.
+To validate our LSTM prediction model, we have instead tested on simpler functions. Therefore, we have chosen to generate linear and sinusodial shaped trajectories, displayed in ~\cref{fig:lin_sin_traj}.
 
 \begin{figure}
 	\centering
 	\includegraphics [trim=0 0 0 0, clip, angle=0, width=1.0\columnwidth,
-	keepaspectratio]{figures/rnn_lstm}
-	\caption{Activation cell of a traditional RNN (top) and a LSTM (bottom). LSTM propagates the cell $c_t$ and hidden $h_t$ state. With ignoring the forget gate $f_t$, $c_t$ is only updated by sum operations. The gradient along a sum-operation splits up equally and thereby allows to propagate until the beginning of the sequence without vanishing. ResNets have introduced a similar change in the CNN architecture (resnet paper). (changhau)} 
-	\label{fig:rnn_lstm} 
+	keepaspectratio]{figures/lin_sin_traj}
+	\caption{Randomly generated trajectory data in linear (left) shape and sinusodial shape (right). The trajectories have been generated by sampling the start point, range, scale, translation and rotation at random.} 
+	\label{fig:lin_sin_traj} 
+\end{figure}
+%TODO fit linear data
+For our hyperparameter tuning, we considered the batch size $b$, number of training samples $N$, snippet length $T$, learning rate $lr$, maximum epochs $e_{max}$ and number of hidden units $n_h$. 
+As the possible combinations rise exponentially with the number of parameters and our computational resources are very limited, we have evaluated most of the parameters, while holding the other parameters constant.
+Optimal tuning would run a search over all combinations, which would result in better performance.
+
+In the search over the number of hidden units we made the following observations.
+As seen in ~\cref{fig:rnn_hidden}, the number of hidden units $n_h = 1$ is insufficient to represent the complexity of sinusodial curves.
+We can also see, that the complexity of $n_h=4$ is sufficient to approximately fit the sinusodial shape, and $n_h=32$ is sufficient to fit the data very well (upon visual inspection).
+
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=1.0\columnwidth,
+	keepaspectratio]{figures/rnn_hidden}
+	\caption{Search over the number of hidden units: $n_h=1$(top-left), $n_h=4$(top-right), $n_h=32$(bottom-left), $n_h=128$(bottom-right). The plot displays the input trajectory (green) $x_t$ with total trajectory snippet length $T=50$ an its starting point (green-dot). The LSTM predicts the next pedestrian position $y_t$ (blue-dotted) with its starting point (blue-dot), based on the past sequence $x_{0:t}$ and the learned parameters. After the input trajectory (green) is finished, the LSTM tries to predict the future trajectory (red) for $T_p=10$ timesteps. All trajectories are test trajectories and have not been included in the training set.}
+	\label{fig:rnn_hidden}
 \end{figure}
 
-%TODO take graph of graves paper.
-The LSTM is computed according to the following composite function (graves):
-\begin{equation}
-\begin{aligned}
-& i_t = \sigma(W_{xi}x_t + W_{hi}h_{t-1} + W_{ci}c_{t-1} + b_i)\\
-& f_t = \sigma(W_{xf}x_t + W_{hf}h_{t-1} + W_{cf}c_{t-1} + b_f)\\
-& c_t = f_tc_{t-1} + i_ttanh(W_{xc}x_t + W_{hc}h_{t-1} + b_c)\\
-& o_t = \sigma(W_{xo}x_t + W_{ho}h_{t-1} + W_{co}c_{t-1} + b_o)\\
-& h_t = o_ttanh(c_t)
-\end{aligned}
-\label{eq:lstm_eq} 
-\end{equation}
-where $\sigma$ is the sigmoid function, $i_t$, $f_t$, $o_t$ and $c_t$ are the input gate, forget gate, output gate and cell activation vectors. All weight matrices have the same meaning, for example $W_{hf}$ is the hidden-forget weight matrix. For clarity, bias terms are omitted. Figuratively speaking, the input gate regulates how much information is taken from the new input $x_t$. The forget gate can erase the cell memory and thereby shorten or lengthen the time dependency of a sequence prediction. The cell state is the propagated memory. The output gate regulates how much information from the hidden cell state is propagated into the output hidden state.
+In ~\cref{tab:rnn_hidden} we see that increasing the number of hidden nodes $n_h$ shrinks the loss.
+The training time exponentially increases with the number of hidden units, which makes us prefer a lower number of hidden units.
+A high number of hidden units suggests an overfitting on the training data.
+However, we can see that our independently generated test data shows similar error as the training set.
+The more complex the model, the fewer epochs it took to reach an acceptable loss value.
+Moving forward, we refer to the models with the hyperparameters from ~\cref{tab:rnn_hidden} as 1-, 4-, 32- and 128-unit model.
 
-\subsection{LSTMs for binary classification}
-We have used LSTM networks for the same binary classification task, as for SVMs. LSTMs are able to extract the sequential information and should thereby provide better classification accuracy in the train and test dataset. All calculations have been done in python and the network has been set up with the $\textit{tensorflow}$ library.
+We used early stopping (based on a validation dataset) to prevent overfitting.
+The training was stopped when the difference in average batch loss between two consecutive epochs $\delta L_b < 0.001$.
 
-The full trajectories have been precompiled into sniplets of static sequence length $T$. At each time step, the input vector is the relative pedestrian position at time $t$: $x_t \in \Re^{1x2}$. For binary classification, we use a many-to-one architecture. The output is calculated at the output layer by using a logistic sigmoid for binary classification:
+\begin{table}[]
+\centering
+\begin{tabular}{ c| c| c| c| c}
+& $n_h=1$ & $n_h=4$ &$n_h=32$ & $n_h=128$\\
+\hline
+$L_e=0$ & 58.5 & 49.7  & \textbf{6.22} & 2.62      \\
+$L_e=1$ & 54.2 & 36.0  & \textbf{0.50} & 0.12      \\
+$L_e=2$ & 51.1 & 24.4  & \textbf{0.23} & 0.05      \\
+$L_e=3$ & 49.2 & 17.8  & \textbf{0.14} & 0.03      \\
+\hline
+$e_c$ 			& 25 	& 85 	& 35	& 10 		\\
+$L_{e_c}$		&  0.30	& 0.03	& 0.0058& 0.004 	\\
+$L_{test, e_c}$	& 0.34	& 0.04	&0.003	& 0.003 	\\     
+\end{tabular}
+\caption{Search over the number of hidden units $n_h$. The average batch loss ($b=100$) over epochs $e$ and test loss is displayed. Number of training samples $N = 5000$ with snippet length $T=50$ and learning rate $lr=0.01$.}
+\label{tab:rnn_hidden}
+\end{table}
 
-\begin{equation}
-y_t = \sigma(W_{hout}h_t + b_out)
-\label{eq:bin_class_out} 
-\end{equation}
-where $y_t \in [0,1]$ and $W_{hout} \Re^(n_{hidden} x 1)$, where $n_{hidden}$ is the number of hidden units. The weight matrices and biases are initialized with random noise $N(0,1)$. The loss is computed with least mean squared error (LMSE). The system is optimized by a stochastic gradient descent (SGD) method with the goal to minimize the loss over the weight matrices and their biases.
+Include oscillating plot for convergence property.
+~\cref{fig:rnn_hidden} also illustrates how LSTM starts by guessing $y_0$ purely based on the input $x_0$. 
+
+% minimum snippet length.
+Our tuning showed, that the model needs a minimum snippet length to be able to estimate the curve.
+For very low snippet length ($T<10$) our loss increased ($Loss_b=0.02$$ for model $n_h=4$ from ~\cref{tab:rnn_hidden}).
+An increase in the snippet length over the threshold snippet length $T=50$ was not observed.
+Therefore, we have set the default snippet length to $T=50$.
+
+% learning rate, TODO include plot of oscillating learning rate.
+The learning rate $lr$ influences the rate of convergence.
+The higher, the faster the model should converge.
+However, too high values of the learning rate can cause an oscillation over the minimum or divergence.
+In our case, all learning rates in the interval $[0.1, 0.01, 0.001, 0.0001]$ have led to a reasonably low loss.
+$Lr=0.1$ made the loss oscillate in the interval $[0.01, 0.07]$ for our 32-unit model.
+A learning rate of $lr=0.01$ for the 32-unit model showed the best tradeoff in terms of minimal loss, while maintaining fast training.
+
+% batch size 
+Our choice of batch size $b$ impacted the speed of converges, because tf is possible to execute efficient matrix operations, but did not impact the achievable loss given a fixed model and infinite possible epochs.
+Given a dataset of size $N=5000$, we have chosen the batch size to be $b=100$.
+
+%Prediction accuracy.
+The LSTM has been designed to predict an unseen pedestrian trajectory for a given number of time steps.
+Previous work has shown that an LSTM is generally possible to predict a sinusoidial curve into the future~\cite{sunsided}.
+However, they use $x_1$ as the input and predict the $x_2$ value.
+This is not directly possible in our case, as we have to predict in a local frame with respect to the car.
+Therefore, we predict both variables at the same time $x = (x_1, x_2)$, making the learning task more complex.
+Additionally, previous work uses more complex models ($n_h=150$) with more training data ($N>500000$) and lower learning rate ($lr<0.0005$).
+The number of epochs is not stated.
+An iteration over other hyperparameter choices with these values is not feasible for the scope of this project.
+However, the work suggests that further optimization of the hyperparameters would make it possible to predict trajectories.
+The red line in ~\cref{fig:rnn_hidden} displays the predictions by our model. 
+
+We conclude that our model is able to predict one step into the future accurately, given our achieved average batch loss $L_b<0.006$.
+However, an accurate prediction over many timesteps requires more computational power for hyperparameter tuning. 
+
+\subsection{Real pedestrian data}
+
+We have shown that our LSTM is able continuously predict the next timestep. 
+
+
+
+
+
+
+\subsection{random stuff}
+
+
+%TODO oscillating to fit 
+In ~\cref{fig:rnn_hidden} (bottom-left), we can see how the error between predicted and true path quickly converges after approximately three timesteps.
+
+The use of dropout is generally not recommended for LSTMs, because it essentially erases parts of the memory. Our tests have shown similar results, where dropout caused results similar to random guessing ~\cref{fig:rnn_dropout}
+
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=1.0\columnwidth,
+	keepaspectratio]{figures/rnn_dropout}
+	\caption{Dropout for LSTMs with dropout rate $d_r = 0.5$. The predicted paths approach random guessing with $mean = x_{t-1}$, $Loss_b = 1.53$ with $b=100$.}
+	\label{fig:rnn_dropout}
+\end{figure}
+
+\subsubsection{Linear data}
+
+\subsection{Results}
+
+
 
 \subsubsection{Hyperparams in bin class}
 - Optimize number of hidden units
 - batchsize
 - learning rate
 - maximum epochs
+
+
  
 
 
@@ -66,15 +189,10 @@ where $y_t \in [0,1]$ and $W_{hout} \Re^(n_{hidden} x 1)$, where $n_{hidden}$ is
 - handwriting has 25 timesteps per character and 700 timesteps per line
 - 5000 training, two val of 1500 lines, test 4000 lines (each line 700 tsteps)
 
-\section{Recurrent Neural Network} \label{sec:rnn}
-
-\subsection{Introduction}
-
 \subsection{Network architecture}
 - explain $x_t$
 	- feeding relative x and y would not respect car position and its influence on pedestrian behavior
 - explain $y_t$
-- copy picture of LSTM from GRAVES
 
 \subsection{GRUs}
 From: $http://www.jackdermody.net/brightwire/article$
@@ -82,14 +200,18 @@ $Sequence_to_Sequence_with_LSTM$
 
 Long Short Term Memory (LSTM) networks are a recurrent neural network that can be used with STS neural networks. They are similar to Gated Recurrent Units (GRU) but have an extra memory state buffer and an extra gate which gives them more parameters and hence a longer training time. While performance with GRU is usually comparable, there are some tasks that each architecture outperforms the other on, so comparing each for a given learning task is usually a good idea.
 
+
+Number of generated samples: take this from the handwriting paper.
+From ~\cref{tab:rnn_hidden}, we have seen how many epochs the model needs to converge. Every epoch repeats training on the same values and thereby increases the probability of overfitting. Therefore, we conclude that we need to train on more data ($N > 5000$), such that the model converges in a low number of epochs and does not overfit.
+
 \subsection{Training}
-- random batch selection
+- Activation unit on output layer
 - Optimizer
 	- Gradient Descent
 		- use momentum?
 
 \subsubsection{Hyperparameters}
-- Dropout?
+- Dropout?!
 	- $cell = tf.contrib.rnn.DropoutWrapper(cell, output_keep_prob = args.keep_prob)$
 
 \subsubsection{Regularization}
@@ -105,5 +227,7 @@ Long Short Term Memory (LSTM) networks are a recurrent neural network that can b
 
 
 \subsection{Resources}
+sunsided $https://github.com/sunsided/tensorflow-lstm-sin$
 colah $http://colah.github.io/posts/2015-08-Understanding-LSTMs/$
 changhau $https://isaacchanghau.github.io/2017/07/22/LSTM-and-GRU-Formula-Summary/$
+hinton 2011 generating text with recurrent neural networks icml 2011
