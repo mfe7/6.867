@@ -114,9 +114,9 @@ distance=1cm] \tikzstyle{input} = [coordinate] \tikzstyle{output} =
 \begin{abstract}
 In this project, we applied techniques from the course to a dataset of pedestrian trajectories recorded on a golf cart around MIT's campus.
 Our main objective was to classify whether a pedestrian's trajectory would enter a 4x10m rectangle in front of the vehicle, which could be used as an active safety feature on various types of vehicles that interact with pedestrians.
-We trained a SVM with Gaussian RBF Kernel and optimized hyperparameters to achieve 86.3\% test accuracy.
-We then trained an RNN for the same task and achieved 80.4\% test accuracy.
-Finally, we experimented with pedestrian motion prediction, to predict the future pedestrian trajectory, which is more complicated than binary classification.
+We trained an SVM with Gaussian RBF Kernel and optimized hyperparameters to achieve 86.3\% test accuracy.
+We then trained an LSTM for the same task and achieved 80.4\% test accuracy.
+Finally, we experimented with pedestrian motion prediction, to predict the future pedestrian trajectory, which is more complicated than binary classification, and achieved $\sqrt{0.11}$m deviation when predicting the pedestrian's next position.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -125,6 +125,7 @@ Finally, we experimented with pedestrian motion prediction, to predict the futur
 \input{svm}
 \input{rnn_clf}
 \input{rnn}
+\input{summary}
 %\listofchanges
 
 %\balance
