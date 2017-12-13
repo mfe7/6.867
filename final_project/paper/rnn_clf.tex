@@ -4,40 +4,37 @@
 \section{Recurrent Neural Network: Binary classification} \label{sec:rnn_clf}
 
 We first briefly describe RNNs and LSTMs, as these were not covered in homework assignments.
-Then, we analyze the performance of an LSTM for the same binary classification as before, and compare with the SVM implementation.
+Then, we analyze the performance of an LSTM for the same binary classification task as before, and compare with the SVM implementation.
 
-\subsection{Introduction}
+\subsection{Brief Overview of RNNs}
 
-Recurrent Neural Networks (RNNs) have been shown to extract sequential information and generate highly complex sequences as documents, translations, music and more.
-In comparison to n-gram models, which have been used in language model for speech recognition, a RNN makes a prediction by a high-dimensional interpolation between training samples.
-N-gram models predict by creating a distribution, based on the number of exact matches between the recent history and the training set (graves). 
+Recurrent Neural Networks (RNNs) have been shown to extract sequential information and generate highly complex sequences as documents, translations, music and more. 
 
 \begin{figure}
 	\centering
 	\includegraphics [trim=0 0 0 0, clip, angle=0, width=0.8\columnwidth,
 	keepaspectratio]{figures/rnn_unrolled}
-	\caption{Illustration of a RNN in it's enrolled (left) and unrolled (right) form. Each sequential input $x_t$ is fed in at timestep $t$, transformed by the activation cell $A$ and output and fed into the next cell as hidden state $h_t$. (colah)} 
+	\caption{Illustration of a RNN in it's enrolled (left) and unrolled (right) form. Each sequential input $x_t$ is fed in at timestep $t$, transformed by the activation cell $A$ and output and fed into the next cell as hidden state $h_t$. From~\cite{colah_lstm}} 
 	\label{fig:rnn_unrolled} 
 \end{figure}
 
 In theory RNNs can be trained by backpropagating the error along the chain of cells.
 However, every step involves a multiplication with the weight matrix $W$, which, in many cases, results in either an exploding or vanishing gradient (see class exercise).
-The exploding/vanishing gradient problem is, in practice, addressed by gradient clipping (cs232 lecture).
-\meXX{are these 2 diff methods to address vanishing gradient problem?}The $\textit{vanishing gradient problem}$ is leveraged by a specific architecture of RNNs, called $\textit{Long Short-term Memory}$ (LSTM) networks.
+The exploding/vanishing gradient problem is often addressed by a specific architecture of RNNs, called $\textit{Long Short-term Memory}$ (LSTM) networks.
 LSTMs split up the RNN's hidden state into a hidden and a cell state.
-The cell state, similar to in ResNets, is updated by a sum-operation, rather than a whole transformation \meXX{unclear}(SEE FIGURE ... for the comparison of RNN to LSTM cell).
-The gradient along a sum-operation splits up equally and thereby allows to propagate until the beginning of the sequence without vanishing.\meXX{unclear}
+The cell state, similar to in ResNets, is updated by a sum-operation, rather than a whole transformation as depicted in~\cref{fig:rnn_lstm}.
+The gradient along a sum-operation of LSTMs does not vanish in the same way as it does during the multiplication of RNNs.
 
 \begin{figure}
 	\centering
 	\includegraphics [trim=0 0 0 0, clip, angle=0, width=1.0\columnwidth,
 	keepaspectratio]{figures/rnn_lstm}
-	\caption{Activation cell of a traditional RNN (top) and a LSTM (bottom). LSTM propagates the cell $c_t$ and hidden $h_t$ state. With ignoring the forget gate $f_t$, $c_t$ is only updated by sum operations. The gradient along a sum-operation splits up equally and thereby allows to propagate until the beginning of the sequence without vanishing. ResNets have introduced a similar change in the CNN architecture (resnet paper). (changhau)} 
+	\caption{Activation cell of a traditional RNN (top) and a LSTM (bottom)~\cite{colah_lstm}. LSTM propagates the cell $c_t$ and hidden $h_t$ state. With ignoring the forget gate $f_t$, $c_t$ is only updated by sum operations. The gradient along a sum-operation splits up equally and thereby allows to propagate until the beginning of the sequence without vanishing. ResNets have introduced a similar change in the CNN architecture (resnet paper).} 
 	\label{fig:rnn_lstm} 
 \end{figure}
 
 %TODO take graph of graves paper.
-The LSTM is computed according to the following composite function\meXX{add citation} (graves):
+The LSTM is computed according to the following composite function~\cite{DBLP:journals/corr/Graves13}:
 \begin{equation}
 \begin{aligned}
 & i_t = \sigma(W_{xi}x_t + W_{hi}h_{t-1} + W_{ci}c_{t-1} + b_i)\\
@@ -49,8 +46,7 @@ The LSTM is computed according to the following composite function\meXX{add cita
 \label{eq:lstm_eq} 
 \end{equation}
 where $\sigma$ is the sigmoid function, $i_t$, $f_t$, $o_t$ and $c_t$ are the input gate, forget gate, output gate and cell activation vectors.
-All weight matrices have the same meaning, for example $W_{hf}$ is the hidden-forget weight matrix.\meXX{same meaning?}
-For clarity, bias terms are omitted\meXX{from what?}.
+The weight matrices are subscripted according to gate names, (e.g. $W_{hf}$ is the hidden-forget weight matrix).
 Figuratively speaking, the input gate regulates how much information is taken from the new input $x_t$.
 The forget gate can erase the cell memory and thereby controls the duration of time dependency during sequence prediction.
 The cell state is the part of memory that propogates between hidden nodes.
@@ -62,7 +58,7 @@ LSTMs are able to extract the sequential information more naturally than SVM, so
 We used Python and the $\textit{Tensorflow}$ library to implement the LSTMs.
 
 Again, the full trajectories have been precompiled into snippets of static sequence length $T$.
-At each time step, the input vector is the relative pedestrian position at time $t$: $x_t \in \Re^{1x2}$.
+At each time step, the input vector is the relative pedestrian position at time $t$: $x_t \in \Re^{1\text{x}2}$.
 For binary classification, we use a many-to-one architecture.
 The output is calculated at the output layer by using a logistic sigmoid for binary classification:
 \begin{equation}
@@ -95,9 +91,11 @@ The LSTM classifier is not as sensitive as SVM to training set size.
 After optimizing hyperparameters and confirming we have a sufficient amount of training data, we trained the LSTM binary classifier.
 The overall test accuracy was 80.4\%.
 
-\cref{fig:svm_labels} \& \cref{fig:rnn_labels} look pretty similar.
+The results of the two classifiers (\cref{fig:svm_labels} \& \cref{fig:rnn_labels}) look pretty similar.
+The LSTM classifier performed worse than the SVM classifier (84 vs. 80\% test accuracy), which we did not expect.
 Both classifiers learned about the ``cross zone'', perform relatively well on data that is predicted to be class 0, and struggle with false negatives far from the vehicle.
-The fact that both classifiers indicates that type of data is especially challenging to classify correctly.
+The fact that both classifiers performed well/poorly on the same types of data indicates that the data itself was particularly challenging.
+Based on our observations of the training data set and classifier performance, it is likely that for many of the snippets that were far from the vehicle, there were similar snippets with each label, which is highly confusing to the classifiers.
 
 \begin{figure}
 \centering
