@@ -68,6 +68,7 @@ In the search over the number of hidden units we made the following observations
 As seen in ~\cref{fig:rnn_hidden}, the number of hidden units $n_h = 1$ is insufficient to represent the complexity of sinusodial curves.
 We can also see, that the complexity of $n_h=4$ is sufficient to approximately fit the sinusodial shape, and $n_h=32$ is sufficient to fit the data very well (upon visual inspection).
 
+
 \begin{figure}
 	\centering
 	\includegraphics [trim=0 0 0 0, clip, angle=0, width=1.0\columnwidth,
@@ -85,6 +86,7 @@ Moving forward, we refer to the models with the hyperparameters from ~\cref{tab:
 
 We used early stopping (based on a validation dataset) to prevent overfitting.
 The training was stopped when the difference in average batch loss between two consecutive epochs $\delta L_b < 0.001$.
+
 
 \begin{table}[]
 \centering
@@ -109,7 +111,7 @@ Include oscillating plot for convergence property.
 
 % minimum snippet length.
 Our tuning showed, that the model needs a minimum snippet length to be able to estimate the curve.
-For very low snippet length ($T<10$) our loss increased ($Loss_b=0.02$$ for model $n_h=4$ from ~\cref{tab:rnn_hidden}).
+For very low snippet length ($T<10$) our loss increased ($Loss_b=0.02$ for model $n_h=4$ from ~\cref{tab:rnn_hidden}).
 An increase in the snippet length over the threshold snippet length $T=50$ was not observed.
 Therefore, we have set the default snippet length to $T=50$.
 
@@ -142,28 +144,44 @@ However, an accurate prediction over many timesteps requires more computational 
 
 \subsection{Real pedestrian data}
 
-We have shown that our LSTM is able continuously predict the next timestep. 
+We have shown that our LSTM is able continuously predict the next timestep in a domain of translated, rotated, scaled and stretched sinusoidial trajectories. The real pedestrian trajectories are highly nonlinear. LSTMs, in fact neural networks in general, show the capability of fitting a function onto the highly nonlinear data. In ~\cref{fig:ped_data} we can see the trajectories being predicted by our LSTM model.
 
+%TODO add dataset length
+We have trained, validated and tested on distinct datasets. All hyperparameters have been chosen based on the results of the sinusodial trajectories and re-validated for the new domain. ~\cref{fig:rnn_real_ped} and ~\cref{tab:rnn_real_ped} shows the performance of our LSTM on real pedestrian data. The learning rate is $lr=0.01$, batch-size $b=100$. 
 
+Additionally, pedestrians behave irrational, do not follow predestined rules and different pedestrians behave differently. 
 
+\begin{figure}
+	\centering
+	\includegraphics [trim=0 0 0 0, clip, angle=0, width=1.0\columnwidth,
+	keepaspectratio]{figures/rnn_real_ped}
+	\caption{Search over the number of hidden units: $n_h=1$(top-left), $n_h=4$(top-right), $n_h=32$(bottom-left), $n_h=128$(bottom-right). The plot displays the input trajectory (green) $x_t$ with total trajectory snippet length $T=50$ an its starting point (green-dot). The LSTM predicts the next pedestrian position $y_t$ (blue-dotted) with its starting point (blue-dot), based on the past sequence $x_{0:t}$ and the learned parameters. After the input trajectory (green) is finished, the LSTM tries to predict the future trajectory (red) for $T_p=10$ timesteps. All trajectories are test trajectories and have not been included in the training set.}
+	\label{fig:rnn_real_ped}
+\end{figure}
 
+\begin{table}[]
+\centering
+\begin{tabular}{ c| c| c| c| c}
+& $n_h=1$ & $n_h=4$ &$n_h=32$ & $n_h=128$\\
+\hline
+$L_e=0$ & 58.5 & 49.7  & \textbf{6.22} & 2.62      \\
+$L_e=1$ & 54.2 & 36.0  & \textbf{0.50} & 0.12      \\
+$L_e=2$ & 51.1 & 24.4  & \textbf{0.23} & 0.05      \\
+$L_e=3$ & 49.2 & 17.8  & \textbf{0.14} & 0.03      \\
+\hline
+$e_c$ 			& 25 	& 85 	& 35	& 10 		\\
+$L_{e_c}$		&  0.30	& 0.03	& 0.0058& 0.004 	\\
+$L_{test, e_c}$	& 0.34	& 0.04	&0.003	& 0.003 	\\     
+\end{tabular}
+\end{table}
 
+%TODO we have used adam optimizer instead of SGD
 
 \subsection{random stuff}
 
 
 %TODO oscillating to fit 
 In ~\cref{fig:rnn_hidden} (bottom-left), we can see how the error between predicted and true path quickly converges after approximately three timesteps.
-
-The use of dropout is generally not recommended for LSTMs, because it essentially erases parts of the memory. Our tests have shown similar results, where dropout caused results similar to random guessing ~\cref{fig:rnn_dropout}
-
-\begin{figure}
-	\centering
-	\includegraphics [trim=0 0 0 0, clip, angle=0, width=1.0\columnwidth,
-	keepaspectratio]{figures/rnn_dropout}
-	\caption{Dropout for LSTMs with dropout rate $d_r = 0.5$. The predicted paths approach random guessing with $mean = x_{t-1}$, $Loss_b = 1.53$ with $b=100$.}
-	\label{fig:rnn_dropout}
-\end{figure}
 
 \subsubsection{Linear data}
 

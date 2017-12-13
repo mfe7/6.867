@@ -165,7 +165,9 @@ class RNN:
     ## Initialize graph:
     # Define lstm cell
     self.lstm_cell = rnn.BasicLSTMCell(self.n_hidden, forget_bias = 1.0) # bias forget layer for faster direct gradient pass and faster initial training
-
+    # Dropout
+    #self.lstm_cell = tf.contrib.rnn.DropoutWrapper(self.lstm_cell, output_keep_prob = 0.5)
+    
     # Initialize initial state 
     init_state = self.lstm_cell.zero_state(batch_size=self.batch_size, dtype=tf.float32)
     self.state_in = tf.identity(init_state, name='state_in') # tf identity copies the vector
@@ -206,7 +208,8 @@ class RNN:
       #tmp_loss += tf.losses.mean_squared_error(labels = self.y[i], predictions = self.pred[i])
     # self.loss = tmp_loss
     self.loss = tf.losses.mean_squared_error(labels = self.y, predictions = self.pred)
-    self.optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.lr)
+    #self.optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.lr)
+    self.optimizer = tf.train.AdamOptimizer(learning_rate=self.lr)
     self.train_op = self.optimizer.minimize(self.loss)
 
     # Initialize tf variables
@@ -255,11 +258,15 @@ class RNN:
         # Calculate batch loss & pred
         loss_tmp, y_true, y_pred = self.sess.run([self.loss, self.y, self.pred], feed_dict = {self.x: batch_x, self.y: batch_y})
         loss_total += loss_tmp
+        avg_in_batch = loss_tmp / self.batch_size
+        #print('[STATUS] Batch loss {0:.2f} and loss per sample {1:.2f} at batch {2:.0f}'.format(loss_tmp, avg_in_batch, step))
 
       avg_loss = loss_total / self.n_samples
-      print('[STATUS] Total loss of {0:.2f} and loss per sample {1:.2f} after epoch {2:.0f}'.format(loss_total, avg_loss, epoch))
+      avg_batch_loss = loss_total / n_iter
+      print('[STATUS] Epoch {0:.0f}: Total loss {1:.5f}, avg batch loss {2:.5f}, avg sample loss {3:.2f}'.format(epoch, loss_total, avg_batch_loss, avg_loss))
         
-  def score_pred(self, x):
+  def score_pred(self, x, plot_pred=False):
+
     n_samples = x.shape[0]
     self.x_data = self.format_x(x)
 
@@ -272,7 +279,7 @@ class RNN:
     loss_total = 0.0
     n_iter = int(math.floor(self.n_samples/self.batch_size))
     # Store every ith traj
-    store_ith_traj = 10
+    store_ith_traj = 1
     plot_trajs = []
     y_t_ar = []
     y_p_ar = []
@@ -285,7 +292,11 @@ class RNN:
       y_i = self.y_data[:, (i*self.batch_size):(i*self.batch_size + self.batch_size), :]
       
       # Set ground truth vector for trained and predicted traj
-      y_true = np.copy(self.y_data[:, (i*self.batch_size):(i*self.batch_size + self.batch_size), :])
+      y_true = np.copy(self.y_data[:, (i*self.batch_size):(i*self.batch_size + self.batch_size), :]) # copy first batch
+      #print('y_true', y_true.shape)
+      if i%store_ith_traj == 0: # give him some time for whatever
+        y_true = np.reshape(y_true[:, 0, :], (self._t_steps, 1, self.input_dim))
+      #print('y_true', y_true.shape)
       if ((i+1)*self.batch_size + self.batch_size) < self.n_samples:
         y_pred_true = np.copy(self.y_data[0:t_predict, ((i+1)*self.batch_size):((i+1)*self.batch_size + self.batch_size), :])
       
@@ -294,45 +305,50 @@ class RNN:
       use_old_prediction = False
 
       if not use_old_prediction:
+        #loss_tmp, y_pred = self.sess.run([self.loss, self.pred], feed_dict = {self.x: x_i, self.y: y_i})
         loss_tmp, y_pred = self.sess.run([self.loss, self.pred], feed_dict = {self.x: x_i, self.y: y_i})
         loss_total += loss_tmp
-        y_p_ar.append(y_pred) 
 
-        #y_pred_plt = np.asarray(y_pred)
-        #plt.plot(y_pred_plt[:,0,0], y_pred_plt[:,0,1], '--', color='blue')
-        
-        #y_t_plt = np.asarray(y_true)
-        #plt.plot(y_t_plt[:,0,0], y_t_plt[:,0,1], '-', color='green')
-        #plt.plot(y_t_plt[0,0,0], y_t_plt[0,0,1], 'o', color='green')
-        
-        if i%store_ith_traj == 0: # give him some time for whatever
-          ## Predict by feeding itself
-
-          y_pred_fut = np.zeros((t_predict, 1, self.input_dim))
-          for t_i in range(t_predict):
-            # Shift everything one original time index into the future
-            x_i = np.roll(x_i, shift=-1, axis=0)
-            x_i[-1,:,:] = y_pred[-1]
-            # TODO assign useful values to y_i[-1]
-            y_i = np.roll(y_i, shift=-1, axis=0)
-            y_i[-1, :,:] = y_pred[-1]
-            # Predict
-            y_pred = self.sess.run([self.pred], feed_dict = {self.x: x_i})
-            y_pred = y_pred[0]
-
-            y_pred_fut[t_i,:,:] = y_pred[-1]
-            #y_p_plt = np.asarray(y_pred)
-            #plt.plot(y_p_plt[-1,0,0], y_p_plt[-1,0,1], 'o', color='red')
-        
-        #plt.show()
-        
-        y_t_ar.append(y_true)
-        # TODO: get ground truth prediction for real pedestrian
-        y_p_t_ar.append(y_pred)
-        y_p_fut_ar.append(y_pred_fut)
+        if plot_pred:
+          if self.batch_size==1:
+            y_p_ar.append(y_pred) 
+          else:
+            for j in range(len(y_pred)):
+              y_pred[j] = np.reshape(y_pred[j][0,:], (1,2)) # take i=tth time step from first batch and add it to the path 
+            y_p_ar.append(y_pred)
+          #y_pred_plt = np.asarray(y_pred)
+          #plt.plot(y_pred_plt[:,0,0], y_pred_plt[:,0,1], '--', color='blue')
+          
+          #y_t_plt = np.asarray(y_true)
+          #plt.plot(y_t_plt[:,0,0], y_t_plt[:,0,1], '-', color='green')
+          #plt.plot(y_t_plt[0,0,0], y_t_plt[0,0,1], 'o', color='green')
+          
+          if i%store_ith_traj == 0: # give him some time for whatever
+            ## Predict by feeding itself
+            
+            
+            y_pred_fut = np.zeros((t_predict, 1, self.input_dim))
+            for t_i in range(t_predict):
+              # Predict
+              y_pred = self.sess.run([self.pred], feed_dict = {self.x: x_i})
+              if self.batch_size == 1:
+                y_pred_last = y_pred[0][-1] # take last time step
+              else:
+                y_pred_last = np.reshape(y_pred[0][-1][0,:], (1,2)) # take 0th elem from run list, last time step and first snippet of batch
+              # Shift everything one original time index into the future
+              x_i = np.roll(x_i, shift=-1, axis=0)
+              x_i[-1,:,:] = y_pred_last[0]
 
 
+              if self.batch_size == 1:
+                y_pred_fut[t_i,:,:] = y_pred_last[0]
+              else:
+                y_pred_fut[t_i,:,:] = y_pred_last[0]
 
+            y_t_ar.append(y_true)
+            # TODO: get ground truth prediction for real pedestrian
+            y_p_t_ar.append(y_pred)
+            y_p_fut_ar.append(y_pred_fut)
 
 
       # Old prediction with y_pred = (1,2) vector at last step and not list over time
